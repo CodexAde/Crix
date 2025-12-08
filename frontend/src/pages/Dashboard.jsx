@@ -66,10 +66,10 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-primary">Today's Focus</h2>
         </div>
-        <div className="bg-white rounded-[2rem] p-6 shadow-soft border border-border-soft">
+        <div className="bg-card rounded-[2rem] p-6 shadow-soft border border-border-soft">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                  <div>
-                    <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold mb-2 inline-block">
+                    <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold mb-2 inline-block">
                         Engineering Mechanics
                     </span>
                     <h3 className="text-lg font-semibold text-primary">Normal and Shear Stress</h3>
@@ -95,30 +95,30 @@ export default function Dashboard() {
         {loading ? (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1,2,3].map(i => (
-                    <div key={i} className="h-40 bg-gray-100 rounded-[1.5rem] animate-pulse"></div>
+                    <div key={i} className="h-40 bg-border-soft rounded-[1.5rem] animate-pulse"></div>
                 ))}
              </div>
         ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {subjects.slice(0, 3).map((subject) => (
-                    <Link to={`/syllabus/${subject._id}`} key={subject._id} className="group block bg-white rounded-[1.5rem] p-6 shadow-soft hover:shadow-strong transition-all border border-border-soft hover:-translate-y-1">
+                    <Link to={`/syllabus/${subject._id}`} key={subject._id} className="group block bg-card rounded-[1.5rem] p-6 shadow-soft hover:shadow-strong transition-all border border-border-soft hover:-translate-y-1">
                         <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center overflow-hidden">
+                            <div className="w-12 h-12 rounded-2xl bg-border-soft flex items-center justify-center overflow-hidden">
                                 {subject.image ? (
                                     <img src={subject.image} alt="" className="w-full h-full object-cover" />
                                 ) : (
                                     <span className="text-xl">📚</span>
                                 )}
                             </div>
-                            <span className="text-xs font-semibold text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">
+                            <span className="text-xs font-semibold text-secondary bg-border-soft px-2 py-1 rounded-lg">
                                 {subject.code}
                             </span>
                         </div>
                         <h3 className="text-lg font-bold text-primary group-hover:text-accent transition-colors">{subject.name}</h3>
-                        <div className="mt-4 w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                        <div className="mt-4 w-full bg-border-soft h-2 rounded-full overflow-hidden">
                             <div className="bg-accent h-full w-[0%]" /> 
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">0% Completed</p>
+                        <p className="text-xs text-secondary mt-2">0% Completed</p>
                     </Link>
                 ))}
             </div>

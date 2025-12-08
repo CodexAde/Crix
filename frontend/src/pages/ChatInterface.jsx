@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Send, ArrowLeft, Plus, Sparkles } from 'lucide-react';
+import { Send, ArrowLeft, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -21,12 +21,9 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const chatContainerRef = useRef(null);
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
 
   useEffect(() => {
@@ -36,11 +33,8 @@ export default function ChatInterface() {
   // Global keydown to focus input
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ignore if already focused on input or textarea
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      // Ignore modifier keys alone
       if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Meta') return;
-      // Focus input
       inputRef.current?.focus();
     };
     
@@ -129,7 +123,7 @@ export default function ChatInterface() {
         }
 
     } catch (error) {
-        setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, connection failed. Please try again." }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: "Connection failed. Please try again." }]);
     } finally {
         setIsTyping(false);
     }
@@ -147,15 +141,15 @@ export default function ChatInterface() {
   const isEmptyState = messages.length === 0 && !isLoading;
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-surface">
+    <div className="fixed inset-0 flex flex-col bg-main">
         {/* Header */}
-        <header className="flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-xl border-b border-border-soft">
+        <header className="flex items-center justify-between px-4 py-3 bg-card/80 backdrop-blur-xl border-b border-border-soft">
             <div className="flex items-center gap-3">
-                <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <button onClick={() => navigate(-1)} className="p-2 hover:bg-border-soft rounded-full transition-colors">
                     <ArrowLeft className="w-5 h-5 text-secondary" />
                 </button>
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-sm">
                         <Sparkles className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-primary font-semibold">Crix</span>
@@ -163,15 +157,12 @@ export default function ChatInterface() {
             </div>
         </header>
 
-        {/* Chat Area - Fixed height with internal scroll */}
-        <div 
-          ref={chatContainerRef}
-          className="flex-1 overflow-y-auto overscroll-none"
-        >
+        {/* Chat Area */}
+        <div className="flex-1 overflow-y-auto overscroll-none">
           {isEmptyState ? (
             <div className="flex flex-col items-center justify-center h-full px-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6 shadow-lg">
-                <Sparkles className="w-8 h-8 text-white" />
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center mb-6 shadow-lg shadow-accent/20">
+                <Sparkles className="w-10 h-10 text-white" />
               </div>
               <h1 className="text-2xl md:text-3xl font-semibold text-primary text-center mb-2">
                 What can I help with?
@@ -195,11 +186,11 @@ export default function ChatInterface() {
                         "max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3",
                         msg.role === 'user' 
                             ? "bg-accent text-white rounded-br-md shadow-sm" 
-                            : "bg-white text-primary border border-border-soft rounded-bl-md shadow-sm"
+                            : "bg-card text-primary border border-border-soft rounded-bl-md shadow-soft"
                     )}>
                         {msg.role === 'assistant' && (
                              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-border-soft">
-                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center">
                                     <Sparkles className="w-2.5 h-2.5 text-white" />
                                 </div>
                                 <span className="text-xs font-medium text-secondary">Crix</span>
@@ -215,22 +206,22 @@ export default function ChatInterface() {
                                 remarkPlugins={[remarkGfm, remarkMath]}
                                 rehypePlugins={[rehypeKatex]}
                                 components={{
-                                    h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-3 mt-4" {...props} />,
+                                    h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-3 mt-4 text-primary" {...props} />,
                                     h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2 mt-3 text-accent" {...props} />,
-                                    h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 mt-3" {...props} />,
+                                    h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 mt-3 text-primary" {...props} />,
                                     p: ({node, ...props}) => <p className="mb-2 last:mb-0 text-sm" {...props} />,
                                     ul: ({node, ...props}) => <ul className="list-disc list-outside ml-4 mb-3 space-y-1 text-sm" {...props} />,
                                     ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-4 mb-3 space-y-1 text-sm" {...props} />,
                                     blockquote: ({node, ...props}) => (
-                                        <blockquote className="border-l-3 border-accent/50 bg-accent/5 pl-3 py-1.5 italic rounded-r mb-3 text-sm" {...props} />
+                                        <blockquote className="border-l-3 border-accent/50 bg-accent/10 pl-3 py-1.5 italic rounded-r mb-3 text-sm" {...props} />
                                     ),
                                     code: ({node, inline, children, ...props}) => {
                                         return inline ? (
-                                            <code className="bg-gray-100 text-accent px-1 py-0.5 rounded text-xs font-mono" {...props}>
+                                            <code className="bg-border-soft text-accent px-1 py-0.5 rounded text-xs font-mono" {...props}>
                                                 {children}
                                             </code>
                                         ) : (
-                                            <code className="block bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto text-xs font-mono my-3" {...props}>
+                                            <code className="block bg-main text-primary p-3 rounded-lg overflow-x-auto text-xs font-mono my-3 border border-border-soft" {...props}>
                                                 {children}
                                             </code>
                                         );
@@ -245,14 +236,14 @@ export default function ChatInterface() {
               ))}
               {isTyping && (
                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-                       <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 border border-border-soft shadow-sm flex items-center gap-2">
-                           <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                       <div className="bg-card rounded-2xl rounded-bl-md px-4 py-3 border border-border-soft shadow-soft flex items-center gap-2">
+                           <div className="w-5 h-5 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center">
                                <Sparkles className="w-2.5 h-2.5 text-white" />
                            </div>
                            <div className="flex gap-1">
-                               <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                               <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                               <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+                               <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                               <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                               <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce"></span>
                            </div>
                        </div>
                    </motion.div>
@@ -262,26 +253,23 @@ export default function ChatInterface() {
           )}
         </div>
 
-        {/* Input Area - Fixed at bottom */}
-        <div className="bg-white/80 backdrop-blur-xl border-t border-border-soft p-4">
+        {/* Input Area */}
+        <div className="bg-card/80 backdrop-blur-xl border-t border-border-soft p-4">
             <div className="max-w-3xl mx-auto">
               <form onSubmit={handleSend}>
-                  <div className="flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
-                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded-full transition-colors text-secondary">
-                          <Plus className="w-5 h-5" />
-                      </button>
+                  <div className="flex items-center gap-2 bg-main rounded-full px-4 py-2 border border-border-soft focus-within:border-accent/50 transition-all">
                       <input
                           ref={inputRef}
                           type="text"
                           value={input}
                           onChange={(e) => setInput(e.target.value)}
                           placeholder="Ask anything..."
-                          className="flex-1 bg-transparent text-primary placeholder:text-gray-400 py-2 focus:outline-none text-sm font-medium"
+                          className="flex-1 bg-transparent text-primary placeholder:text-secondary py-2 focus:outline-none text-sm font-medium"
                       />
                       <button 
                           type="submit" 
                           disabled={!input.trim() || isTyping}
-                          className="p-2 rounded-full bg-accent text-white flex items-center justify-center hover:bg-blue-600 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all"
+                          className="p-2.5 rounded-full bg-accent text-white flex items-center justify-center hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all"
                       >
                           <Send className="w-4 h-4" />
                       </button>
@@ -295,7 +283,7 @@ export default function ChatInterface() {
                           key={quickAction}
                           onClick={() => handleQuickAction(quickAction)}
                           disabled={isTyping}
-                          className="whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-border-soft text-xs text-secondary font-medium hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50 shadow-sm"
+                          className="whitespace-nowrap px-3 py-1.5 rounded-full bg-card border border-border-soft text-xs text-secondary font-medium hover:bg-main hover:text-primary hover:border-accent/30 transition-all disabled:opacity-50"
                       >
                           {quickAction}
                       </button>

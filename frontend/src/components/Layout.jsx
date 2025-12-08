@@ -1,10 +1,12 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, BookOpen, MessageSquare, LogOut, User } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { Home, BookOpen, MessageSquare, LogOut, User, Moon, Sun } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
 
   const navItems = [
@@ -14,9 +16,9 @@ export default function Layout() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f5f6f8] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-main flex flex-col md:flex-row">
       {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-border-soft h-screen sticky top-0 p-6">
+      <aside className="hidden md:flex flex-col w-64 bg-card border-r border-border-soft h-screen sticky top-0 p-6">
         <div className="flex items-center gap-2 mb-10 text-primary">
             <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold">C</div>
             <span className="text-xl font-bold tracking-tight">Cerix</span>
@@ -34,7 +36,7 @@ export default function Layout() {
                             "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 font-medium",
                             isActive 
                                 ? "bg-accent/10 text-accent" 
-                                : "text-secondary hover:bg-gray-50 hover:text-primary"
+                                : "text-secondary hover:bg-border-soft hover:text-primary"
                         )}
                     >
                         <Icon className="w-5 h-5" />
@@ -44,9 +46,27 @@ export default function Layout() {
             })}
         </nav>
 
-        <div className="border-t border-border-soft pt-6 mt-6">
+        <div className="border-t border-border-soft pt-6 mt-6 space-y-4">
+            {/* Theme Toggle */}
+            <button 
+                onClick={toggleTheme}
+                className="flex w-full items-center gap-3 px-4 py-2 text-sm font-medium text-secondary hover:bg-border-soft hover:text-primary rounded-2xl transition-colors"
+            >
+                {isDark ? (
+                    <>
+                        <Sun className="w-4 h-4 text-accent" />
+                        Light Mode
+                    </>
+                ) : (
+                    <>
+                        <Moon className="w-4 h-4" />
+                        Dark Mode
+                    </>
+                )}
+            </button>
+
             <div className="flex items-center gap-3 px-2 mb-4">
-                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-secondary font-semibold">
+                <div className="w-10 h-10 rounded-full bg-border-soft flex items-center justify-center text-secondary font-semibold">
                     {user?.name?.charAt(0) || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -56,7 +76,7 @@ export default function Layout() {
             </div>
             <button 
                 onClick={logout}
-                className="flex w-full items-center gap-3 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 rounded-2xl transition-colors"
+                className="flex w-full items-center gap-3 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 rounded-2xl transition-colors"
             >
                 <LogOut className="w-4 h-4" />
                 Sign Out
@@ -70,7 +90,7 @@ export default function Layout() {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-border-soft px-6 py-3 flex justify-between items-center z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border-soft px-4 py-3 flex justify-between items-center z-50">
         {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.path);
@@ -80,7 +100,7 @@ export default function Layout() {
                     to={item.path}
                     className={clsx(
                         "flex flex-col items-center gap-1",
-                        isActive ? "text-accent" : "text-gray-400"
+                        isActive ? "text-accent" : "text-secondary"
                     )}
                 >
                     <Icon className="w-6 h-6" />
@@ -88,7 +108,12 @@ export default function Layout() {
                 </Link>
             )
         })}
-        <button onClick={logout} className="flex flex-col items-center gap-1 text-gray-400">
+        {/* Theme toggle for mobile */}
+        <button onClick={toggleTheme} className="flex flex-col items-center gap-1 text-secondary">
+            {isDark ? <Sun className="w-6 h-6 text-accent" /> : <Moon className="w-6 h-6" />}
+            <span className="text-[10px] font-medium">Theme</span>
+        </button>
+        <button onClick={logout} className="flex flex-col items-center gap-1 text-secondary">
             <User className="w-6 h-6" />
             <span className="text-[10px] font-medium">Profile</span>
         </button>
