@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Send, ArrowLeft, Sparkles } from 'lucide-react';
+import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -164,13 +164,13 @@ export default function ChatInterface() {
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center mb-6 shadow-lg shadow-accent/20">
                 <Sparkles className="w-10 h-10 text-white" />
               </div>
-              <h1 className="text-2xl md:text-3xl font-semibold text-primary text-center mb-2">
+              <h1 className="text-3xl md:text-4xl font-semibold text-primary text-center mb-2">
                 What can I help with?
               </h1>
               <p className="text-secondary text-sm">Ask me anything about this topic</p>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto p-4 space-y-4 pb-4">
+            <div className="max-w-3xl mx-auto p-4 space-y-6 pb-4">
               {messages.map((msg, idx) => (
                 <motion.div 
                     key={idx}
@@ -182,64 +182,92 @@ export default function ChatInterface() {
                         msg.role === 'user' ? "justify-end" : "justify-start"
                     )}
                 >
-                    <div className={clsx(
-                        "max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3",
-                        msg.role === 'user' 
-                            ? "bg-accent text-white rounded-br-md shadow-sm" 
-                            : "bg-card text-primary border border-border-soft rounded-bl-md shadow-soft"
-                    )}>
-                        {msg.role === 'assistant' && (
-                             <div className="flex items-center gap-2 mb-2 pb-2 border-b border-border-soft">
-                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center">
-                                    <Sparkles className="w-2.5 h-2.5 text-white" />
-                                </div>
-                                <span className="text-xs font-medium text-secondary">Crix</span>
-                             </div>
-                        )}
-                        <div className={clsx(
-                            "prose prose-sm max-w-none break-words leading-relaxed",
-                            msg.role === 'user' 
-                                ? "prose-invert" 
-                                : "prose-headings:text-primary prose-a:text-accent prose-strong:text-primary"
-                        )}>
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm, remarkMath]}
-                                rehypePlugins={[rehypeKatex]}
-                                components={{
-                                    h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-3 mt-4 text-primary" {...props} />,
-                                    h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2 mt-3 text-accent" {...props} />,
-                                    h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 mt-3 text-primary" {...props} />,
-                                    p: ({node, ...props}) => <p className="mb-2 last:mb-0 text-sm" {...props} />,
-                                    ul: ({node, ...props}) => <ul className="list-disc list-outside ml-4 mb-3 space-y-1 text-sm" {...props} />,
-                                    ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-4 mb-3 space-y-1 text-sm" {...props} />,
-                                    blockquote: ({node, ...props}) => (
-                                        <blockquote className="border-l-3 border-accent/50 bg-accent/10 pl-3 py-1.5 italic rounded-r mb-3 text-sm" {...props} />
-                                    ),
-                                    code: ({node, inline, children, ...props}) => {
-                                        return inline ? (
-                                            <code className="bg-border-soft text-accent px-1 py-0.5 rounded text-xs font-mono" {...props}>
-                                                {children}
-                                            </code>
-                                        ) : (
-                                            <code className="block bg-main text-primary p-3 rounded-lg overflow-x-auto text-xs font-mono my-3 border border-border-soft" {...props}>
-                                                {children}
-                                            </code>
-                                        );
-                                    },
-                                }}
-                            >
-                                {msg.content}
-                            </ReactMarkdown>
+                    {msg.role === 'user' ? (
+                        // User message - in bubble
+                        <div className="max-w-[85%] md:max-w-[75%] rounded-2xl rounded-br-md px-4 py-3 bg-[--accent] text-white shadow-sm">
+                            <p className="text-sm leading-relaxed">{msg.content}</p>
                         </div>
-                    </div>
+                    ) : (
+                        // AI message - no bubble, just text with action icons
+                        <div className="w-full">
+                            <div className="prose prose-sm max-w-none break-words leading-loose text-primary">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm, remarkMath]}
+                                    rehypePlugins={[rehypeKatex]}
+                                    components={{
+                                        h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-4 mt-5 text-primary" {...props} />,
+                                        h2: ({node, ...props}) => <h2 className="text-base font-bold mb-3 mt-4 text-accent" {...props} />,
+                                        h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-3 mt-4 text-primary" {...props} />,
+                                        p: ({node, ...props}) => <p className="mb-4 last:mb-0 text-sm leading-relaxed" {...props} />,
+                                        ul: ({node, ...props}) => <ul className="list-disc list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
+                                        ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
+                                        li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
+                                        blockquote: ({node, ...props}) => (
+                                            <blockquote className="border-l-3 border-accent/50 bg-accent/10 pl-4 py-2 italic rounded-r mb-4 text-sm" {...props} />
+                                        ),
+                                        code: ({node, inline, children, ...props}) => {
+                                            return inline ? (
+                                                <code className="bg-border-soft text-accent px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
+                                                    {children}
+                                                </code>
+                                            ) : (
+                                                <code className="block bg-main text-primary p-4 rounded-lg overflow-x-auto text-xs font-mono my-4 border border-border-soft" {...props}>
+                                                    {children}
+                                                </code>
+                                            );
+                                        },
+                                    }}
+                                >
+                                    {msg.content}
+                                </ReactMarkdown>
+                            </div>
+                            {/* Action icons below AI response */}
+                            <div className="flex items-center gap-1 mt-4">
+                                <button 
+                                    onClick={() => navigator.clipboard.writeText(msg.content)}
+                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
+                                    title="Copy"
+                                >
+                                    <Copy className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
+                                    title="Good response"
+                                >
+                                    <ThumbsUp className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
+                                    title="Bad response"
+                                >
+                                    <ThumbsDown className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
+                                    title="Share"
+                                >
+                                    <Share className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
+                                    title="Regenerate"
+                                >
+                                    <RefreshCw className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
+                                    title="More options"
+                                >
+                                    <MoreHorizontal className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </motion.div>
               ))}
               {isTyping && (
                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-                       <div className="bg-card rounded-2xl rounded-bl-md px-4 py-3 border border-border-soft shadow-soft flex items-center gap-2">
-                           <div className="w-5 h-5 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center">
-                               <Sparkles className="w-2.5 h-2.5 text-white" />
-                           </div>
+                       <div className="flex items-center gap-2">
                            <div className="flex gap-1">
                                <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                                <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce [animation-delay:-0.15s]"></span>
@@ -257,7 +285,14 @@ export default function ChatInterface() {
         <div className="bg-card/80 backdrop-blur-xl border-t border-border-soft p-4">
             <div className="max-w-3xl mx-auto">
               <form onSubmit={handleSend}>
-                  <div className="flex items-center gap-2 bg-main rounded-full px-4 py-2 border border-border-soft focus-within:border-accent/50 transition-all">
+                  <div className="flex items-center gap-2 bg-main rounded-full px-3 py-2 border border-border-soft focus-within:border-accent/50 transition-all">
+                      <button 
+                          type="button" 
+                          className="p-2 hover:bg-border-soft rounded-full transition-colors text-secondary hover:text-primary"
+                          title="Attach file"
+                      >
+                          <Plus className="w-5 h-5" />
+                      </button>
                       <input
                           ref={inputRef}
                           type="text"

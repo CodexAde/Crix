@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Home, BookOpen, MessageSquare, LogOut, User, Moon, Sun } from 'lucide-react';
+import { Home, BookOpen, MessageSquare, LogOut, User, Moon, Sun, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function Layout() {
@@ -20,8 +20,10 @@ export default function Layout() {
       {/* Sidebar for Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-card border-r border-border-soft h-screen sticky top-0 p-6">
         <div className="flex items-center gap-2 mb-10 text-primary">
-            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold">C</div>
-            <span className="text-xl font-bold tracking-tight">Cerix</span>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg shadow-accent/20">
+                <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight">Crix</span>
         </div>
 
         <nav className="flex-1 space-y-1">

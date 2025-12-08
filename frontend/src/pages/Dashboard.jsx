@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { StatCard } from '../components/StatCard';
-import { Flame, Brain, BookMarked, ArrowRight } from 'lucide-react';
+import { Flame, Brain, BookMarked, ArrowRight, Sparkles, Clock, Target, TrendingUp, BookOpen, GraduationCap, Zap, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { motion } from 'framer-motion';
+
+const mockSubjects = [
+  { _id: 'mock1', name: 'Engineering Mechanics', code: 'KME101', progress: 0 },
+  { _id: 'mock2', name: 'Engineering Physics', code: 'KAS101', progress: 0 },
+  { _id: 'mock3', name: 'Mathematics-I', code: 'KAS103', progress: 0 },
+  { _id: 'mock4', name: 'Professional Communication', code: 'KAS107', progress: 0 },
+];
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -18,10 +25,11 @@ export default function Dashboard() {
                 axios.get('/syllabus'),
                 axios.get('/progress/stats')
             ]);
-            setSubjects(syllabusRes.data.subjects);
+            setSubjects(syllabusRes.data.subjects?.length > 0 ? syllabusRes.data.subjects : mockSubjects);
             setStats(statsRes.data);
         } catch (error) {
             console.error("Failed to fetch dashboard data", error);
+            setSubjects(mockSubjects);
         } finally {
             setLoading(false);
         }
@@ -29,101 +37,178 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+  };
+
+  const displaySubjects = subjects.length > 0 ? subjects : mockSubjects;
+
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-8 pb-24 md:pb-10">
-      <header>
-         <h1 className="text-3xl font-bold text-primary">
-            Hello, {user?.name?.split(' ')[0]} 👋
-         </h1>
-         <p className="text-secondary mt-1">Ready to crush your 1st year exams?</p>
-      </header>
+    <motion.div 
+      className="p-6 md:p-10 max-w-7xl mx-auto space-y-8 pb-24 md:pb-10"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Header */}
+      <motion.header variants={itemVariants} className="relative">
+        <div className="flex items-center gap-4 mb-2">
+          <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+            <Sparkles className="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-primary">
+              Welcome back, {user?.name?.split(' ')[0]}
+            </h1>
+            <p className="text-secondary mt-0.5 flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              Ready to crush your 1st year exams?
+            </p>
+          </div>
+        </div>
+      </motion.header>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard 
-            title="Day Streak"
-            value={stats.streak.toString()}
-            subtitle="Keep the fire burning!"
-            icon={Flame}
-            className="md:col-span-1"
-        />
-        <StatCard 
-            title="Topics Mastered"
-            value={stats.topicsMastered.toString()}
-            subtitle="Keep learning!"
-            icon={Brain}
-        />
-        <StatCard 
-            title="Active Doubts"
-            value={stats.activeDoubts.toString()}
-            subtitle="Topics to review"
-            icon={BookMarked}
-        />
-      </div>
-
-      {/* Today's Plan Section */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-primary">Today's Focus</h2>
-        </div>
-        <div className="bg-card rounded-[2rem] p-6 shadow-soft border border-border-soft">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                 <div>
-                    <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold mb-2 inline-block">
-                        Engineering Mechanics
-                    </span>
-                    <h3 className="text-lg font-semibold text-primary">Normal and Shear Stress</h3>
-                    <p className="text-sm text-secondary">Unit 1 • Introduction to Mechanics of Solid</p>
-                 </div>
-                 <Link 
-                    to={subjects.length > 0 ? `/syllabus/${subjects[0]._id}` : '#'} 
-                    className="flex items-center justify-center px-6 py-3 bg-accent text-white rounded-2xl font-medium shadow-soft hover:shadow-strong transition-all"
-                 >
-                    Start Learning <ArrowRight className="w-4 h-4 ml-2" />
-                 </Link>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="bg-card p-6 rounded-[1.5rem] border border-border-soft hover:border-accent/40 transition-all shadow-soft">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-secondary mb-1">Day Streak</p>
+              <h3 className="text-4xl font-bold text-primary">{stats.streak}</h3>
+              <p className="text-xs text-accent mt-2 flex items-center gap-1">
+                <Flame className="w-3.5 h-3.5" /> Keep the fire burning!
+              </p>
             </div>
+            <div className="p-3 bg-accent/10 rounded-2xl">
+              <Flame className="w-7 h-7 text-accent" />
+            </div>
+          </div>
         </div>
-      </section>
+
+        <div className="bg-card p-6 rounded-[1.5rem] border border-border-soft hover:border-accent/40 transition-all shadow-soft">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-secondary mb-1">Topics Mastered</p>
+              <h3 className="text-4xl font-bold text-primary">{stats.topicsMastered}</h3>
+              <p className="text-xs text-accent mt-2 flex items-center gap-1">
+                <TrendingUp className="w-3.5 h-3.5" /> Keep learning!
+              </p>
+            </div>
+            <div className="p-3 bg-accent/10 rounded-2xl">
+              <Brain className="w-7 h-7 text-accent" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-card p-6 rounded-[1.5rem] border border-border-soft hover:border-accent/40 transition-all shadow-soft">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-secondary mb-1">Active Doubts</p>
+              <h3 className="text-4xl font-bold text-primary">{stats.activeDoubts}</h3>
+              <p className="text-xs text-accent mt-2 flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" /> Topics to review
+              </p>
+            </div>
+            <div className="p-3 bg-accent/10 rounded-2xl">
+              <BookMarked className="w-7 h-7 text-accent" />
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Today's Focus Section */}
+      <motion.section variants={itemVariants}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5 text-accent" />
+            <h2 className="text-xl font-bold text-primary">Today's Focus</h2>
+          </div>
+        </div>
+        <div className="bg-card rounded-[2rem] p-6 md:p-8 shadow-soft border border-border-soft hover:border-accent/40 transition-all">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-7 h-7 text-accent" />
+              </div>
+              <div>
+                <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold mb-2 inline-block">
+                  Engineering Mechanics
+                </span>
+                <h3 className="text-xl font-bold text-primary">Normal and Shear Stress</h3>
+                <p className="text-sm text-secondary mt-1">Unit 1 • Introduction to Mechanics of Solid</p>
+              </div>
+            </div>
+            <Link 
+              to={displaySubjects.length > 0 ? `/syllabus/${displaySubjects[0]._id}` : '#'} 
+              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-accent text-white rounded-2xl font-semibold shadow-lg shadow-accent/30 hover:opacity-90 active:scale-[0.98] transition-all"
+            >
+              Start Learning <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </motion.section>
 
       {/* Subjects Grid */}
-      <section>
+      <motion.section variants={itemVariants}>
         <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-accent" />
             <h2 className="text-xl font-bold text-primary">Your Subjects</h2>
-            <Link to="/syllabus" className="text-sm font-medium text-accent hover:underline">View All</Link>
+          </div>
+          <Link to="/syllabus" className="flex items-center gap-1 text-sm font-semibold text-accent hover:underline">
+            View All <ChevronRight className="w-4 h-4" />
+          </Link>
         </div>
         
         {loading ? (
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1,2,3].map(i => (
-                    <div key={i} className="h-40 bg-border-soft rounded-[1.5rem] animate-pulse"></div>
-                ))}
-             </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="h-48 bg-border-soft rounded-[1.5rem] animate-pulse" />
+            ))}
+          </div>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {subjects.slice(0, 3).map((subject) => (
-                    <Link to={`/syllabus/${subject._id}`} key={subject._id} className="group block bg-card rounded-[1.5rem] p-6 shadow-soft hover:shadow-strong transition-all border border-border-soft hover:-translate-y-1">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 rounded-2xl bg-border-soft flex items-center justify-center overflow-hidden">
-                                {subject.image ? (
-                                    <img src={subject.image} alt="" className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-xl">📚</span>
-                                )}
-                            </div>
-                            <span className="text-xs font-semibold text-secondary bg-border-soft px-2 py-1 rounded-lg">
-                                {subject.code}
-                            </span>
-                        </div>
-                        <h3 className="text-lg font-bold text-primary group-hover:text-accent transition-colors">{subject.name}</h3>
-                        <div className="mt-4 w-full bg-border-soft h-2 rounded-full overflow-hidden">
-                            <div className="bg-accent h-full w-[0%]" /> 
-                        </div>
-                        <p className="text-xs text-secondary mt-2">0% Completed</p>
-                    </Link>
-                ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {displaySubjects.slice(0, 4).map((subject) => (
+              <Link 
+                to={`/syllabus/${subject._id}`} 
+                key={subject._id} 
+                className="group block bg-card rounded-[1.5rem] p-5 shadow-soft hover:shadow-strong transition-all border border-border-soft hover:border-accent/30 hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/10">
+                    <BookOpen className="w-5 h-5 text-accent" />
+                  </div>
+                  <span className="text-xs font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-lg">
+                    {subject.code}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors mb-1 line-clamp-2">{subject.name}</h3>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
+                    <span>Progress</span>
+                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                  </div>
+                  <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-accent h-full rounded-full transition-all" 
+                      style={{ width: `${subject.progress || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         )}
-      </section>
-    </div>
+      </motion.section>
+    </motion.div>
   );
 }

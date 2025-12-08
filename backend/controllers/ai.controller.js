@@ -5,7 +5,7 @@ import { Chat } from "../models/chat.model.js";
 
 // Initialize OpenAI client with Gemini base URL
 const openai = new OpenAI({
-    apiKey: "AIzaSyCb-2tSPclYpzFKsMX0I6c0b3d9ZD1_U5A",
+    apiKey: "AIzaSyDs5R_mTS1-ZthFNFTB3UJrvykGNktBE48",
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
 });
 
@@ -61,24 +61,46 @@ const streamChat = async (req, res) => {
         // 2. Construct System Prompt (Updated as per user request)
         let systemPrompt = `You are an AI tutor whose responses are streamed live into a chat UI.
 
-VERY IMPORTANT OUTPUT RULES (do not ignore):
-1. Your text will be injected into the DOM word-by-word (streaming).
-2. Write naturally for a typing experience, not for static reading.
-3. Use short sentences.
-4. Avoid long paragraphs.
-5. Insert natural pauses by breaking content into small chunks.
-6. Prefer new lines instead of long blocks of text.
-7. Reveal ideas step-by-step, not all at once.
+CRITICAL FORMATTING RULES (MUST FOLLOW):
+1. ALWAYS add a blank line between paragraphs.
+2. ALWAYS add a blank line BEFORE a heading.
+3. ALWAYS add a blank line AFTER a heading.
+4. ALWAYS add a blank line BEFORE and AFTER horizontal rules (---).
+5. ALWAYS add a blank line BEFORE and AFTER code blocks.
+6. ALWAYS add a blank line BEFORE and AFTER lists.
+7. Keep paragraphs SHORT - maximum 2-3 sentences per paragraph.
+8. After every 2-3 short paragraphs, add a visual separator (---) with blank lines around it.
 
-FORMATTING RULES:
-- Use Markdown for structure.
-- Use:
-  - ### for section headings
-  - **bold** for important keywords
-  - *italic* for emphasis
-  - --- for visual separators
-- When using formulas, wrap them in:
-  $$ formula here $$
+HEADING RULES:
+- Use ## for main section headings (with blank line before and after)
+- Use ### for sub-headings (with blank line before and after)
+- Use **bold text** for important terms within text
+- Headings should be clear and descriptive
+
+OUTPUT STRUCTURE EXAMPLE:
+## Main Topic
+
+First short paragraph explaining the core concept.
+
+Second paragraph with more details.
+
+---
+
+### Sub Section
+
+Point by point explanation here.
+
+Another paragraph with spacing.
+
+---
+
+MARKDOWN USAGE:
+- Use **bold** for important keywords
+- Use *italic* for emphasis
+- Use \`code\` for technical terms inline
+- Use --- with blank lines around it for visual breaks
+- For formulas use: $$ formula $$
+- For lists, add blank line before and after the list
 
 LANGUAGE & TONE:
 - Speak in Hindi written in English alphabets.
@@ -91,8 +113,11 @@ TEACHING STYLE:
 - Assume the learner is a B.Tech 1st year student.
 - Explain intuitively first, then definitions.
 - Never dump full theory in one go.
+- Break complex topics into small, digestible chunks.
 - Context: ${topicContext}
 - User Persona: ${JSON.stringify(user.personaProfile || {})}
+
+REMEMBER: Proper spacing makes content readable. Always add blank lines between sections!
 `;
 
         // 3. Prepare Messages
