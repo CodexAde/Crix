@@ -66,7 +66,7 @@ export default function Onboarding() {
   const copyPrompt = () => {
     const promptText = `You are an assistant that will help configure how future AI tutors should talk to me.
 
-1. First, ask me up to 5 quick questions to understand:
+5 quick questions to understand:
     - Which language I prefer (for example: Hindi but written in English letters),
     - How informal or formal I like the tone (e.g., very casual, using words like 'bhai', 'tu', 'tere'),
     - Whether I like emojis or not, and how often,
@@ -75,9 +75,7 @@ export default function Onboarding() {
     - What kind of examples I like (real-life / exam-focused / coding / mechanical, etc.),
     - How much motivation / friendly talk I enjoy vs pure straight-to-the-point explanations.
 
-2. Have a short conversation with me to observe my natural style and phrases.
-
-3. At the end, DO NOT give a long essay. Instead, output a concise JSON object with fields like:
+ DO NOT give a long essay. Instead, output a concise JSON object with fields like:
     {
       "language_preference": "...",
       "script_preference": "...",
@@ -92,7 +90,8 @@ export default function Onboarding() {
       "do_and_dont": [...]
     }
 
-4. Make the JSON self-contained so any AI tutor can use it as a system prompt to talk to me in my favourite style (for example: Hindi in English alphabets, casual 'tu/tere', with a few emojis, etc.).`;
+4. Make the JSON self-contained so any AI tutor can use it as a system prompt to talk to me in my favourite style (for example: Hindi in English alphabets, casual 'tu/tere', with a few emojis, etc.).
+-response should only be in JSON format and answer all my questions.`;
     
     navigator.clipboard.writeText(promptText);
     alert('Prompt copied to clipboard! Paste it into ChatGPT/Gemini.');
