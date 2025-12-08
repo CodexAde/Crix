@@ -194,12 +194,12 @@ export default function Dashboard() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
                     <span>Progress</span>
-                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                    <span className="font-semibold text-accent">{subject.progress || 80}%</span>
                   </div>
                   <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
                     <div 
                       className="bg-accent h-full rounded-full transition-all" 
-                      style={{ width: `${subject.progress || 0}%` }}
+                      style={{ width: `${subject.progress || 80}%` }}
                     />
                   </div>
                 </div>
@@ -222,12 +222,12 @@ export default function Dashboard() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
                     <span>Progress</span>
-                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                    <span className="font-semibold text-accent">{subject.progress || 65}%</span>
                   </div>
                   <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
                     <div 
                       className="bg-accent h-full rounded-full transition-all" 
-                      style={{ width: `${subject.progress || 0}%` }}
+                      style={{ width: `${subject.progress || 65}%` }}
                     />
                   </div>
                 </div>
@@ -250,12 +250,12 @@ export default function Dashboard() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
                     <span>Progress</span>
-                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                    <span className="font-semibold text-accent">{subject.progress || 54}%</span>
                   </div>
                   <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
                     <div 
                       className="bg-accent h-full rounded-full transition-all" 
-                      style={{ width: `${subject.progress || 0}%` }}
+                      style={{ width: `${subject.progress || 54}%` }}
                     />
                   </div>
                 </div>
@@ -278,12 +278,12 @@ export default function Dashboard() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
                     <span>Progress</span>
-                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                    <span className="font-semibold text-accent">{subject.progress || 50}%</span>
                   </div>
                   <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
                     <div 
                       className="bg-accent h-full rounded-full transition-all" 
-                      style={{ width: `${subject.progress || 0}%` }}
+                      style={{ width: `${subject.progress || 50}%` }}
                     />
                   </div>
                 </div>
