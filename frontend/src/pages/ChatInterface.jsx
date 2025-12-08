@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Button } from '../components/Button';
-import { Send, ArrowLeft, MoreHorizontal, Sparkles } from 'lucide-react';
+import { Send, ArrowLeft, Plus, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 
 import remarkGfm from 'remark-gfm';
@@ -13,7 +12,7 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
 export default function ChatInterface() {
-  const { subjectId, chapterId, topicId } = useParams();
+  const { topicId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -21,14 +20,33 @@ export default function ChatInterface() {
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Global keydown to focus input
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignore if already focused on input or textarea
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      // Ignore modifier keys alone
+      if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Meta') return;
+      // Focus input
+      inputRef.current?.focus();
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Fetch chat history on mount
   useEffect(() => {
@@ -42,47 +60,37 @@ export default function ChatInterface() {
         if (data.success && data.messages.length > 0) {
           setMessages(data.messages);
         } else {
-          // No history, show welcome message
-          setMessages([
-            { role: 'assistant', content: `Hi ${user?.name?.split(' ')[0] || 'there'}! I'm ready to help you master this topic. What should we start with?` }
-          ]);
+          setMessages([]);
         }
       } catch (error) {
         console.error("Failed to fetch chat history:", error);
-        setMessages([
-          { role: 'assistant', content: `Hi ${user?.name?.split(' ')[0] || 'there'}! I'm ready to help you master this topic. What should we start with?` }
-        ]);
+        setMessages([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchChatHistory();
-  }, [topicId, user]);
+  }, [topicId]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || isTyping) return;
+  // Send message function
+  const sendMessage = async (messageText) => {
+    if (!messageText.trim() || isTyping) return;
 
-    const userMsg = { role: 'user', content: input };
+    const userMsg = { role: 'user', content: messageText };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsTyping(true);
 
     try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('accessToken='))?.split('=')[1];
-        
-        // Use native fetch for streaming
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000/api/v1'}/ai/chat`, {
             method: 'POST',
             credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 topicId,
-                message: userMsg.content,
-                history: messages.slice(-10) // Keep context reasonable
+                message: messageText,
+                history: messages.slice(-10)
             })
         });
 
@@ -115,103 +123,118 @@ export default function ChatInterface() {
                                 return newMsgs;
                             });
                         }
-                    } catch (e) {
-                         // Ignore parse errors for partial chunks
-                    }
+                    } catch (e) {}
                 }
             }
         }
 
     } catch (error) {
-        setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I'm having trouble connecting to the AI. Please try again." }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, connection failed. Please try again." }]);
     } finally {
         setIsTyping(false);
     }
   };
 
+  const handleSend = (e) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
+  const handleQuickAction = (action) => {
+    sendMessage(action);
+  };
+
+  const isEmptyState = messages.length === 0 && !isLoading;
+
   return (
-    <div className="flex flex-col h-screen bg-[#f5f6f8]">
+    <div className="fixed inset-0 flex flex-col bg-surface">
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-md border-b border-border-soft sticky top-0 z-10">
-            <div className="flex items-center gap-4">
+        <header className="flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-xl border-b border-border-soft">
+            <div className="flex items-center gap-3">
                 <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                     <ArrowLeft className="w-5 h-5 text-secondary" />
                 </button>
-                <div>
-                     <h1 className="font-bold text-primary text-sm md:text-base">AI Tutor</h1>
-                     <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-xs text-secondary">Online</span>
-                     </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                        <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-primary font-semibold">Crix</span>
                 </div>
             </div>
-            <button className="p-2 hover:bg-gray-100 rounded-full text-secondary">
-                <MoreHorizontal className="w-5 h-5" />
-            </button>
         </header>
 
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-            {messages.map((msg, idx) => (
+        {/* Chat Area - Fixed height with internal scroll */}
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto overscroll-none"
+        >
+          {isEmptyState ? (
+            <div className="flex flex-col items-center justify-center h-full px-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6 shadow-lg">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-semibold text-primary text-center mb-2">
+                What can I help with?
+              </h1>
+              <p className="text-secondary text-sm">Ask me anything about this topic</p>
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto p-4 space-y-4 pb-4">
+              {messages.map((msg, idx) => (
                 <motion.div 
                     key={idx}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
                     className={clsx(
                         "flex w-full",
                         msg.role === 'user' ? "justify-end" : "justify-start"
                     )}
                 >
                     <div className={clsx(
-                        "max-w-[85%] md:max-w-[70%] rounded-2xl p-4 shadow-sm",
+                        "max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3",
                         msg.role === 'user' 
-                            ? "bg-accent text-white rounded-br-none" 
-                            : "bg-white text-primary border border-border-soft rounded-bl-none"
+                            ? "bg-accent text-white rounded-br-md shadow-sm" 
+                            : "bg-white text-primary border border-border-soft rounded-bl-md shadow-sm"
                     )}>
                         {msg.role === 'assistant' && (
-                             <div className="flex items-center gap-2 mb-2">
-                                <Sparkles className="w-3 h-3 text-accent" />
-                                <span className="text-[10px] font-bold text-accent uppercase tracking-wider">AI Tutor</span>
+                             <div className="flex items-center gap-2 mb-2 pb-2 border-b border-border-soft">
+                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                                    <Sparkles className="w-2.5 h-2.5 text-white" />
+                                </div>
+                                <span className="text-xs font-medium text-secondary">Crix</span>
                              </div>
                         )}
-
-                        <div className={clsx("prose prose-sm max-w-none break-words leading-relaxed", 
-                            msg.role === 'user' ? "prose-invert" : "prose-headings:text-primary prose-a:text-accent prose-strong:text-primary prose-code:text-accent"
+                        <div className={clsx(
+                            "prose prose-sm max-w-none break-words leading-relaxed",
+                            msg.role === 'user' 
+                                ? "prose-invert" 
+                                : "prose-headings:text-primary prose-a:text-accent prose-strong:text-primary"
                         )}>
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm, remarkMath]}
                                 rehypePlugins={[rehypeKatex]}
                                 components={{
-                                    // Custom styling for specific elements to make it "mast"
-                                    h1: ({node, ...props}) => <h1 className="text-xl font-bold mb-4 mt-6 border-b border-border-soft pb-2" {...props} />,
-                                    h2: ({node, ...props}) => <h2 className="text-lg font-bold mb-3 mt-5 text-accent/90" {...props} />,
-                                    h3: ({node, ...props}) => <h3 className="text-base font-bold mb-2 mt-4" {...props} />,
-                                    p: ({node, ...props}) => <p className="mb-3 last:mb-0" {...props} />,
-                                    ul: ({node, ...props}) => <ul className="list-disc list-outside ml-4 mb-4 space-y-1" {...props} />,
-                                    ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-4 mb-4 space-y-1" {...props} />,
+                                    h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-3 mt-4" {...props} />,
+                                    h2: ({node, ...props}) => <h2 className="text-base font-bold mb-2 mt-3 text-accent" {...props} />,
+                                    h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-2 mt-3" {...props} />,
+                                    p: ({node, ...props}) => <p className="mb-2 last:mb-0 text-sm" {...props} />,
+                                    ul: ({node, ...props}) => <ul className="list-disc list-outside ml-4 mb-3 space-y-1 text-sm" {...props} />,
+                                    ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-4 mb-3 space-y-1 text-sm" {...props} />,
                                     blockquote: ({node, ...props}) => (
-                                        <blockquote className="border-l-4 border-accent/50 bg-accent/5 pl-4 py-2 italic rounded-r-lg mb-4 text-gray-700" {...props} />
+                                        <blockquote className="border-l-3 border-accent/50 bg-accent/5 pl-3 py-1.5 italic rounded-r mb-3 text-sm" {...props} />
                                     ),
-                                    code: ({node, inline, className, children, ...props}) => {
+                                    code: ({node, inline, children, ...props}) => {
                                         return inline ? (
-                                            <code className="bg-gray-100 text-accent px-1.5 py-0.5 rounded text-xs font-mono font-medium" {...props}>
+                                            <code className="bg-gray-100 text-accent px-1 py-0.5 rounded text-xs font-mono" {...props}>
                                                 {children}
                                             </code>
                                         ) : (
-                                            <div className="relative group">
-                                                <code className="block bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs font-mono my-4 shadow-inner" {...props}>
-                                                    {children}
-                                                </code>
-                                            </div>
+                                            <code className="block bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto text-xs font-mono my-3" {...props}>
+                                                {children}
+                                            </code>
                                         );
                                     },
-                                    table: ({node, ...props}) => (
-                                        <div className="overflow-x-auto my-4 rounded-lg border border-border-soft shadow-sm">
-                                            <table className="min-w-full divide-y divide-gray-200" {...props} />
-                                        </div>
-                                    ),
-                                    th: ({node, ...props}) => <th className="bg-gray-50 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" {...props} />,
-                                    td: ({node, ...props}) => <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 border-t border-gray-100" {...props} />,
                                 }}
                             >
                                 {msg.content}
@@ -219,47 +242,65 @@ export default function ChatInterface() {
                         </div>
                     </div>
                 </motion.div>
-            ))}
-            {isTyping && (
-                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-                     <div className="bg-white rounded-2xl rounded-bl-none p-4 border border-border-soft flex gap-1">
-                         <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                         <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                         <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                     </div>
-                 </motion.div>
-            )}
-            <div ref={messagesEndRef} />
+              ))}
+              {isTyping && (
+                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+                       <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 border border-border-soft shadow-sm flex items-center gap-2">
+                           <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                               <Sparkles className="w-2.5 h-2.5 text-white" />
+                           </div>
+                           <div className="flex gap-1">
+                               <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                               <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                               <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+                           </div>
+                       </div>
+                   </motion.div>
+              )}
+              <div ref={messagesEndRef} className="h-1" />
+            </div>
+          )}
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 bg-white border-t border-border-soft">
-            <form onSubmit={handleSend} className="max-w-4xl mx-auto relative flex items-center gap-3">
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask anything..."
-                    className="flex-1 bg-gray-100 text-primary placeholder:text-gray-400 rounded-full py-3 px-6 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all font-medium"
-                />
-                <button 
-                    type="submit" 
-                    disabled={!input.trim() || isTyping}
-                    className="w-12 h-12 rounded-full bg-accent text-white flex items-center justify-center hover:bg-blue-600 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all shadow-soft"
-                >
-                    <Send className="w-5 h-5 ml-0.5" />
-                </button>
-            </form>
-            <div className="flex justify-center gap-2 mt-3 overflow-x-auto pb-1">
-                {['Summarize', 'Give me 5 MCQs', 'Explain simpler'].map(quickAction => (
-                    <button 
-                        key={quickAction}
-                        onClick={() => { setInput(quickAction); }}
-                        className="whitespace-nowrap px-3 py-1.5 rounded-lg bg-gray-50 border border-border-soft text-xs text-secondary hover:bg-gray-100 transition-colors"
-                    >
-                        {quickAction}
-                    </button>
-                ))}
+        {/* Input Area - Fixed at bottom */}
+        <div className="bg-white/80 backdrop-blur-xl border-t border-border-soft p-4">
+            <div className="max-w-3xl mx-auto">
+              <form onSubmit={handleSend}>
+                  <div className="flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
+                      <button type="button" className="p-1.5 hover:bg-gray-200 rounded-full transition-colors text-secondary">
+                          <Plus className="w-5 h-5" />
+                      </button>
+                      <input
+                          ref={inputRef}
+                          type="text"
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          placeholder="Ask anything..."
+                          className="flex-1 bg-transparent text-primary placeholder:text-gray-400 py-2 focus:outline-none text-sm font-medium"
+                      />
+                      <button 
+                          type="submit" 
+                          disabled={!input.trim() || isTyping}
+                          className="p-2 rounded-full bg-accent text-white flex items-center justify-center hover:bg-blue-600 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all"
+                      >
+                          <Send className="w-4 h-4" />
+                      </button>
+                  </div>
+              </form>
+              
+              {/* Quick Actions */}
+              <div className="flex justify-center gap-2 mt-3 flex-wrap">
+                  {['Summarize', 'Give me 5 MCQs', 'Explain simpler'].map(quickAction => (
+                      <button 
+                          key={quickAction}
+                          onClick={() => handleQuickAction(quickAction)}
+                          disabled={isTyping}
+                          className="whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-border-soft text-xs text-secondary font-medium hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50 shadow-sm"
+                      >
+                          {quickAction}
+                      </button>
+                  ))}
+              </div>
             </div>
         </div>
     </div>
