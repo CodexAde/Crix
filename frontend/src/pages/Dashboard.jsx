@@ -14,7 +14,7 @@ const mockSubjects = [
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [subjects, setSubjects] = useState([]);
+  const [subjects, setSubjects] = useState(mockSubjects);
   const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1 });
   const [loading, setLoading] = useState(true);
 
@@ -25,11 +25,12 @@ export default function Dashboard() {
                 axios.get('/syllabus'),
                 axios.get('/progress/stats')
             ]);
-            setSubjects(syllabusRes.data.subjects?.length > 0 ? syllabusRes.data.subjects : mockSubjects);
+            if (syllabusRes.data.subjects && syllabusRes.data.subjects.length > 0) {
+              setSubjects(syllabusRes.data.subjects);
+            }
             setStats(statsRes.data);
         } catch (error) {
             console.error("Failed to fetch dashboard data", error);
-            setSubjects(mockSubjects);
         } finally {
             setLoading(false);
         }
@@ -49,8 +50,6 @@ export default function Dashboard() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   };
-
-  const displaySubjects = subjects.length > 0 ? subjects : mockSubjects;
 
   return (
     <motion.div 
@@ -83,7 +82,7 @@ export default function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-secondary mb-1">Day Streak</p>
-              <h3 className="text-4xl font-bold text-primary">{stats.streak}</h3>
+              <h3 className="text-4xl font-bold text-primary">{56}</h3>
               <p className="text-xs text-accent mt-2 flex items-center gap-1">
                 <Flame className="w-3.5 h-3.5" /> Keep the fire burning!
               </p>
@@ -98,7 +97,7 @@ export default function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-secondary mb-1">Topics Mastered</p>
-              <h3 className="text-4xl font-bold text-primary">{stats.topicsMastered}</h3>
+              <h3 className="text-4xl font-bold text-primary">{65}</h3>
               <p className="text-xs text-accent mt-2 flex items-center gap-1">
                 <TrendingUp className="w-3.5 h-3.5" /> Keep learning!
               </p>
@@ -113,7 +112,7 @@ export default function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-secondary mb-1">Active Doubts</p>
-              <h3 className="text-4xl font-bold text-primary">{stats.activeDoubts}</h3>
+              <h3 className="text-4xl font-bold text-primary">{12}</h3>
               <p className="text-xs text-accent mt-2 flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" /> Topics to review
               </p>
@@ -141,14 +140,14 @@ export default function Dashboard() {
               </div>
               <div>
                 <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold mb-2 inline-block">
-                  Engineering Mechanics
+                  {subjects[0]?.name || 'Engineering Mechanics'}
                 </span>
                 <h3 className="text-xl font-bold text-primary">Normal and Shear Stress</h3>
                 <p className="text-sm text-secondary mt-1">Unit 1 • Introduction to Mechanics of Solid</p>
               </div>
             </div>
             <Link 
-              to={displaySubjects.length > 0 ? `/syllabus/${displaySubjects[0]._id}` : '#'} 
+              to={subjects[0]?._id ? `/syllabus/${subjects[0]._id}` : '#'} 
               className="flex items-center justify-center gap-2 px-6 py-3.5 bg-accent text-white rounded-2xl font-semibold shadow-lg shadow-accent/30 hover:opacity-90 active:scale-[0.98] transition-all"
             >
               Start Learning <ArrowRight className="w-5 h-5" />
@@ -177,7 +176,91 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {displaySubjects.slice(0, 4).map((subject) => (
+            {subjects.slice(0, 4).map((subject) => (
+              <Link 
+                to={`/syllabus/${subject._id}`} 
+                key={subject._id} 
+                className="group block bg-card rounded-[1.5rem] p-5 shadow-soft hover:shadow-strong transition-all border border-border-soft hover:border-accent/30 hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/10">
+                    <BookOpen className="w-5 h-5 text-accent" />
+                  </div>
+                  <span className="text-xs font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-lg">
+                    {subject.code}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors mb-1 line-clamp-2">{subject.name}</h3>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
+                    <span>Progress</span>
+                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                  </div>
+                  <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-accent h-full rounded-full transition-all" 
+                      style={{ width: `${subject.progress || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </Link>
+            ))}            {subjects.slice(0, 4).map((subject) => (
+              <Link 
+                to={`/syllabus/${subject._id}`} 
+                key={subject._id} 
+                className="group block bg-card rounded-[1.5rem] p-5 shadow-soft hover:shadow-strong transition-all border border-border-soft hover:border-accent/30 hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/10">
+                    <BookOpen className="w-5 h-5 text-accent" />
+                  </div>
+                  <span className="text-xs font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-lg">
+                    {subject.code}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors mb-1 line-clamp-2">{subject.name}</h3>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
+                    <span>Progress</span>
+                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                  </div>
+                  <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-accent h-full rounded-full transition-all" 
+                      style={{ width: `${subject.progress || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </Link>
+            ))}            {subjects.slice(0, 4).map((subject) => (
+              <Link 
+                to={`/syllabus/${subject._id}`} 
+                key={subject._id} 
+                className="group block bg-card rounded-[1.5rem] p-5 shadow-soft hover:shadow-strong transition-all border border-border-soft hover:border-accent/30 hover:-translate-y-1"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/10">
+                    <BookOpen className="w-5 h-5 text-accent" />
+                  </div>
+                  <span className="text-xs font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-lg">
+                    {subject.code}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors mb-1 line-clamp-2">{subject.name}</h3>
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
+                    <span>Progress</span>
+                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
+                  </div>
+                  <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-accent h-full rounded-full transition-all" 
+                      style={{ width: `${subject.progress || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </Link>
+            ))}            {subjects.slice(0, 4).map((subject) => (
               <Link 
                 to={`/syllabus/${subject._id}`} 
                 key={subject._id} 

@@ -149,7 +149,7 @@ export default function ChatInterface() {
                     <ArrowLeft className="w-5 h-5 text-secondary" />
                 </button>
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shadow-sm">
                         <Sparkles className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-primary font-semibold">Crix</span>
@@ -161,7 +161,7 @@ export default function ChatInterface() {
         <div className="flex-1 overflow-y-auto overscroll-none">
           {isEmptyState ? (
             <div className="flex flex-col items-center justify-center h-full px-4">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent to-accent/60 flex items-center justify-center mb-6 shadow-lg shadow-accent/20">
+              <div className="w-20 h-20 rounded-full bg-accent flex items-center justify-center mb-6 shadow-lg shadow-accent/20">
                 <Sparkles className="w-10 h-10 text-white" />
               </div>
               <h1 className="text-3xl md:text-4xl font-semibold text-primary text-center mb-2">
