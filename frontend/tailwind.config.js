@@ -10,6 +10,7 @@ export default {
       colors: {
         main: "var(--bg-main)",
         card: "var(--bg-card)",
+        surface: "var(--bg-surface)",
         primary: "var(--text-primary)",
         secondary: "var(--text-secondary)",
         accent: "var(--accent)",

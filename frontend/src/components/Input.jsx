@@ -8,10 +8,15 @@ export const Input = React.forwardRef(({ className, error, ...props }, ref) => {
       <input
         ref={ref}
         className={twMerge(
-          "flex h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm text-primary placeholder:text-gray-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
+          "flex h-12 w-full rounded-2xl border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200",
           error && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
           className
         )}
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          borderColor: error ? undefined : 'var(--border-soft)',
+          color: 'var(--text-primary)',
+        }}
         {...props}
       />
       {error && (
@@ -20,3 +25,4 @@ export const Input = React.forwardRef(({ className, error, ...props }, ref) => {
     </div>
   );
 });
+

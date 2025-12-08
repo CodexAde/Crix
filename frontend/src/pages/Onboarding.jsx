@@ -5,11 +5,12 @@ import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth(); // We might need to update user context after this
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // Step 1: Academic Info
@@ -38,7 +39,7 @@ export default function Onboarding() {
             try {
                 parsedPersona = JSON.parse(personaJson);
             } catch (err) {
-                alert("Invalid JSON. Please copy exactly from the prompt result.");
+                toast.error("Invalid JSON format. Please copy the exact JSON from ChatGPT/Gemini.");
                 setLoading(false);
                 return;
             }
@@ -51,13 +52,14 @@ export default function Onboarding() {
         };
 
         await axios.post('/users/onboarding', payload);
+        toast.success('Profile setup complete! 🎉');
         
-        // Force reload or redirect to dashboard (ideally we update context)
+        // Force reload or redirect to dashboard
         window.location.href = '/dashboard'; 
 
     } catch (error) {
         console.error(error);
-        alert('Onboarding failed. Please try again.');
+        toast.error(error.response?.data?.message || 'Onboarding failed. Please try again.');
     } finally {
         setLoading(false);
     }
@@ -94,20 +96,21 @@ export default function Onboarding() {
 -response should only be in JSON format and answer all my questions.`;
     
     navigator.clipboard.writeText(promptText);
-    alert('Prompt copied to clipboard! Paste it into ChatGPT/Gemini.');
+    toast.success('Prompt copied! Paste it into ChatGPT or Gemini.');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#f5f6f8]">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--bg-main)' }}>
       <motion.div 
         layout
-        className="w-full max-w-2xl bg-white rounded-[2rem] p-8 shadow-strong overflow-hidden"
+        className="w-full max-w-2xl rounded-[2rem] p-8 shadow-strong overflow-hidden"
+        style={{ backgroundColor: 'var(--bg-card)' }}
       >
         <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-primary">
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 {step === 1 ? 'Academic Profile' : 'Personalize AI'}
             </h1>
-            <div className="text-sm font-medium text-secondary">
+            <div className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 Step {step} of 2
             </div>
         </div>
@@ -124,7 +127,7 @@ export default function Onboarding() {
                 >
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                             <label className="text-sm font-medium text-secondary">College Name (Optional)</label>
+                             <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>College Name (Optional)</label>
                              <Input 
                                 value={academic.college} 
                                 onChange={e => setAcademic({...academic, college: e.target.value})}
@@ -132,9 +135,14 @@ export default function Onboarding() {
                              />
                         </div>
                         <div className="space-y-2">
-                             <label className="text-sm font-medium text-secondary">Branch</label>
+                             <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Branch</label>
                              <select 
-                                className="flex h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm text-primary focus:border-accent focus:outline-none"
+                                className="flex h-12 w-full rounded-2xl border px-4 py-2 text-sm focus:outline-none"
+                                style={{ 
+                                  backgroundColor: 'var(--bg-card)', 
+                                  borderColor: 'var(--border-soft)',
+                                  color: 'var(--text-primary)'
+                                }}
                                 value={academic.branch}
                                 onChange={e => setAcademic({...academic, branch: e.target.value})}
                              >
@@ -146,13 +154,21 @@ export default function Onboarding() {
                              </select>
                         </div>
                         <div className="space-y-2">
-                             <label className="text-sm font-medium text-secondary">Year</label>
-                             <select disabled className="flex h-12 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-secondary">
+                             <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Year</label>
+                             <select 
+                                disabled 
+                                className="flex h-12 w-full rounded-2xl border px-4 py-2 text-sm opacity-60"
+                                style={{ 
+                                  backgroundColor: 'var(--bg-surface)', 
+                                  borderColor: 'var(--border-soft)',
+                                  color: 'var(--text-secondary)'
+                                }}
+                             >
                                 <option>1st Year (B.Tech)</option>
                              </select>
                         </div>
                         <div className="space-y-2">
-                             <label className="text-sm font-medium text-secondary">University / Scheme</label>
+                             <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>University / Scheme</label>
                              <Input 
                                 value={academic.universitySchema} 
                                 onChange={e => setAcademic({...academic, universitySchema: e.target.value})}
@@ -161,7 +177,7 @@ export default function Onboarding() {
                              />
                         </div>
                         <div className="md:col-span-2 space-y-2">
-                             <label className="text-sm font-medium text-secondary">Target Exam Date</label>
+                             <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Target Exam Date</label>
                              <Input 
                                 type="date"
                                 value={academic.targetExamDate} 
@@ -184,7 +200,7 @@ export default function Onboarding() {
                     onSubmit={handleFinalSubmit}
                     className="space-y-6"
                 >
-                    <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 text-sm text-blue-900 leading-relaxed">
+                    <div className="rounded-2xl p-6 text-sm leading-relaxed" style={{ backgroundColor: 'rgba(0, 122, 255, 0.08)', border: '1px solid rgba(0, 122, 255, 0.2)', color: 'var(--accent)' }}>
                         <p className="mb-4">
                             <strong>Want a highly personalized tutor?</strong> Use our special prompt with ChatGPT/Claude, then paste the result here.
                         </p>
@@ -194,14 +210,19 @@ export default function Onboarding() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-secondary">Paste Persona JSON here</label>
+                        <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Paste Persona JSON here</label>
                         <textarea
-                            className="w-full h-48 rounded-2xl border border-gray-200 bg-white p-4 text-sm font-mono focus:border-accent focus:outline-none resize-none"
+                            className="w-full h-48 rounded-2xl border p-4 text-sm font-mono focus:outline-none resize-none"
+                            style={{ 
+                              backgroundColor: 'var(--bg-card)', 
+                              borderColor: 'var(--border-soft)',
+                              color: 'var(--text-primary)'
+                            }}
                             placeholder='{ "language_preference": "Hindi english mix", ... }'
                             value={personaJson}
                             onChange={e => setPersonaJson(e.target.value)}
                         ></textarea>
-                        <p className="text-xs text-gray-400">If you skip this, we will use a standard friendly academic tone.</p>
+                        <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>If you skip this, we will use a standard friendly academic tone.</p>
                     </div>
 
                     <div className="flex justify-between pt-4">

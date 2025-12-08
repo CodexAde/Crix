@@ -15,9 +15,9 @@ export const Button = ({
   const baseStyles = "inline-flex items-center justify-center rounded-2xl font-medium transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none active:scale-95";
 
   const variants = {
-    primary: "bg-accent text-white hover:bg-blue-600 shadow-soft hover:shadow-strong",
-    secondary: "bg-white text-primary border border-border-soft hover:bg-gray-50 shadow-soft",
-    ghost: "text-secondary hover:text-primary hover:bg-gray-100/50",
+    primary: "bg-accent text-white hover:opacity-90 shadow-soft hover:shadow-strong",
+    secondary: "border shadow-soft hover:opacity-80",
+    ghost: "hover:opacity-80",
   };
 
   const sizes = {
@@ -26,9 +26,26 @@ export const Button = ({
     lg: "h-14 px-8 text-lg",
   };
 
+  const getVariantStyles = () => {
+    if (variant === 'secondary') {
+      return {
+        backgroundColor: 'var(--bg-card)',
+        borderColor: 'var(--border-soft)',
+        color: 'var(--text-primary)',
+      };
+    }
+    if (variant === 'ghost') {
+      return {
+        color: 'var(--text-secondary)',
+      };
+    }
+    return {};
+  };
+
   return (
     <button
       className={twMerge(baseStyles, variants[variant], sizes[size], className)}
+      style={getVariantStyles()}
       disabled={isLoading || disabled}
       {...props}
     >
@@ -37,3 +54,4 @@ export const Button = ({
     </button>
   );
 };
+
