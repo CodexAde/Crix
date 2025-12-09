@@ -7,7 +7,8 @@ import { generateAccessAndRefresTokens } from './user.controller.js'; // Need to
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/v1/users/auth/google/callback`
+  // Use FRONTEND_URL since requests now come through Vercel proxy
+  `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/v1/users/auth/google/callback`
 );
 
 export const googleAuth = (req, res) => {
@@ -60,6 +61,7 @@ export const googleAuthCallback = async (req, res) => {
     const options = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax"
     };
 
     // Redirect to frontend

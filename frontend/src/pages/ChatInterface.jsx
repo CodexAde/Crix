@@ -169,6 +169,8 @@ export default function ChatInterface() {
   const [shareModal, setShareModal] = useState({ open: false, content: '' });
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const inputContainerRef = useRef(null);
+  const chatAreaRef = useRef(null);
   const abortControllerRef = useRef(null);
 
   const handleShare = (content) => {
@@ -205,29 +207,37 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
-  // Mobile keyboard scroll handling - like ChatGPT
+  // Mobile keyboard scroll handling - like ChatGPT (instant scroll)
   useEffect(() => {
+    const scrollToInput = () => {
+      // Scroll the chat area to bottom so input is visible
+      if (chatAreaRef.current) {
+        chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
+      }
+      // Also use scrollIntoView on messages end
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant', block: 'end' });
+    };
+
     const handleViewportChange = () => {
       if (window.visualViewport) {
         const viewport = window.visualViewport;
-        // If viewport height is less than window height, keyboard is open
-        if (viewport.height < window.innerHeight * 0.9) {
-          // Scroll to bottom after a small delay to let layout settle
-          setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-          }, 100);
+        const heightDiff = window.innerHeight - viewport.height;
+        // If keyboard is open (height difference > 100px)
+        if (heightDiff > 100) {
+          scrollToInput();
         }
       }
     };
 
     const handleInputFocus = () => {
-      // Small delay to let keyboard appear
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-      }, 300);
+      // Immediate scroll
+      scrollToInput();
+      // Backup scrolls for when keyboard animation completes
+      setTimeout(scrollToInput, 100);
+      setTimeout(scrollToInput, 300);
     };
 
-    // Listen for visual viewport changes (keyboard appearing/disappearing)
+    // Listen for visual viewport changes
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleViewportChange);
     }
@@ -272,7 +282,7 @@ export default function ChatInterface() {
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/api/v1/ai/chat/${topicId}`, {
+        const response = await fetch(`/api/v1/ai/chat/${topicId}`, {
           credentials: 'include',
         });
         const data = await response.json();
@@ -320,7 +330,7 @@ export default function ChatInterface() {
     abortControllerRef.current = controller;
 
     try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/api/v1/ai/chat`, {
+        const response = await fetch(`/api/v1/ai/chat`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -394,7 +404,7 @@ export default function ChatInterface() {
   const isEmptyState = messages.length === 0 && !isLoading;
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-main">
+    <div className="fixed inset-x-0 top-0 h-[100dvh] flex flex-col bg-main">
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-3 bg-card/80 backdrop-blur-xl border-b border-border-soft">
             <div className="flex items-center gap-3">
@@ -411,7 +421,7 @@ export default function ChatInterface() {
         </header>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto overscroll-none">
+        <div ref={chatAreaRef} className="flex-1 overflow-y-auto overscroll-none">
           {isEmptyState ? (
             <div className="flex flex-col items-center justify-center h-full px-4">
               <div className="w-20 h-20 rounded-full bg-accent flex items-center justify-center mb-6 shadow-lg shadow-accent/20">

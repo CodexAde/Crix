@@ -10,10 +10,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Configure axios defaults
-  // In dev: VITE_BACKEND_URL = http://localhost:3000
-  // In prod: VITE_BACKEND_URL = https://your-backend.com
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-  axios.defaults.baseURL = `${backendUrl}/api/v1`;
+  // In production: Uses Vercel rewrites to proxy to backend (same-origin cookies for Safari)
+  // In dev: Uses Vite proxy
+  axios.defaults.baseURL = '/api/v1';
   axios.defaults.withCredentials = true;
 
   const checkUser = async () => {

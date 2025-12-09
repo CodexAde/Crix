@@ -46,8 +46,7 @@ export default function Register() {
   };
 
   const handleGoogleLogin = () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
-    window.location.href = `${backendUrl}/api/v1/users/auth/google`;
+    window.location.href = '/api/v1/users/auth/google';
   };
 
   return (
