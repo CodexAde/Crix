@@ -7,7 +7,7 @@ import { generateAccessAndRefresTokens } from './user.controller.js'; // Need to
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  `http://localhost:${process.env.PORT || 3000}/api/v1/users/auth/google/callback`
+  `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/v1/users/auth/google/callback`
 );
 
 export const googleAuth = (req, res) => {

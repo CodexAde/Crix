@@ -205,6 +205,49 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
+  // Mobile keyboard scroll handling - like ChatGPT
+  useEffect(() => {
+    const handleViewportChange = () => {
+      if (window.visualViewport) {
+        const viewport = window.visualViewport;
+        // If viewport height is less than window height, keyboard is open
+        if (viewport.height < window.innerHeight * 0.9) {
+          // Scroll to bottom after a small delay to let layout settle
+          setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+          }, 100);
+        }
+      }
+    };
+
+    const handleInputFocus = () => {
+      // Small delay to let keyboard appear
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, 300);
+    };
+
+    // Listen for visual viewport changes (keyboard appearing/disappearing)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+    }
+
+    // Listen for input focus
+    const input = inputRef.current;
+    if (input) {
+      input.addEventListener('focus', handleInputFocus);
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+      }
+      if (input) {
+        input.removeEventListener('focus', handleInputFocus);
+      }
+    };
+  }, []);
+
   // Global keydown to focus input - only for regular typing
   useEffect(() => {
     const handleKeyDown = (e) => {
