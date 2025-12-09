@@ -33,6 +33,7 @@ import ChapterView from './pages/ChapterView';
 import ChatInterface from './pages/ChatInterface';
 import Doubts from './pages/Doubts';
 import Syllabus from './pages/Syllabus';
+import AddChapters from './pages/AddChapters';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -68,6 +69,8 @@ function AppRoutes() {
           <Route path="/chapter/:subjectId/:unitId/:chapterId" element={<ChapterView />} />
           
           <Route path="/doubts" element={<Doubts />} />
+
+          <Route path="/add-chapters" element={<AddChapters />} />
       </Route>
       
       {/* Chat Routes - Full Screen (Outside Layout) */}

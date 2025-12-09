@@ -128,6 +128,27 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
+      {/* Quick Add Chapters Card */}
+      <motion.div variants={itemVariants}>
+        <Link 
+          to="/add-chapters"
+          className="block bg-gradient-to-r from-accent/10 to-purple-500/10 rounded-[1.5rem] p-6 border border-accent/20 hover:border-accent/50 transition-all group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-accent/20 rounded-2xl group-hover:bg-accent transition-colors">
+                <Sparkles className="w-7 h-7 text-accent group-hover:text-white transition-colors" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-primary group-hover:text-accent transition-colors">Add Chapters with AI</h3>
+                <p className="text-sm text-secondary">Upload syllabus image → Get chapters instantly</p>
+              </div>
+            </div>
+            <ArrowRight className="w-6 h-6 text-accent group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+      </motion.div>
+
       {/* Today's Focus Section */}
       <motion.section variants={itemVariants}>
         <div className="flex items-center justify-between mb-4">

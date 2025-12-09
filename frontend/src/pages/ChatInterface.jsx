@@ -207,6 +207,17 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
+  // Auto-scroll when AI finishes typing
+  useEffect(() => {
+    if (!isTyping && messages.length > 0) {
+      // AI just finished typing, scroll to show complete answer
+      const timer = setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isTyping]);
+
   // Mobile keyboard scroll handling - like ChatGPT (instant scroll)
   useEffect(() => {
     let scrollTimeoutId = null;

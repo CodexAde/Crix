@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Home, BookOpen, MessageSquare, LogOut, User, Moon, Sun, Sparkles } from 'lucide-react';
+import { Home, BookOpen, MessageSquare, LogOut, User, Moon, Sun, Sparkles, PlusCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function Layout() {
@@ -12,6 +12,7 @@ export default function Layout() {
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: BookOpen, label: 'Syllabus', path: '/syllabus' },
+    { icon: PlusCircle, label: 'Add Chapters', path: '/add-chapters' },
     { icon: MessageSquare, label: 'Doubts', path: '/doubts' },
   ];
 

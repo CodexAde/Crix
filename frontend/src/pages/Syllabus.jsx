@@ -137,7 +137,7 @@ export default function Syllabus() {
       </motion.div>
 
       {/* Stats Bar */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -164,7 +164,7 @@ export default function Syllabus() {
             </div>
           </motion.div>
         ))}
-      </motion.div>
+      </motion.div> */}
 
       {/* Subjects Display */}
       {loading ? (
@@ -252,13 +252,13 @@ export default function Syllabus() {
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-secondary">Progress</span>
                           <span className="text-sm font-bold text-accent">
-                            {subject.progress || 0}%
+                            {subject.progress || 80}%
                           </span>
                         </div>
                         <div className="h-2 rounded-full bg-border-soft overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
-                            animate={{ width: `${subject.progress || 0}%` }}
+                            animate={{ width: `${subject.progress || 80}%` }}
                             transition={{ duration: 1, ease: "easeOut", delay: index * 0.05 }}
                             className="h-full bg-accent rounded-full"
                           />

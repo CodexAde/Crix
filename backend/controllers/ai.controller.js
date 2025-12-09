@@ -1,17 +1,22 @@
-import { OpenRouter } from "@openrouter/sdk";
+import OpenAI from 'openai';
 import { User } from "../models/user.model.js";
 import { Subject } from "../models/syllabus.model.js";
 import { Chat } from "../models/chat.model.js";
 
-// Lazy initialization of OpenRouter client
-let openrouter = null;
-const getOpenRouter = () => {
-    if (!openrouter) {
-        openrouter = new OpenRouter({
-            apiKey: process.env.OPENROUTER_API_KEY
+// Initialize OpenAI client for OpenRouter
+let openai = null;
+const getOpenAI = () => {
+    if (!openai) {
+        openai = new OpenAI({
+            baseURL: "https://openrouter.ai/api/v1",
+            apiKey: process.env.OPENROUTER_API_KEY,
+            defaultHeaders: {
+                "HTTP-Referer": "http://localhost:5173", // Site URL
+                "X-Title": "Crix AI Tutor" // Site Name
+            }
         });
     }
-    return openrouter;
+    return openai;
 };
 
 // Get chat history for a topic
@@ -21,7 +26,7 @@ const getChatHistory = async (req, res) => {
         const userId = req.user._id;
 
         const chat = await Chat.findOne({ userId, topicId });
-        
+
         if (!chat) {
             return res.json({ success: true, messages: [] });
         }
@@ -45,9 +50,9 @@ const streamChat = async (req, res) => {
 
         // 1. Fetch Context
         const user = await User.findById(userId);
-        
+
         // Find topic details
-        const subjects = await Subject.find({"units.chapters.topics._id": topicId});
+        const subjects = await Subject.find({ "units.chapters.topics._id": topicId });
         let topicContext = "General Engineering Topic";
         if (subjects.length > 0) {
             const subject = subjects[0];
@@ -55,15 +60,15 @@ const streamChat = async (req, res) => {
             subject.units.forEach(u => {
                 u.chapters.forEach(c => {
                     const t = c.topics.find(t => t._id.toString() === topicId);
-                    if(t) foundTopic = t;
+                    if (t) foundTopic = t;
                 })
             });
-            if(foundTopic) {
+            if (foundTopic) {
                 topicContext = `Topic: ${foundTopic.title}. Description: ${foundTopic.description}. Subject: ${subject.name}`;
             }
         }
 
-        // 2. Construct System Prompt (Updated as per user request)
+        // 2. Construct System Prompt
         let systemPrompt = `You are an AI tutor. Your responses are rendered in a markdown chat UI with full code block support.
 
 MANDATORY: YOU MUST USE CODE BLOCKS!
@@ -88,13 +93,7 @@ HEADING RULES:
 
 CODE BLOCKS WITH SYNTAX HIGHLIGHTING:
 - For ANY code, formula, or technical answer - ALWAYS use code blocks
-- ALWAYS specify the language after backticks for proper syntax highlighting:
-  - \`\`\`python for Python code
-  - \`\`\`javascript for JavaScript
-  - \`\`\`c for C language
-  - \`\`\`java for Java
-  - \`\`\`sql for SQL queries
-  - \`\`\`diff for showing answers with colors (+ for correct in green, - for wrong in red)
+- \`\`\`diff for showing answers with colors (✅ for correct in green, ❌ for wrong in red)
 - For inline code: \`variable\` with single backticks
 - For math formulas: $$ E = mc^2 $$
 
@@ -173,8 +172,9 @@ TEACHING STYLE:
             { role: "user", content: message }
         ];
 
-        const stream = await getOpenRouter().chat.send({
-            model: "meta-llama/llama-3.3-70b-instruct:free",
+        // Use standard OpenAI SDK for OpenRouter
+        const stream = await getOpenAI().chat.completions.create({
+            model: "tngtech/deepseek-r1t2-chimera:free",
             messages: messages,
             stream: true,
             max_tokens: 2048,

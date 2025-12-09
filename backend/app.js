@@ -53,12 +53,14 @@ import userRouter from './routes/user.routes.js';
 import syllabusRouter from './routes/syllabus.routes.js';
 import aiRouter from './routes/ai.routes.js';
 import progressRouter from './routes/progress.routes.js';
+import chapterRouter from './routes/chapter.routes.js';
 
 // Routes declaration
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/syllabus", syllabusRouter);
 app.use("/api/v1/ai", aiRouter);
 app.use("/api/v1/progress", progressRouter);
+app.use("/api/v1/chapters", chapterRouter);
 
 app.get('/', (req, res) => {
     res.send('Cerix Backend is running!');
