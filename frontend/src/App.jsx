@@ -31,6 +31,8 @@ import Dashboard from './pages/Dashboard';
 import SubjectView from './pages/SubjectView';
 import ChapterView from './pages/ChapterView';
 import ChatInterface from './pages/ChatInterface';
+import Doubts from './pages/Doubts';
+import Syllabus from './pages/Syllabus';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -59,13 +61,13 @@ function AppRoutes() {
       }>
           <Route path="/dashboard" element={<Dashboard />} />
           
-           <Route path="/syllabus" element={
-              <div className="p-10 text-center">All Subjects List (Use Dashboard for now)</div>
-          } />
+           <Route path="/syllabus" element={<Syllabus />} />
 
           <Route path="/syllabus/:id" element={<SubjectView />} />
 
           <Route path="/chapter/:subjectId/:unitId/:chapterId" element={<ChapterView />} />
+          
+          <Route path="/doubts" element={<Doubts />} />
       </Route>
       
       {/* Chat Routes - Full Screen (Outside Layout) */}
