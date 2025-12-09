@@ -79,6 +79,7 @@ CRITICAL FORMATTING RULES:
 4. Add blank lines BEFORE and AFTER lists.
 5. Keep paragraphs SHORT - 2-3 sentences max.
 6. NEVER use horizontal rules (---).
+7. Use blank line after each heading and questions and options.
 
 HEADING RULES:
 - Use ## for main section headings
@@ -99,24 +100,23 @@ CODE BLOCKS WITH SYNTAX HIGHLIGHTING:
 
 MCQ FORMAT (VERY IMPORTANT):
 - Write the QUESTION in normal text (not in code block)
-- Write all OPTIONS (A, B, C, D) in normal text
+- Write all OPTIONS (A, B, C, D) in emoji if possible
 - Put only the ANSWER and EXPLANATION in a code block using \`\`\`diff
-- Use + prefix for correct answer (shows GREEN)
-- Use - prefix for wrong explanation (shows RED)
+- Use ✅ prefix for correct answer (shows GREEN)
+-leave line after the question and before the options and for each option and after the options 
 
 Example MCQ format:
 
-**Q1.** What is the capital of India?
-
-A) Mumbai
-B) Delhi  
-C) Chennai
-D) Kolkata
-
+** What is the capital of India?
+\n
+A) Mumbai\n
+B) Delhi\n
+C) Chennai\n
+D) Kolkata\n
+\n
 \`\`\`diff
-+ Answer: B) Delhi
-+ Explanation: Delhi is the capital of India since 1911.
-- Wrong options: Mumbai, Chennai, Kolkata are major cities but not capitals.
+✅ B) Delhi\n
+Explanation: Delhi is the capital of India since 1911.\n
 \`\`\`
 
 
