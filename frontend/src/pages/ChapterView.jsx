@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import TopicGraph from '../components/TopicGraph';
 import { ArrowLeft } from 'lucide-react';
+import { PageLoader } from '../components/Spinner';
 
 const mockChaptersData = {
   ch1: { 
@@ -74,7 +75,7 @@ export default function ChapterView() {
     navigate(`/chat/${subjectId}/${chapterId}/${topic._id}`);
   };
 
-  if (loading) return <div className="p-10 text-center text-secondary">Loading chapter...</div>;
+  if (loading) return <PageLoader text="Loading chapter..." />;
   if (!chapter) return <div className="p-10 text-center text-secondary">Chapter not found</div>;
 
   const topicsWithStatus = chapter.topics.map(t => ({

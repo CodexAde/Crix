@@ -209,7 +209,12 @@ export default function ChatInterface() {
 
   // Mobile keyboard scroll handling - like ChatGPT (instant scroll)
   useEffect(() => {
+    let scrollTimeoutId = null;
+    
     const scrollToInput = () => {
+      // Clear any pending scroll
+      if (scrollTimeoutId) clearTimeout(scrollTimeoutId);
+      
       // Scroll the chat area to bottom so input is visible
       if (chatAreaRef.current) {
         chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
@@ -232,9 +237,8 @@ export default function ChatInterface() {
     const handleInputFocus = () => {
       // Immediate scroll
       scrollToInput();
-      // Backup scrolls for when keyboard animation completes
-      setTimeout(scrollToInput, 100);
-      setTimeout(scrollToInput, 300);
+      // Single backup scroll after keyboard opens
+      scrollTimeoutId = setTimeout(scrollToInput, 300);
     };
 
     // Listen for visual viewport changes
@@ -249,6 +253,7 @@ export default function ChatInterface() {
     }
 
     return () => {
+      if (scrollTimeoutId) clearTimeout(scrollTimeoutId);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleViewportChange);
       }

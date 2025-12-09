@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Clock, ChevronRight, ArrowLeft, BookOpen, Play } from 'lucide-react';
+import { PageLoader } from '../components/Spinner';
 
 const mockSubjectsData = {
     mock1: {
@@ -108,11 +109,7 @@ export default function SubjectView() {
     }, [id]);
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-main flex items-center justify-center">
-                <p className="text-secondary">Loading...</p>
-            </div>
-        );
+        return <PageLoader text="Loading subject..." />;
     }
 
     if (!subject) return <div className="p-10 text-center text-secondary">Subject not found</div>;

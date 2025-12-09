@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
+import { PageLoader } from './components/Spinner';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -9,7 +10,7 @@ import Register from './pages/Register';
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <PageLoader />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 };
@@ -17,7 +18,7 @@ const ProtectedRoute = ({ children }) => {
 // Onboarding Guard
 const RequireOnboarding = ({ children }) => {
     const { user, loading } = useAuth();
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <PageLoader />;
     if (user && !user.academicInfo?.isOnboarded) {
         return <Navigate to="/onboarding" replace />;
     }
@@ -34,7 +35,7 @@ import ChatInterface from './pages/ChatInterface';
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if(loading) return <div className="min-h-screen flex items-center justify-center bg-main text-primary">Loading...</div>
+  if(loading) return <PageLoader />
 
   return (
     <Routes>

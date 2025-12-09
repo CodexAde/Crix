@@ -2,7 +2,7 @@
   "rewrites": [
     { 
       "source": "/api/:path*", 
-      "destination": "https://crix-backend.onrender.com/api/:path*"
+      "destination": "https://crix-or5y.onrender.com/api/:path*"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
