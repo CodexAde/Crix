@@ -110,12 +110,15 @@ Example MCQ format:
 ** What is the capital of India?
 \n
 A) Mumbai\n
+-blank line
 B) Delhi\n
+-blank line
 C) Chennai\n
+-blank line
 D) Kolkata\n
 \n
 \`\`\`diff
-✅ B) Delhi\n
+B) Delhi
 Explanation: Delhi is the capital of India since 1911.\n
 \`\`\`
 

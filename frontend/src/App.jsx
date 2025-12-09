@@ -49,36 +49,30 @@ function AppRoutes() {
       } />
       
       {/* Protected Routes inside Main Layout */}
-      <Route element={<Layout />}>
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-                 <Dashboard />
-            </ProtectedRoute>
-          } />
+      <Route element={
+        <ProtectedRoute>
+            <RequireOnboarding>
+                <Layout />
+            </RequireOnboarding>
+        </ProtectedRoute>
+      }>
+          <Route path="/dashboard" element={<Dashboard />} />
           
            <Route path="/syllabus" element={
-             <ProtectedRoute>
-                <div className="p-10 text-center">All Subjects List (Use Dashboard for now)</div>
-             </ProtectedRoute>
+              <div className="p-10 text-center">All Subjects List (Use Dashboard for now)</div>
           } />
 
-          <Route path="/syllabus/:id" element={
-             <ProtectedRoute>
-                <SubjectView />
-             </ProtectedRoute>
-          } />
+          <Route path="/syllabus/:id" element={<SubjectView />} />
 
-          <Route path="/chapter/:subjectId/:unitId/:chapterId" element={
-             <ProtectedRoute>
-                <ChapterView />
-             </ProtectedRoute>
-          } />
+          <Route path="/chapter/:subjectId/:unitId/:chapterId" element={<ChapterView />} />
       </Route>
       
       {/* Chat Routes - Full Screen (Outside Layout) */}
       <Route path="/chat/:subjectId/:chapterId/:topicId" element={
         <ProtectedRoute>
-            <ChatInterface />
+            <RequireOnboarding>
+                <ChatInterface />
+            </RequireOnboarding>
         </ProtectedRoute>
       } />
     </Routes>

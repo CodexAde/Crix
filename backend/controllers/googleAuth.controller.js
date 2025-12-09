@@ -31,7 +31,7 @@ export const googleAuthCallback = async (req, res) => {
       url: 'https://www.googleapis.com/oauth2/v3/userinfo',
     });
     
-    const { email, name, sub } = userInfoResponse.data;
+    const { email, name, sub, picture } = userInfoResponse.data;
 
     let user = await User.findOne({ email });
 
@@ -40,10 +40,15 @@ export const googleAuthCallback = async (req, res) => {
       user = await User.create({
         name,
         email,
+        avatar: picture || "",
         password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Secure-ish random
         academicInfo: { isOnboarded: false },
         personaProfile: null
       });
+    } else if (!user.avatar && picture) {
+        // Update avatar if missing
+        user.avatar = picture;
+        await user.save({ validateBeforeSave: false });
     }
 
     // Generate our app's tokens

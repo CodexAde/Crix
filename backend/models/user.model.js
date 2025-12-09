@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema(
             lowecase: true,
             trim: true,
         },
+        avatar: {
+            type: String, // URL to profile picture
+            default: ""
+        },
         password: {
             type: String,
             required: [true, 'Password is required']

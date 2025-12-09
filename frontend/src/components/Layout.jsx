@@ -68,8 +68,12 @@ export default function Layout() {
             </button>
 
             <div className="flex items-center gap-3 px-2 mb-4">
-                <div className="w-10 h-10 rounded-full bg-border-soft flex items-center justify-center text-secondary font-semibold">
-                    {user?.name?.charAt(0) || 'U'}
+                <div className="w-10 h-10 rounded-full bg-border-soft flex items-center justify-center text-secondary font-semibold overflow-hidden">
+                    {user?.avatar ? (
+                        <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
+                    ) : (
+                        user?.name?.charAt(0) || 'U'
+                    )}
                 </div>
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-primary truncate">{user?.name}</p>

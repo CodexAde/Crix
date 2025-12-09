@@ -61,8 +61,12 @@ export default function Dashboard() {
       {/* Header */}
       <motion.header variants={itemVariants} className="relative">
         <div className="flex items-center gap-4 mb-2">
-          <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
-            <Sparkles className="w-7 h-7 text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20 overflow-hidden">
+            {user?.avatar ? (
+                <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+                <Sparkles className="w-7 h-7 text-white" />
+            )}
           </div>
           <div>
             <h1 className="text-3xl font-bold text-primary">
@@ -194,7 +198,7 @@ export default function Dashboard() {
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs text-secondary mb-1.5">
                     <span>Progress</span>
-                    <span className="font-semibold text-accent">{subject.progress || 80}%</span>
+                    <span className="font-semibold text-accent">{subject.progress || 0}%</span>
                   </div>
                   <div className="w-full bg-border-soft h-1.5 rounded-full overflow-hidden">
                     <div 

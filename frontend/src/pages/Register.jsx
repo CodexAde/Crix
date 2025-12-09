@@ -109,7 +109,7 @@ export default function Register() {
             <button 
                 type="button" 
                 onClick={handleGoogleLogin}
-                className="flex items-center justify-center gap-2 h-11 rounded-2xl border transition-colors hover:bg-gray-50"
+                className="flex items-center justify-center gap-2 h-11 rounded-2xl border transition-colors hover:bg-accent/5"
                 style={{ borderColor: 'var(--border-soft)', color: 'var(--text-primary)' }}
             >
                <GoogleIcon />
@@ -117,7 +117,7 @@ export default function Register() {
             </button>
             <button 
               type="button" 
-              className="flex items-center justify-center gap-2 h-11 rounded-2xl border transition-colors hover:bg-gray-50"
+              className="flex items-center justify-center gap-2 h-11 rounded-2xl border transition-colors hover:bg-accent/5"
               style={{ borderColor: 'var(--border-soft)', color: 'var(--text-primary)' }}
               onClick={() => toast.error('GitHub login coming soon!')}
             >
