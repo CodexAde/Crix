@@ -40,3 +40,12 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Hide horizontal rules in chat - make them invisible */
+.prose hr {
+  border-color: transparent !important;
+  background: transparent !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+  height: 0 !important;
+}

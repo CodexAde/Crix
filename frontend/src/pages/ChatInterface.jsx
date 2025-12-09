@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal } from 'lucide-react';
+import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal, X, Link2, MessageCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -11,6 +11,153 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
+// Syntax highlighting for code blocks
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+// Memoized Message Component to prevent re-renders
+const MessageItem = memo(({ msg, idx, isTyping, onShare }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(msg.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.div 
+      key={idx}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className={clsx(
+        "flex w-full",
+        msg.role === 'user' ? "justify-end" : "justify-start"
+      )}
+    >
+      {msg.role === 'user' ? (
+        <div className="max-w-[85%] md:max-w-[75%] rounded-2xl rounded-br-md px-4 py-3 bg-[--accent] text-white shadow-sm">
+          <p className="text-sm leading-relaxed">{msg.content}</p>
+        </div>
+      ) : (
+        <div className="w-full">
+          <div className="prose prose-sm max-w-none break-words leading-loose text-primary">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-4 mt-5 text-primary" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-base font-bold mb-3 mt-4 text-accent" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-3 mt-4 text-primary" {...props} />,
+                p: ({node, ...props}) => <p className="mb-4 last:mb-0 text-sm leading-relaxed" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
+                li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
+                blockquote: ({node, ...props}) => (
+                  <blockquote className="border-l-3 border-accent/50 bg-accent/10 pl-4 py-2 italic rounded-r mb-4 text-sm" {...props} />
+                ),
+                code: ({node, inline, className, children, ...props}) => {
+                  const match = /language-(\w+)/.exec(className || '');
+                  const language = match ? match[1] : '';
+                  const codeString = String(children).replace(/\n$/, '');
+                  
+                  if (inline) {
+                    return (
+                      <code className="bg-border-soft text-accent px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
+                        {children}
+                      </code>
+                    );
+                  }
+                  
+                  return (
+                    <div className="relative my-4 rounded-lg overflow-hidden bg-[#1e1e1e]">
+                      <div className="flex items-center justify-between px-4 py-2.5 bg-[#2d2d2d]">
+                        <span className="text-xs text-gray-400 font-medium">
+                          {language || 'code'}
+                        </span>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(codeString)}
+                          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy code</span>
+                        </button>
+                      </div>
+                      <SyntaxHighlighter
+                        style={oneDark}
+                        language={language || 'text'}
+                        PreTag="div"
+                        customStyle={{
+                          margin: 0,
+                          borderRadius: 0,
+                          padding: '1rem 1.25rem',
+                          fontSize: '0.85rem',
+                          lineHeight: '1.6',
+                          background: '#1e1e1e',
+                        }}
+                        codeTagProps={{
+                          style: {
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                          }
+                        }}
+                      >
+                        {codeString}
+                      </SyntaxHighlighter>
+                    </div>
+                  );
+                },
+              }}
+            >
+              {msg.content}
+            </ReactMarkdown>
+          </div>
+          {/* CTA Buttons - Only show when NOT typing */}
+          {!isTyping && (
+            <div className="flex items-center gap-1 mt-4">
+              <button 
+                onClick={handleCopy}
+                className={clsx(
+                  "p-2 rounded-lg transition-colors",
+                  copied ? "text-green-500" : "text-secondary hover:text-primary hover:bg-border-soft"
+                )}
+                title={copied ? "Copied!" : "Copy"}
+              >
+                {copied ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
+              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="Good response">
+                <ThumbsUp className="w-4 h-4" />
+              </button>
+              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="Bad response">
+                <ThumbsDown className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => onShare(msg.content)}
+                className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" 
+                title="Share"
+              >
+                <Share className="w-4 h-4" />
+              </button>
+              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="Regenerate">
+                <RefreshCw className="w-4 h-4" />
+              </button>
+              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="More options">
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </motion.div>
+  );
+});
+
 export default function ChatInterface() {
   const { topicId } = useParams();
   const navigate = useNavigate();
@@ -19,8 +166,35 @@ export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [shareModal, setShareModal] = useState({ open: false, content: '' });
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  const handleShare = (content) => {
+    setShareModal({ open: true, content });
+  };
+
+  const closeShareModal = () => {
+    setShareModal({ open: false, content: '' });
+  };
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+  };
+
+  const shareToWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareModal.content + '\n\n' + shareUrl)}`, '_blank');
+  };
+
+  const shareToTwitter = () => {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareModal.content.slice(0, 200) + '...')}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+  };
+
+  const shareToTelegram = () => {
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareModal.content.slice(0, 200))}`, '_blank');
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -30,12 +204,20 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
-  // Global keydown to focus input
+  // Global keydown to focus input - only for regular typing
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Skip if already in an input
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Meta') return;
-      inputRef.current?.focus();
+      
+      // Skip if any modifier key is held (for shortcuts like Cmd+C, Cmd+V)
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      
+      // Only focus on single printable characters (letters, numbers, symbols)
+      // This ensures shortcuts don't trigger focus
+      if (e.key.length === 1 && !e.repeat) {
+        inputRef.current?.focus();
+      }
     };
     
     window.addEventListener('keydown', handleKeyDown);
@@ -172,98 +354,7 @@ export default function ChatInterface() {
           ) : (
             <div className="max-w-3xl mx-auto p-4 space-y-6 pb-4">
               {messages.map((msg, idx) => (
-                <motion.div 
-                    key={idx}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className={clsx(
-                        "flex w-full",
-                        msg.role === 'user' ? "justify-end" : "justify-start"
-                    )}
-                >
-                    {msg.role === 'user' ? (
-                        // User message - in bubble
-                        <div className="max-w-[85%] md:max-w-[75%] rounded-2xl rounded-br-md px-4 py-3 bg-[--accent] text-white shadow-sm">
-                            <p className="text-sm leading-relaxed">{msg.content}</p>
-                        </div>
-                    ) : (
-                        // AI message - no bubble, just text with action icons
-                        <div className="w-full">
-                            <div className="prose prose-sm max-w-none break-words leading-loose text-primary">
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm, remarkMath]}
-                                    rehypePlugins={[rehypeKatex]}
-                                    components={{
-                                        h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-4 mt-5 text-primary" {...props} />,
-                                        h2: ({node, ...props}) => <h2 className="text-base font-bold mb-3 mt-4 text-accent" {...props} />,
-                                        h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-3 mt-4 text-primary" {...props} />,
-                                        p: ({node, ...props}) => <p className="mb-4 last:mb-0 text-sm leading-relaxed" {...props} />,
-                                        ul: ({node, ...props}) => <ul className="list-disc list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
-                                        ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
-                                        li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
-                                        blockquote: ({node, ...props}) => (
-                                            <blockquote className="border-l-3 border-accent/50 bg-accent/10 pl-4 py-2 italic rounded-r mb-4 text-sm" {...props} />
-                                        ),
-                                        code: ({node, inline, children, ...props}) => {
-                                            return inline ? (
-                                                <code className="bg-border-soft text-accent px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
-                                                    {children}
-                                                </code>
-                                            ) : (
-                                                <code className="block bg-main text-primary p-4 rounded-lg overflow-x-auto text-xs font-mono my-4 border border-border-soft" {...props}>
-                                                    {children}
-                                                </code>
-                                            );
-                                        },
-                                    }}
-                                >
-                                    {msg.content}
-                                </ReactMarkdown>
-                            </div>
-                            {/* Action icons below AI response */}
-                            <div className="flex items-center gap-1 mt-4">
-                                <button 
-                                    onClick={() => navigator.clipboard.writeText(msg.content)}
-                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
-                                    title="Copy"
-                                >
-                                    <Copy className="w-4 h-4" />
-                                </button>
-                                <button 
-                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
-                                    title="Good response"
-                                >
-                                    <ThumbsUp className="w-4 h-4" />
-                                </button>
-                                <button 
-                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
-                                    title="Bad response"
-                                >
-                                    <ThumbsDown className="w-4 h-4" />
-                                </button>
-                                <button 
-                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
-                                    title="Share"
-                                >
-                                    <Share className="w-4 h-4" />
-                                </button>
-                                <button 
-                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
-                                    title="Regenerate"
-                                >
-                                    <RefreshCw className="w-4 h-4" />
-                                </button>
-                                <button 
-                                    className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary"
-                                    title="More options"
-                                >
-                                    <MoreHorizontal className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </motion.div>
+                <MessageItem key={idx} msg={msg} idx={idx} isTyping={isTyping} onShare={handleShare} />
               ))}
               {isTyping && (
                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
@@ -326,6 +417,86 @@ export default function ChatInterface() {
               </div>
             </div>
         </div>
+
+        {/* Share Modal */}
+        {shareModal.open && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* Blur backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={closeShareModal}
+            />
+            
+            {/* Modal content */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative bg-card rounded-2xl p-6 w-[90%] max-w-md shadow-2xl border border-border-soft"
+            >
+              {/* Close button */}
+              <button 
+                onClick={closeShareModal}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-border-soft transition-colors"
+              >
+                <X className="w-5 h-5 text-secondary" />
+              </button>
+
+              <h3 className="text-lg font-semibold text-primary mb-4">Share 🚀</h3>
+
+              {/* Link copy section */}
+              <div className="mb-6">
+                <p className="text-xs text-secondary mb-2">Copy link</p>
+                <div className="flex items-center gap-2 bg-main rounded-xl p-3 border border-border-soft">
+                  <Link2 className="w-4 h-4 text-secondary flex-shrink-0" />
+                  <span className="text-sm text-primary truncate flex-1">{shareUrl}</span>
+                  <button 
+                    onClick={copyLink}
+                    className="px-3 py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:opacity-90 transition-all"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              {/* Social share buttons */}
+              <p className="text-xs text-secondary mb-3">Share to</p>
+              <div className="grid grid-cols-3 gap-3">
+                {/* WhatsApp */}
+                <button 
+                  onClick={shareToWhatsApp}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-main border border-border-soft hover:border-green-500/50 hover:bg-green-500/10 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xs text-primary font-medium">WhatsApp</span>
+                </button>
+
+                {/* Twitter/X */}
+                <button 
+                  onClick={shareToTwitter}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-main border border-border-soft hover:border-gray-400/50 hover:bg-gray-400/10 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">𝕏</span>
+                  </div>
+                  <span className="text-xs text-primary font-medium">Twitter</span>
+                </button>
+
+                {/* Telegram */}
+                <button 
+                  onClick={shareToTelegram}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-main border border-border-soft hover:border-blue-500/50 hover:bg-blue-500/10 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                    <Send className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xs text-primary font-medium">Telegram</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
     </div>
   );
 }
