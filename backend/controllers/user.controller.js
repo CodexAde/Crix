@@ -184,11 +184,56 @@ const updateOnboardingDetails = async (req, res) => {
     }
 }
 
+const updateUserProfile = async (req, res) => {
+    try {
+        const { name, academicInfo, personaProfile } = req.body;
+        
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update basic info
+        if (name) user.name = name;
+
+        // Update academicInfo safely
+        if (academicInfo) {
+            // If academicInfo is null/undefined in DB, init it
+            if (!user.academicInfo) user.academicInfo = {};
+            
+            // Merge new fields into existing subdocument
+            // This preserves Mongoose tracking and avoids spreading internal props
+            Object.assign(user.academicInfo, academicInfo);
+        }
+
+        // Update persona profile
+        if (personaProfile) {
+            user.personaProfile = personaProfile;
+        }
+
+        await user.save();
+
+        // Return updated user without sensitive info
+        const updatedUser = await User.findById(user._id).select("-password -refreshToken");
+
+        return res.status(200).json({
+            success: true,
+            user: updatedUser,
+            message: "Profile updated successfully"
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 export { 
     registerUser, 
     loginUser, 
     logoutUser, 
     getCurrentUser, 
     updateOnboardingDetails,
+    updateUserProfile,
     generateAccessAndRefresTokens
 };

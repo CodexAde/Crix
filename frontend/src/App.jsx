@@ -34,6 +34,7 @@ import ChatInterface from './pages/ChatInterface';
 import Doubts from './pages/Doubts';
 import Syllabus from './pages/Syllabus';
 import AddChapters from './pages/AddChapters';
+import UserProfile from './pages/UserProfile';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -71,6 +72,7 @@ function AppRoutes() {
           <Route path="/doubts" element={<Doubts />} />
 
           <Route path="/add-chapters" element={<AddChapters />} />
+          <Route path="/user-profile" element={<UserProfile />} />
       </Route>
       
       {/* Chat Routes - Full Screen (Outside Layout) */}
