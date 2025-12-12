@@ -364,7 +364,7 @@ export default function UserProfile() {
             {/* Persona Detail Modal */}
             {showPersonaModal && persona && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-card w-full max-w-2xl rounded-3xl border border-border-soft shadow-2xl max-h-[90vh] overflow-y-auto">
+                    <div className="bg-card w-full max-w-2xl rounded-3xl border border-border-soft shadow-2xl max-h-[80vh] overflow-y-auto">
                         <div className="sticky top-0 bg-card/90 backdrop-blur-md p-6 border-b border-border-soft flex items-center justify-between z-10">
                             <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
                                 <Sparkles className="w-6 h-6 text-accent" />

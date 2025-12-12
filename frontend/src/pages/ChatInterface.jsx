@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal, X, Link2, MessageCircle, Square, ArrowDown, Menu } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -178,7 +178,7 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
     return (
         <div className="flex flex-col h-full bg-card/50 backdrop-blur-3xl border-r border-border-soft">
             {/* Branding */}
-            <div className="flex items-center gap-3 p-6 border-b border-border-soft/50">
+            <Link to="/dashboard" className="flex items-center gap-3 p-6 border-b border-border-soft/50 hover:bg-white/5 transition-colors cursor-pointer block">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shadow-lg shadow-accent/20">
                     <Sparkles className="w-5 h-5 text-white" />
                 </div>
@@ -186,7 +186,7 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                     <h2 className="text-lg font-bold text-primary tracking-tight">Crix</h2>
                     <p className="text-xs text-secondary font-medium">AI Study Companion</p>
                 </div>
-            </div>
+            </Link>
 
             {/* Chapters List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
@@ -299,6 +299,16 @@ export default function ChatInterface() {
   const inputContainerRef = useRef(null);
   const chatAreaRef = useRef(null);
   const abortControllerRef = useRef(null);
+
+  // Derive active topic for header
+  const activeTopic = useMemo(() => {
+      if (!chapters.length || !topicId) return null;
+      for (const ch of chapters) {
+          const found = ch.topics?.find(t => t._id === topicId);
+          if (found) return found;
+      }
+      return null;
+  }, [chapters, topicId]);
 
   const handleShare = (content) => {
     setShareModal({ open: true, content });
@@ -703,19 +713,16 @@ export default function ChatInterface() {
                         <ArrowLeft className="w-5 h-5 text-secondary" />
                     </button>
                     
-                    {/* Mobile Toggle Trigger */}
-                    <button 
-                        onClick={() => setSidebarOpen(true)}
-                        className="flex items-center gap-2 md:pointer-events-none"
-                    >
-                         <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shadow-sm md:hidden">
+                    {/* Mobile Branding */}
+                    <div className="flex items-center gap-2 md:hidden">
+                         <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shadow-sm">
                             <Sparkles className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-primary font-semibold md:hidden">Crix</span>
-                    </button>
+                        <span className="text-primary font-semibold">Crix</span>
+                    </div>
 
                     {/* Desktop Header Title (Optional, maybe breadcrumbs) */}
-                     <div className="hidden md:flex items-center gap-2 text-sm text-secondary">
+                     <div className="hidden md:flex items-center gap-3 text-sm md:text-base text-secondary">
                         <button 
                             onClick={() => {
                                 const currentChapter = chapters.find(c => c._id === chapterId);
@@ -725,14 +732,29 @@ export default function ChatInterface() {
                                     navigate(`/syllabus/${subjectId}`);
                                 }
                             }}
-                            className="hover:text-primary transition-colors"
+                            className="hover:text-primary transition-colors flex items-center gap-1 group"
                         >
-                             <ArrowLeft className="w-4 h-4" />
+                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                             <span className="hidden lg:inline font-medium">Back</span>
                         </button>
-                        <span className="opacity-50">/</span>
-                        <span>Chat</span>
+                        <span className="opacity-30 text-lg font-light">/</span>
+                        <span className="line-clamp-1 max-w-[250px] font-semibold text-primary" title={activeTopic?.title || 'Chat'}>
+                            {activeTopic?.title || 'Chat'}
+                        </span>
                      </div>
                 </div>
+
+                 {/* Mobile Hamburger Menu (Right Side) */}
+                 <button 
+                     onClick={() => setSidebarOpen(true)}
+                     className="md:hidden p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 active:scale-95 transition-all text-secondary hover:text-primary shadow-sm"
+                 >
+                    <div className="flex flex-col gap-[3px] items-end w-5">
+                        <span className="w-5 h-0.5 bg-current rounded-full"></span>
+                        <span className="w-3.5 h-0.5 bg-current rounded-full"></span>
+                        <span className="w-2.5 h-0.5 bg-current rounded-full"></span>
+                    </div>
+                 </button>
             </header>
 
             {/* Chat Area */}
@@ -778,7 +800,7 @@ export default function ChatInterface() {
             {/* Scroll To Bottom Button */}
             <AnimatePresence>
                 {showScrollButton && (
-                    <div className="fixed bottom-36 md:bottom-36 right-8 md:right-[calc(50%-10rem)] z-20 flex justify-center pointer-events-none">
+                    <div className="fixed bottom-36 md:bottom-36 inset-x-0 md:right-[calc(50%-10rem)] md:left-auto z-20 flex justify-center pointer-events-none">
                         <motion.button
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}

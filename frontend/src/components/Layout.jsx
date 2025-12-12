@@ -48,6 +48,45 @@ export default function Layout() {
     { icon: User, label: 'Profile', path: '/user-profile' }
   ];
 
+  // Auto-hide bottom nav on scroll logic
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const mainElement = mainRef.current;
+    
+    const handleScroll = () => {
+        // Robust check: Look at both window and main element scroll positions
+        const winScroll = window.scrollY;
+        const mainScroll = mainElement ? mainElement.scrollTop : 0;
+        
+        // Use the value that is actually changing/active (usually the larger one if the other is 0)
+        const currentScrollY = Math.max(winScroll, mainScroll);
+        
+        // Threshold check (5px for responsiveness)
+        if (currentScrollY > lastScrollY.current + 5) {
+            setIsNavVisible(false);
+        } else if (currentScrollY < lastScrollY.current - 5) {
+            setIsNavVisible(true);
+        }
+        
+        lastScrollY.current = currentScrollY;
+    };
+
+    // Attach to both possible scroll containers to be absolutely sure
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    if (mainElement) {
+        mainElement.addEventListener('scroll', handleScroll, { passive: true });
+    }
+    
+    return () => {
+        window.removeEventListener('scroll', handleScroll);
+        if (mainElement) {
+            mainElement.removeEventListener('scroll', handleScroll);
+        }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-main flex flex-col md:flex-row">
       {/* Sidebar for Desktop */}
@@ -144,8 +183,16 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-lg border-t border-border-soft px-6 py-3 flex justify-between items-center z-50">
+      {/* Mobile Bottom Dock */}
+      <nav className={clsx(
+          "md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[85%] max-w-[360px]", // Floating & Centered
+          "bg-[#0f0f13]/80 backdrop-blur-xl border border-white/5", // Glassmorphism
+          "rounded-[2rem] shadow-2xl shadow-black/50", // Pill shape & Deep shadow
+          "flex justify-between items-center px-6 py-3.5 z-50",
+          "transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]", // Smooth spring-like easing
+          !isNavVisible && "translate-y-[150%] opacity-0", // Hide animation
+          isNavVisible && "translate-y-0 opacity-100"
+      )}>
         {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.path);
@@ -154,12 +201,27 @@ export default function Layout() {
                     key={item.path} 
                     to={item.path}
                     className={clsx(
-                        "flex flex-col items-center gap-1 min-w-[3.5rem]",
-                        isActive ? "text-accent" : "text-secondary hover:text-primary"
+                        "relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
+                        isActive ? "text-white" : "text-gray-400 hover:text-white"
                     )}
                 >
-                    <Icon className={clsx("w-6 h-6 transition-all", isActive && "scale-110")} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
+                    {isActive && (
+                        <span className="absolute inset-0 bg-accent/20 rounded-full blur-md" />
+                    )}
+                    {isActive && (
+                         <span className="absolute inset-0 bg-gradient-to-tr from-accent to-accent/80 rounded-full opacity-60 scale-75" />
+                    )}
+                    
+                    <Icon className={clsx(
+                        "relative w-5 h-5 transition-transform duration-300 z-10", 
+                        isActive && "scale-110",
+                        !isActive && "group-hover:scale-110"
+                    )} />
+                    
+                    {/* Active Reflector/Dot */}
+                    {isActive && (
+                        <span className="absolute -bottom-1 w-1 h-1 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                    )}
                 </Link>
             )
         })}

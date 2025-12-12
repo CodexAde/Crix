@@ -86,14 +86,14 @@ export default function ChapterView() {
   return (
     <div className="relative h-full flex flex-col bg-main">
        <div className="bg-card/80 backdrop-blur-md sticky top-0 z-20 px-6 py-4 border-b border-border-soft flex items-center justify-between">
-           <button onClick={() => navigate(-1)} className="p-2 hover:bg-border-soft rounded-full transition-colors">
+           <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-border-soft rounded-full transition-colors">
                <ArrowLeft className="w-5 h-5 text-secondary" />
            </button>
            <h1 className="text-lg font-bold text-primary truncate mx-4">{chapter.title}</h1>
            <div className="w-9" /> 
        </div>
        
-       <div className="flex-1 overflow-y-auto">
+       <div className="flex-1 overflow-y-auto pb-24 md:pb-4">
            <TopicGraph topics={topicsWithStatus} onSelectTopic={handleTopicClick} />
        </div>
     </div>
