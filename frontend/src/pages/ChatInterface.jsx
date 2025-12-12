@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal, X, Link2, MessageCircle, Square } from 'lucide-react';
+import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal, X, Link2, MessageCircle, Square, ArrowDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 
 import remarkGfm from 'remark-gfm';
@@ -167,6 +167,7 @@ export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const [shareModal, setShareModal] = useState({ open: false, content: '' });
   const messagesEndRef = useRef(null);
   const latestUserMsgRef = useRef(null);
@@ -232,6 +233,22 @@ export default function ChatInterface() {
       return () => clearTimeout(timer);
     }
   }, [isTyping]);
+
+  // Scroll handler to toggle button visibility
+  useEffect(() => {
+    const chatArea = chatAreaRef.current;
+    if (!chatArea) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = chatArea;
+      // Show button if user is scrolled up more than 100px from bottom
+      const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+      setShowScrollButton(isScrolledUp);
+    };
+
+    chatArea.addEventListener('scroll', handleScroll);
+    return () => chatArea.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Mobile keyboard scroll handling - like ChatGPT (instant scroll)
   useEffect(() => {
@@ -490,6 +507,23 @@ export default function ChatInterface() {
             </div>
           )}
         </div>
+
+        {/* Scroll To Bottom Button */}
+        <AnimatePresence>
+          {showScrollButton && (
+            <div className="fixed bottom-36 inset-x-0 z-20 flex justify-center pointer-events-none">
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                onClick={scrollToBottom}
+                className="pointer-events-auto p-2.5 bg-card border border-border-soft text-primary rounded-full shadow-xl hover:bg-accent hover:text-white hover:border-accent transition-all flex items-center justify-center"
+              >
+                <ArrowDown className="w-5 h-5" />
+              </motion.button>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* Input Area */}
         <div className="bg-card/80 backdrop-blur-xl border-t border-border-soft p-4">
