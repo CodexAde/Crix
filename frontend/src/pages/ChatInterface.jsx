@@ -452,7 +452,7 @@ export default function ChatInterface() {
         </header>
 
         {/* Chat Area */}
-        <div ref={chatAreaRef} className="flex-1 overflow-y-auto overscroll-none pb-[50vh]">
+        <div ref={chatAreaRef} className={clsx("flex-1 overflow-y-auto overscroll-none", isTyping ? "pb-[50vh]" : "pb-4")}>
           {isEmptyState ? (
             <div className="flex flex-col items-center justify-center h-full px-4">
               <div className="w-20 h-20 rounded-full bg-accent flex items-center justify-center mb-6 shadow-lg shadow-accent/20">
