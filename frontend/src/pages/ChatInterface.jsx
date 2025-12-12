@@ -16,7 +16,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // Memoized Message Component to prevent re-renders
-const MessageItem = memo(({ msg, idx, isTyping, onShare }) => {
+const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -27,6 +27,7 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare }) => {
 
   return (
     <motion.div 
+      ref={messageRef} 
       key={idx}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -168,6 +169,7 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(true);
   const [shareModal, setShareModal] = useState({ open: false, content: '' });
   const messagesEndRef = useRef(null);
+  const latestUserMsgRef = useRef(null);
   const inputRef = useRef(null);
   const inputContainerRef = useRef(null);
   const chatAreaRef = useRef(null);
@@ -204,8 +206,21 @@ export default function ChatInterface() {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (!isLoading) {
+      scrollToBottom();
+    }
+  }, [isLoading]);
+
+  // Scroll to user message when sent (to top of viewport)
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (!isLoading && lastMsg?.role === 'user') {
+      // Small timeout to ensure DOM update
+      setTimeout(() => {
+        latestUserMsgRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+    }
+  }, [messages, isLoading]);
 
   // Auto-scroll when AI finishes typing
   useEffect(() => {
@@ -213,7 +228,7 @@ export default function ChatInterface() {
       // AI just finished typing, scroll to show complete answer
       const timer = setTimeout(() => {
         scrollToBottom();
-      }, 100);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [isTyping]);
@@ -247,7 +262,7 @@ export default function ChatInterface() {
 
     const handleInputFocus = () => {
       // Immediate scroll
-      scrollToInput();
+      // scrollToInput();
       // Single backup scroll after keyboard opens
       scrollTimeoutId = setTimeout(scrollToInput, 300);
     };
@@ -437,7 +452,7 @@ export default function ChatInterface() {
         </header>
 
         {/* Chat Area */}
-        <div ref={chatAreaRef} className="flex-1 overflow-y-auto overscroll-none">
+        <div ref={chatAreaRef} className="flex-1 overflow-y-auto overscroll-none pb-[50vh]">
           {isEmptyState ? (
             <div className="flex flex-col items-center justify-center h-full px-4">
               <div className="w-20 h-20 rounded-full bg-accent flex items-center justify-center mb-6 shadow-lg shadow-accent/20">
@@ -451,7 +466,14 @@ export default function ChatInterface() {
           ) : (
             <div className="max-w-3xl mx-auto p-4 space-y-6 pb-4">
               {messages.map((msg, idx) => (
-                <MessageItem key={idx} msg={msg} idx={idx} isTyping={isTyping} onShare={handleShare} />
+                <MessageItem 
+                  key={idx} 
+                  msg={msg} 
+                  idx={idx} 
+                  isTyping={isTyping} 
+                  onShare={handleShare} 
+                  messageRef={msg.role === 'user' ? latestUserMsgRef : null}
+                />
               ))}
               {isTyping && (
                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
