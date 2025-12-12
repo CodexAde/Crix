@@ -290,7 +290,7 @@ export default function AddChapters() {
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         <span className="text-sm font-medium">Back</span>
                     </button> */}
-                    <h1 className="text-3xl md:text-4xl font-bold text-primary tracking-tight">Generator</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-primary tracking-tight">Add syllabus</h1>
                 </div>
             </header>
 

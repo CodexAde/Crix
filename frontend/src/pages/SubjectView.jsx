@@ -143,12 +143,12 @@ export default function SubjectView() {
                 {/* Unit Selector */}
                 <div className="my-8">
                     {/* <p className="text-sm text-secondary mb-3">Select Unit</p> */}
-                    <div className="flex gap-3 mt-4 mb-2 flex-wrap">
+                    <div className="flex gap-3 mt-4 mb-2 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar snap-x">
                         {subject.units.map((unit, index) => (
                             <button
                                 key={unit._id}
                                 onClick={() => setActiveUnit(index)}
-                                className={`px-5 py-3 rounded-2xl font-medium transition-all ${activeUnit === index
+                                className={`px-5 py-3 rounded-2xl font-medium transition-all whitespace-nowrap flex-shrink-0 snap-center ${activeUnit === index
                                         ? 'bg-accent text-white shadow-lg shadow-accent/25'
                                         : 'bg-card border border-border-soft text-secondary hover:border-accent/40 hover:text-primary'
                                     }`}

@@ -713,12 +713,11 @@ export default function ChatInterface() {
                         <ArrowLeft className="w-5 h-5 text-secondary" />
                     </button>
                     
-                    {/* Mobile Branding */}
-                    <div className="flex items-center gap-2 md:hidden">
-                         <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shadow-sm">
-                            <Sparkles className="w-4 h-4 text-white" />
-                        </div>
-                        <span className="text-primary font-semibold">Crix</span>
+                    {/* Mobile Branding - Topic Name */}
+                    <div className="md:hidden flex-1 min-w-0 mx-2">
+                        <h2 className="text-lg font-bold text-primary tracking-tight line-clamp-1">
+                            {activeTopic?.title || 'Chat'}
+                        </h2>
                     </div>
 
                     {/* Desktop Header Title (Optional, maybe breadcrumbs) */}

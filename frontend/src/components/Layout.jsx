@@ -183,15 +183,10 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* Mobile Bottom Dock */}
+      {/* Mobile Bottom Taskbar */}
       <nav className={clsx(
-          "md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[85%] max-w-[360px]", // Floating & Centered
-          "bg-[#0f0f13]/80 backdrop-blur-xl border border-white/5", // Glassmorphism
-          "rounded-[2rem] shadow-2xl shadow-black/50", // Pill shape & Deep shadow
-          "flex justify-between items-center px-6 py-3.5 z-50",
-          "transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]", // Smooth spring-like easing
-          !isNavVisible && "translate-y-[150%] opacity-0", // Hide animation
-          isNavVisible && "translate-y-0 opacity-100"
+          "md:hidden fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-lg border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out",
+          !isNavVisible && "translate-y-full"
       )}>
         {navItems.map((item) => {
             const Icon = item.icon;
@@ -201,27 +196,12 @@ export default function Layout() {
                     key={item.path} 
                     to={item.path}
                     className={clsx(
-                        "relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
-                        isActive ? "text-white" : "text-gray-400 hover:text-white"
+                        "flex flex-col items-center gap-1.5 min-w-[4rem]",
+                        isActive ? "text-accent" : "text-secondary hover:text-primary"
                     )}
                 >
-                    {isActive && (
-                        <span className="absolute inset-0 bg-accent/20 rounded-full blur-md" />
-                    )}
-                    {isActive && (
-                         <span className="absolute inset-0 bg-gradient-to-tr from-accent to-accent/80 rounded-full opacity-60 scale-75" />
-                    )}
-                    
-                    <Icon className={clsx(
-                        "relative w-5 h-5 transition-transform duration-300 z-10", 
-                        isActive && "scale-110",
-                        !isActive && "group-hover:scale-110"
-                    )} />
-                    
-                    {/* Active Reflector/Dot */}
-                    {isActive && (
-                        <span className="absolute -bottom-1 w-1 h-1 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
-                    )}
+                    <Icon className={clsx("w-6 h-6 transition-all", isActive && "scale-110")} />
+                    <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
                 </Link>
             )
         })}
