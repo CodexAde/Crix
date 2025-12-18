@@ -43,6 +43,14 @@ body {
   height: 0px;
 }
 
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border-soft), transparent);
+  margin: 3rem 0;
+  opacity: 0.5;
+}
+
 * {
   scrollbar-width: none;
 }

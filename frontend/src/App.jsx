@@ -36,6 +36,7 @@ import Doubts from './pages/Doubts';
 import Syllabus from './pages/Syllabus';
 import AddChapters from './pages/AddChapters';
 import UserProfile from './pages/UserProfile';
+import DemoShowcase from './pages/DemoShowcase';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -47,6 +48,7 @@ function AppRoutes() {
       <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Landing />} />
       <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/onboarding" /> : <Register />} />
+      <Route path="/demo" element={<DemoShowcase />} />
       
       <Route path="/onboarding" element={
         <ProtectedRoute>

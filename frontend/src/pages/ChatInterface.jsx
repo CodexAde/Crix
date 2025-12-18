@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal, X, Link2, MessageCircle, Square, ArrowDown, Menu } from 'lucide-react';
+import { Send, ArrowLeft, Sparkles, Plus, Copy, ThumbsUp, ThumbsDown, Share, RefreshCw, MoreHorizontal, X, Link2, MessageCircle, Square, ArrowDown, Menu, Check, Heart } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -19,6 +19,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 // Memoized Message Component to prevent re-renders
 const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
   const [copied, setCopied] = useState(false);
+  const [feedback, setFeedback] = useState(null); // 'like' or 'dislike'
 
   const handleCopy = () => {
     navigator.clipboard.writeText(msg.content);
@@ -30,11 +31,11 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
     <motion.div 
       ref={messageRef} 
       key={idx}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
+      initial={{ opacity: 0, y: 15, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut", delay: idx * 0.05 }}
       className={clsx(
-        "flex w-full",
+        "flex w-full mb-8",
         msg.role === 'user' ? "justify-end" : "justify-start"
       )}
     >
@@ -43,115 +44,162 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
           <p className="text-sm leading-relaxed">{msg.content}</p>
         </div>
       ) : (
-        <div className="w-full">
-          <div className="prose prose-sm max-w-none break-words leading-loose text-primary">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeKatex]}
-              components={{
-                h1: ({node, ...props}) => <h1 className="text-lg font-bold mb-4 mt-5 text-primary" {...props} />,
-                h2: ({node, ...props}) => <h2 className="text-base font-bold mb-3 mt-4 text-accent" {...props} />,
-                h3: ({node, ...props}) => <h3 className="text-sm font-bold mb-3 mt-4 text-primary" {...props} />,
-                p: ({node, ...props}) => <p className="mb-4 last:mb-0 text-sm leading-relaxed" {...props} />,
-                ul: ({node, ...props}) => <ul className="list-disc list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
-                ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-5 mb-4 space-y-2 text-sm" {...props} />,
-                li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
-                blockquote: ({node, ...props}) => (
-                  <blockquote className="border-l-3 border-accent/50 bg-accent/10 pl-4 py-2 italic rounded-r mb-4 text-sm" {...props} />
-                ),
-                code: ({node, inline, className, children, ...props}) => {
-                  const match = /language-(\w+)/.exec(className || '');
-                  const language = match ? match[1] : '';
-                  const codeString = String(children).replace(/\n$/, '');
-                  
-                  if (inline) {
-                    return (
-                      <code className="bg-border-soft text-accent px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
-                        {children}
-                      </code>
-                    );
-                  }
-                  
-                  return (
-                    <div className="relative my-4 rounded-lg overflow-hidden bg-[#1e1e1e]">
-                      <div className="flex items-center justify-between px-4 py-2.5 bg-[#2d2d2d]">
-                        <span className="text-xs text-gray-400 font-medium">
-                          {language || 'code'}
-                        </span>
-                        <button 
-                          onClick={() => navigator.clipboard.writeText(codeString)}
-                          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                          <span>Copy code</span>
-                        </button>
-                      </div>
-                      <SyntaxHighlighter
-                        style={oneDark}
-                        language={language || 'text'}
-                        PreTag="div"
-                        customStyle={{
-                          margin: 0,
-                          borderRadius: 0,
-                          padding: '1rem 1.25rem',
-                          fontSize: '0.85rem',
-                          lineHeight: '1.6',
-                          background: '#1e1e1e',
-                        }}
-                        codeTagProps={{
-                          style: {
-                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                          }
-                        }}
-                      >
-                        {codeString}
-                      </SyntaxHighlighter>
+        <div className="w-full group/msg">
+          <div className="relative p-6 md:p-8 rounded-[2.5rem] bg-white/[0.03] backdrop-blur-md border border-white/5 shadow-2xl overflow-hidden transition-all duration-500 hover:bg-white/[0.05] hover:border-white/10">
+            {/* Subtle Gradient Glow */}
+            <div className="absolute -top-24 -left-24 w-48 h-48 bg-accent/10 blur-[100px] rounded-full pointer-events-none" />
+            
+            <div className="prose prose-sm md:prose-base max-w-none break-words leading-loose text-primary relative z-10">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={{
+                  h1: ({node, ...props}) => <h1 className="text-xl md:text-2xl font-black mb-8 mt-4 text-primary tracking-tighter" {...props} />,
+                  h2: ({node, ...props}) => <h2 className="text-lg md:text-xl font-bold mb-6 mt-8 text-accent tracking-tight" {...props} />,
+                  h3: ({node, ...props}) => <h3 className="text-base font-bold mb-4 mt-6 text-primary tracking-tight" {...props} />,
+                  p: ({node, ...props}) => <p className="mb-6 last:mb-0 text-sm md:text-base leading-[1.8] text-secondary/90 font-medium" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc list-outside ml-6 mb-6 space-y-4 text-sm md:text-base text-secondary/90" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-6 mb-6 space-y-4 text-sm md:text-base text-secondary/90" {...props} />,
+                  li: ({node, ...props}) => <li className="leading-relaxed pl-2 hover:text-primary transition-colors" {...props} />,
+                  hr: ({node, ...props}) => (
+                    <div className="my-12 px-10">
+                      <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                     </div>
-                  );
-                },
-              }}
-            >
-              {msg.content}
-            </ReactMarkdown>
+                  ),
+                  blockquote: ({node, ...props}) => (
+                    <blockquote className="border-l-4 border-accent/40 bg-accent/5 pl-6 py-5 italic rounded-r-2xl mb-8 text-sm md:text-base text-secondary/80 border-y border-r border-dashed border-accent/10" {...props} />
+                  ),
+                  code: ({node, inline, className, children, ...props}) => {
+                    const match = /language-(\w+)/.exec(className || '');
+                    const language = match ? match[1] : '';
+                    const codeString = String(children).replace(/\n$/, '');
+                    // eslint-disable-next-line react-hooks/rules-of-hooks
+                    const [localCopied, setLocalCopied] = useState(false);
+                    
+                    if (inline) {
+                      return (
+                        <code className="bg-white/10 text-accent px-1.5 py-0.5 rounded-md text-xs font-mono font-bold" {...props}>
+                          {children}
+                        </code>
+                      );
+                    }
+                    
+                    return (
+                      <div className="relative my-8 rounded-2xl overflow-hidden bg-[#0d1117] border border-white/5 shadow-2xl group/code scale-[1.02] -mx-2 md:mx-0">
+                        {/* Apple Style Window Header */}
+                        <div className="flex items-center justify-between px-5 py-4 bg-[#161b22] border-b border-white/5">
+                          <div className="flex items-center gap-3">
+                            <div className="flex gap-2">
+                              <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-black/10 shadow-inner" />
+                              <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-black/10 shadow-inner" />
+                              <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-black/10 shadow-inner" />
+                            </div>
+                            <span className="ml-3 text-[10px] text-secondary/50 font-mono uppercase tracking-[0.2em] font-black">
+                              {language || 'code'}
+                            </span>
+                          </div>
+                          
+                          <div className="relative">
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(codeString);
+                                setLocalCopied(true);
+                                setTimeout(() => setLocalCopied(false), 2000);
+                              }}
+                              className={clsx(
+                                "p-2 rounded-lg border transition-all duration-300 group/copy",
+                                localCopied 
+                                  ? "text-red-500 bg-red-500/10 border-red-500/20 scale-110" 
+                                  : "text-secondary/60 hover:text-white bg-white/5 border-white/5 hover:border-white/10"
+                              )}
+                              title="Copy Code"
+                            >
+                              <div className="relative w-4 h-4 flex items-center justify-center">
+                                {localCopied ? (
+                                  <motion.div
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className="flex items-center justify-center"
+                                  >
+                                    <Check className="w-4 h-4 text-red-500" />
+                                    <Sparkles className="w-3 h-3 text-red-500 absolute -top-1 -right-1" />
+                                  </motion.div>
+                                ) : (
+                                  <Copy className="w-4 h-4 transition-transform group-hover/copy:scale-110" />
+                                )}
+                              </div>
+                            </button>
+                          </div>
+                        </div>
+                        <SyntaxHighlighter
+                          style={oneDark}
+                          language={language || 'text'}
+                          PreTag="div"
+                          customStyle={{
+                            margin: 0,
+                            borderRadius: 0,
+                            padding: '1.5rem',
+                            fontSize: '0.9rem',
+                            lineHeight: '1.8',
+                            background: 'transparent',
+                          }}
+                          codeTagProps={{
+                            style: {
+                              fontFamily: '"JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace',
+                            }
+                          }}
+                        >
+                          {codeString}
+                        </SyntaxHighlighter>
+                      </div>
+                    );
+                  },
+                }}
+              >
+                {msg.content}
+              </ReactMarkdown>
+            </div>
           </div>
+          
           {/* CTA Buttons - Only show when NOT typing */}
           {!isTyping && (
-            <div className="flex items-center gap-1 mt-4">
-              <button 
-                onClick={handleCopy}
-                className={clsx(
-                  "p-2 rounded-lg transition-colors",
-                  copied ? "text-green-500" : "text-secondary hover:text-primary hover:bg-border-soft"
-                )}
-                title={copied ? "Copied!" : "Copy"}
-              >
-                {copied ? (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <Copy className="w-4 h-4" />
-                )}
-              </button>
-              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="Good response">
-                <ThumbsUp className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="Bad response">
-                <ThumbsDown className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => onShare(msg.content)}
-                className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" 
-                title="Share"
-              >
-                <Share className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="Regenerate">
-                <RefreshCw className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-lg hover:bg-border-soft transition-colors text-secondary hover:text-primary" title="More options">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
+            <div className="flex items-center gap-2 mt-3 ml-4 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-300">
+              {[
+                { icon: Copy, onClick: handleCopy, active: copied, title: "Copy Answer" },
+                { 
+                  icon: ThumbsUp, 
+                  onClick: () => setFeedback(prev => prev === 'like' ? null : 'like'), 
+                  active: feedback === 'like',
+                  activeClass: "text-green-400 bg-green-400/10 shadow-[0_0_15px_rgba(74,222,128,0.2)]",
+                  title: "Helpful" 
+                },
+                { 
+                  icon: ThumbsDown, 
+                  onClick: () => setFeedback(prev => prev === 'dislike' ? null : 'dislike'), 
+                  active: feedback === 'dislike',
+                  activeClass: "text-red-400 bg-red-400/10 shadow-[0_0_15px_rgba(248,113,113,0.2)]",
+                  title: "Not Helpful" 
+                },
+                { icon: Share, onClick: () => onShare(msg.content), title: "Share" },
+                { icon: RefreshCw, title: "Regenerate" }
+              ].map((btn, i) => (
+                <button 
+                  key={i}
+                  onClick={btn.onClick}
+                  className={clsx(
+                    "p-2 rounded-xl transition-all duration-300 transform active:scale-90",
+                    btn.active ? (btn.activeClass || "text-accent bg-accent/10") : "text-secondary hover:text-primary hover:bg-white/5"
+                  )}
+                  title={btn.title}
+                >
+                  <motion.div
+                    animate={btn.active ? { scale: [1, 1.3, 1], rotate: [0, 10, -10, 0] } : {}}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <btn.icon className={clsx("w-3.5 h-3.5", btn.active && "fill-current")} />
+                  </motion.div>
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -164,7 +212,6 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
 const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoading, onTopicSelect }) => {
     const [expandedChId, setExpandedChId] = useState(activeChapterId);
 
-    // Keep expansion in sync with active chapter on load/change
     useEffect(() => {
         if (activeChapterId) {
             setExpandedChId(activeChapterId);
@@ -176,23 +223,26 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
     };
 
     return (
-        <div className="flex flex-col h-full bg-card/50 backdrop-blur-3xl border-r border-border-soft">
+        <div className="flex flex-col h-full bg-card border-r border-border-soft relative overflow-hidden">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-0 left-0 w-full h-1/2 bg-red-500/5 blur-[100px] pointer-events-none" />
+            
             {/* Branding */}
-            <Link to="/dashboard" className="flex items-center gap-3 p-6 border-b border-border-soft/50 hover:bg-white/5 transition-colors cursor-pointer block">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center shadow-lg shadow-accent/20">
+            <Link to="/dashboard" className="flex items-center gap-3 p-6 border-b border-border-soft/50 hover:bg-white/5 transition-all duration-300 relative z-10">
+                <div className="w-9 h-9 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20 border border-white/10">
                     <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                    <h2 className="text-lg font-bold text-primary tracking-tight">Crix</h2>
-                    <p className="text-xs text-secondary font-medium">AI Study Companion</p>
+                    <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
+                    <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
                 </div>
             </Link>
 
             {/* Chapters List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar relative z-10">
                 {isLoading ? (
                     [1,2,3,4].map(i => (
-                        <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />
+                        <div key={i} className="h-20 bg-white/5 rounded-2xl animate-pulse border border-white/5" />
                     ))
                 ) : (
                     chapters.map((ch) => {
@@ -200,48 +250,47 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                         const isActiveChapter = activeChapterId === ch._id;
 
                         return (
-                            <div key={ch._id} className="flex flex-col space-y-1">
+                            <div key={ch._id} className="flex flex-col space-y-2">
                                 <button
                                     onClick={() => handleChapterClick(ch._id)}
                                     className={clsx(
-                                        "w-full text-left p-3.5 rounded-xl transition-all duration-300 group relative border",
+                                        "w-full text-left p-5 rounded-[1.8rem] transition-all duration-500 group relative border",
                                         isActiveChapter
-                                          ? "bg-accent/5 border-accent/20"
-                                          : "bg-transparent border-transparent hover:bg-white/5 hover:border-white/10"
+                                          ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
+                                          : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
                                     )}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <div className="flex flex-col gap-1">
+                                        <div className="flex flex-col gap-1.5">
                                             <span className={clsx(
-                                                "text-[10px] uppercase tracking-wider font-semibold transition-colors",
-                                                isActiveChapter ? "text-accent" : "text-secondary/70 group-hover:text-secondary"
+                                                "text-[9px] uppercase tracking-[0.2em] font-black transition-colors",
+                                                isActiveChapter ? "text-accent" : "text-secondary/50 group-hover:text-secondary"
                                             )}>
                                                 {ch.unitTitle || 'Chapter'}
                                             </span>
                                             <span className={clsx(
-                                                "text-sm font-semibold truncate leading-tight transition-colors",
-                                                isActiveChapter ? "text-primary" : "text-secondary group-hover:text-primary"
+                                                "text-sm font-bold line-clamp-1 leading-tight transition-colors",
+                                                isActiveChapter ? "text-white" : "text-secondary group-hover:text-primary"
                                             )}>
                                                 {ch.title}
                                             </span>
                                         </div>
                                     </div>
                                     {isActiveChapter && (
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent rounded-r-full" />
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-accent rounded-r-full shadow-[0_0_15px_rgba(0,122,255,0.8)]" />
                                     )}
                                 </button>
 
-                                {/* Topics Accordion Body */}
                                 <AnimatePresence initial={false}>
                                     {isExpanded && (
                                         <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                                            initial={{ height: 0, opacity: 0, y: -10 }}
+                                            animate={{ height: "auto", opacity: 1, y: 0 }}
+                                            exit={{ height: 0, opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="pl-4 pr-1 py-1 space-y-1 border-l-2 border-border-soft ml-4 my-1">
+                                            <div className="pl-6 pr-2 py-2 space-y-2 border-l border-accent/20 ml-6 my-2">
                                                 {ch.topics && ch.topics.length > 0 ? (
                                                     ch.topics.map((topic) => {
                                                         const isTopicActive = topic._id === activeTopicId;
@@ -250,22 +299,22 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                                                                 key={topic._id}
                                                                 onClick={() => onTopicSelect(ch._id, topic._id)}
                                                                 className={clsx(
-                                                                    "w-full text-left py-2 px-3 rounded-lg text-sm transition-all flex items-center gap-2 group/topic",
+                                                                    "w-full text-left py-3 px-4 rounded-2xl text-xs transition-all flex items-center gap-3 group/topic",
                                                                     isTopicActive
-                                                                        ? "bg-accent/10 text-accent font-medium shadow-sm"
+                                                                        ? "bg-accent text-white font-bold shadow-lg shadow-accent/20"
                                                                         : "text-secondary hover:text-primary hover:bg-white/5"
                                                                 )}
                                                             >
                                                                 <span className={clsx(
-                                                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors",
-                                                                    isTopicActive ? "bg-accent" : "bg-border-soft group-hover/topic:bg-secondary"
+                                                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors shadow-sm",
+                                                                    isTopicActive ? "bg-white scale-125" : "bg-white/20 group-hover/topic:bg-white/40"
                                                                 )} />
-                                                                <span className="truncate">{topic.title}</span>
+                                                                <span className="line-clamp-1">{topic.title}</span>
                                                             </button>
                                                         )
                                                     })
                                                 ) : (
-                                                    <div className="text-xs text-secondary/50 italic px-3 py-2">No topics available</div>
+                                                    <div className="text-[10px] text-secondary/30 uppercase tracking-widest italic px-4 py-3">Void</div>
                                                 )}
                                             </div>
                                         </motion.div>
@@ -646,7 +695,7 @@ export default function ChatInterface() {
   return (
     <div className="fixed inset-0 flex bg-main overflow-hidden">
         {/* Desktop Sidebar */}
-        <div className="hidden md:block w-80 h-full flex-shrink-0 z-30">
+        <div className="hidden md:block w-64 h-full flex-shrink-0 z-30">
             <ChapterSidebar
                 chapters={chapters}
                 activeChapterId={chapterId}
@@ -697,8 +746,8 @@ export default function ChatInterface() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col h-full relative w-full">
             {/* Header */}
-            <header className="flex items-center justify-between px-4 py-3 bg-card/80 backdrop-blur-xl border-b border-border-soft z-20">
-                <div className="flex items-center gap-3">
+            <header className="flex items-center justify-between px-6 py-5 bg-[#050505]/60 backdrop-blur-[40px] z-20 sticky top-0">
+                <div className="flex items-center gap-4">
                     <button 
                         onClick={() => {
                             const currentChapter = chapters.find(c => c._id === chapterId);
@@ -708,20 +757,20 @@ export default function ChatInterface() {
                                 navigate(`/syllabus/${subjectId}`);
                             }
                         }} 
-                        className="md:hidden p-2 hover:bg-border-soft rounded-full transition-colors"
+                        className="md:hidden p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 active:scale-95 transition-all"
                     >
-                        <ArrowLeft className="w-5 h-5 text-secondary" />
+                        <ArrowLeft className="w-5 h-5 text-primary" />
                     </button>
                     
                     {/* Mobile Branding - Topic Name */}
-                    <div className="md:hidden flex-1 min-w-0 mx-2">
-                        <h2 className="text-lg font-bold text-primary tracking-tight line-clamp-1">
+                    <div className="md:hidden flex-1 min-w-0">
+                        <h2 className="text-lg font-black text-white tracking-tighter line-clamp-1 uppercase italic">
                             {activeTopic?.title || 'Chat'}
                         </h2>
                     </div>
 
-                    {/* Desktop Header Title (Optional, maybe breadcrumbs) */}
-                     <div className="hidden md:flex items-center gap-3 text-sm md:text-base text-secondary">
+                    {/* Desktop Header Title */}
+                     <div className="hidden md:flex items-center gap-4">
                         <button 
                             onClick={() => {
                                 const currentChapter = chapters.find(c => c._id === chapterId);
@@ -731,29 +780,37 @@ export default function ChatInterface() {
                                     navigate(`/syllabus/${subjectId}`);
                                 }
                             }}
-                            className="hover:text-primary transition-colors flex items-center gap-1 group"
+                            className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-secondary hover:text-primary transition-all duration-300 hover:scale-105 active:scale-95 group"
                         >
-                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                             <span className="hidden lg:inline font-medium">Back</span>
+                             <ArrowLeft className="w-5 h-5" />
                         </button>
-                        <span className="opacity-30 text-lg font-light">/</span>
-                        <span className="line-clamp-1 max-w-[250px] font-semibold text-primary" title={activeTopic?.title || 'Chat'}>
-                            {activeTopic?.title || 'Chat'}
-                        </span>
+                        <div className="h-6 w-px bg-white/10 mx-2" />
+                        <div className="flex flex-col">
+                            <span className="text-[10px] text-accent font-black tracking-[0.2em] uppercase opacity-70">Focusing on</span>
+                            <h2 className="text-xl font-black text-white tracking-tight line-clamp-1">
+                                {activeTopic?.title || 'Chat'}
+                            </h2>
+                        </div>
                      </div>
                 </div>
 
-                 {/* Mobile Hamburger Menu (Right Side) */}
-                 <button 
-                     onClick={() => setSidebarOpen(true)}
-                     className="md:hidden p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 active:scale-95 transition-all text-secondary hover:text-primary shadow-sm"
-                 >
-                    <div className="flex flex-col gap-[3px] items-end w-5">
-                        <span className="w-5 h-0.5 bg-current rounded-full"></span>
-                        <span className="w-3.5 h-0.5 bg-current rounded-full"></span>
-                        <span className="w-2.5 h-0.5 bg-current rounded-full"></span>
+                 {/* Desktop Actions */}
+                 <div className="flex items-center gap-3">
+                    <div className="hidden md:flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/5 border border-white/10">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                            <span className="text-[10px] font-black text-secondary/80 uppercase tracking-widest">Neural Live</span>
+                        </div>
                     </div>
-                 </button>
+
+                    {/* Mobile Hamburger Menu */}
+                    <button 
+                        onClick={() => setSidebarOpen(true)}
+                        className="md:hidden p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 active:scale-95 transition-all text-secondary hover:text-primary"
+                    >
+                        <Menu className="w-6 h-6" />
+                    </button>
+                 </div>
             </header>
 
             {/* Chat Area */}
@@ -781,13 +838,20 @@ export default function ChatInterface() {
                             />
                         ))}
                         {isTyping && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-                                <div className="flex items-center gap-2">
-                                    <div className="flex gap-1">
-                                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                        <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-bounce"></span>
-                                    </div>
+                            <motion.div 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                className="flex justify-start mb-10 ml-2"
+                            >
+                                <div className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-md">
+                                    {[0, 0.2, 0.4].map((delay, i) => (
+                                        <motion.div
+                                            key={i}
+                                            animate={{ opacity: [0.3, 1, 0.3] }}
+                                            transition={{ duration: 1.5, repeat: Infinity, delay, ease: "easeInOut" }}
+                                            className="w-1 h-1 rounded-full bg-accent"
+                                        />
+                                    ))}
                                 </div>
                             </motion.div>
                         )}
