@@ -43,7 +43,7 @@ export default function Layout() {
   const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: BookOpen, label: 'Syllabus', path: '/syllabus' },
-    { icon: PlusCircle, label: 'Add', path: '/add-chapters' },
+    { icon: PlusCircle, label: 'Add', path: '/community-deploy' },
     { icon: MessageSquare, label: 'Doubts', path: '/doubts' },
     { icon: User, label: 'Profile', path: '/user-profile' }
   ];

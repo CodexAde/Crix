@@ -52,18 +52,31 @@ export default function Syllabus() {
   };
 
   return (
-    <div className="min-h-screen bg-main overflow-x-hidden">
+    <div className="min-h-screen bg-main overflow-x-hidden relative">
+      {/* Background Neural Grid (The 'Mast' Grid) for Main Content */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none -z-10">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                  <pattern id="mast-grid-syllabus-main" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
+                      <circle cx="0" cy="0" r="1.5" fill="currentColor" />
+                  </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#mast-grid-syllabus-main)" />
+          </svg>
+      </div>
       {/* Hero Section */}
-      <div className="relative h-[350px] md:h-[450px] flex items-center justify-center overflow-hidden bg-[#050505] border-b border-white/5">
-        {/* Neural Network Background Effect */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
+      <div className="relative min-h-[400px] md:h-[450px] flex items-center justify-center overflow-hidden bg-[#050505] border-b border-white/5 py-20 md:py-0">
+        {/* Neural Network Background Effect (The 'Mast' Grid) */}
+        <div className="absolute inset-0 opacity-[0.15] pointer-events-none">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="syllabus-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="red" strokeWidth="0.5" />
+              <pattern id="mast-grid-syllabus-hero" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="red" strokeWidth="1" />
+                <circle cx="0" cy="0" r="1.5" fill="red" />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#syllabus-grid)" />
+            <rect width="100%" height="100%" fill="url(#mast-grid-syllabus-hero)" />
           </svg>
         </div>
 
@@ -82,8 +95,8 @@ export default function Syllabus() {
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-bold mb-6 tracking-wide uppercase">
               Academic Library
             </span>
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
-              Master Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent/60">Curriculum</span>
+            <h1 className="text-4xl md:text-7xl font-black text-white mb-6 tracking-tight">
+              Master Your Curriculum
             </h1>
             <p className="text-lg md:text-xl text-secondary max-w-2xl mx-auto leading-relaxed">
               Access verified resources, structured notes, and priority-focused roadmaps for every subject in your engineering journey.
@@ -92,7 +105,7 @@ export default function Syllabus() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-10 pb-24 -mt-20 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 md:px-10 pb-24 -mt-10 md:-mt-20 relative z-20">
         <div className="flex flex-col gap-10">
           
           {/* Search & Tool Bar Area */}

@@ -28,15 +28,16 @@ export default function Doubts() {
         transition={{ delay: 0.1 }}
         className="relative overflow-hidden bg-card rounded-[2rem] border border-border-soft shadow-soft"
       >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        {/* Background Neural Grid (The 'Mast' Grid) */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <pattern id="mast-grid-doubts" width="40" height="40" patternUnits="userSpaceOnUse">
                 <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1"/>
+                <circle cx="0" cy="0" r="1.5" fill="currentColor" />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
+            <rect width="100%" height="100%" fill="url(#mast-grid-doubts)" />
           </svg>
         </div>
 

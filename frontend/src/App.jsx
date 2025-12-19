@@ -37,6 +37,7 @@ import Syllabus from './pages/Syllabus';
 import AddChapters from './pages/AddChapters';
 import UserProfile from './pages/UserProfile';
 import DemoShowcase from './pages/DemoShowcase';
+import CommunityDeploy from './pages/CommunityDeploy';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -74,6 +75,7 @@ function AppRoutes() {
           
           <Route path="/doubts" element={<Doubts />} />
 
+          <Route path="/community-deploy" element={<CommunityDeploy />} />
           <Route path="/add-chapters" element={<AddChapters />} />
           <Route path="/user-profile" element={<UserProfile />} />
       </Route>
