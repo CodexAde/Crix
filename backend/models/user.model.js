@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema(
         personaProfile: {
             type: Object, // Stores the JSON blob from the user
             default: null
+        },
+        referralCode: {
+            type: String,
+            unique: true,
+            sparse: true
         }
     },
     {

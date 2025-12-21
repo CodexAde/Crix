@@ -17,10 +17,9 @@ export default function Onboarding() {
   const [academic, setAcademic] = useState({
     college: '',
     branch: 'CSE',
-    year: '1',
-    universitySchema: '',
-    targetExamDate: ''
+    year: '1'
   });
+  const [referralCode, setReferralCode] = useState('');
 
   // Step 2: Persona JSON
   const [personaJson, setPersonaJson] = useState('');
@@ -48,7 +47,8 @@ export default function Onboarding() {
         const payload = {
             ...academic,
             year: parseInt(academic.year),
-            personaProfile: parsedPersona
+            personaProfile: parsedPersona,
+            referralCode: referralCode || undefined
         };
 
         await axios.post('/users/onboarding', payload);
@@ -167,24 +167,17 @@ export default function Onboarding() {
                                 <option>1st Year (B.Tech)</option>
                              </select>
                         </div>
-                        <div className="space-y-2">
-                             <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>University / Scheme</label>
-                             <Input 
-                                value={academic.universitySchema} 
-                                onChange={e => setAcademic({...academic, universitySchema: e.target.value})}
-                                placeholder="e.g. AKTU 2023"
-                                required
-                             />
-                        </div>
-                        <div className="md:col-span-2 space-y-2">
-                             <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Target Exam Date</label>
-                             <Input 
-                                type="date"
-                                value={academic.targetExamDate} 
-                                onChange={e => setAcademic({...academic, targetExamDate: e.target.value})}
-                                required
-                             />
-                        </div>
+                        {!user?.referralCode && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Referral Code</label>
+                                <Input 
+                                    value={referralCode} 
+                                    onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                                    placeholder="Enter Referral Code"
+                                    required
+                                />
+                            </div>
+                        )}
                     </div>
                     
                     <div className="flex justify-end pt-4">

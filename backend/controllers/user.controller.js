@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { Referral } from "../models/referral.model.js";
 
 const generateAccessAndRefresTokens = async (userId) => {
     try {
@@ -17,9 +18,9 @@ const generateAccessAndRefresTokens = async (userId) => {
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, referralCode } = req.body;
 
-        if ([name, email, password].some(field => field?.trim() === "")) {
+        if ([name, email, password, referralCode].some(field => field?.trim() === "")) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -29,12 +30,25 @@ const registerUser = async (req, res) => {
             return res.status(409).json({ message: "User with email already exists" });
         }
 
+        // Validate Referral Code
+        const referral = await Referral.findOne({ code: referralCode.toUpperCase(), isUsed: false });
+        
+        if (!referral) {
+            return res.status(400).json({ message: "Invalid or already used referral code" });
+        }
+
         const user = await User.create({
             name,
             email,
             password,
+            referralCode: referralCode.toUpperCase(),
             academicInfo: { isOnboarded: false } // Default
         });
+
+        // Mark referral code as used
+        referral.isUsed = true;
+        referral.usedBy = user._id;
+        await referral.save();
 
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
@@ -145,7 +159,7 @@ const getCurrentUser = async (req, res) => {
 
 const updateOnboardingDetails = async (req, res) => {
     try {
-        const { college, branch, year, universitySchema, targetExamDate, personaProfile } = req.body;
+        const { college, branch, year, personaProfile, referralCode } = req.body;
         
         // Simple validation
         if(!branch || !year) {
@@ -158,13 +172,31 @@ const updateOnboardingDetails = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // If user doesn't have a referral code (e.g. Google Auth), they MUST provide one now
+        if (!user.referralCode) {
+            if (!referralCode) {
+                return res.status(400).json({ message: "Referral code is required for registration" });
+            }
+
+            const referral = await Referral.findOne({ code: referralCode.toUpperCase(), isUsed: false });
+            
+            if (!referral) {
+                return res.status(400).json({ message: "Invalid or already used referral code" });
+            }
+
+            user.referralCode = referralCode.toUpperCase();
+            
+            // Mark referral code as used
+            referral.isUsed = true;
+            referral.usedBy = user._id;
+            await referral.save();
+        }
+
         user.academicInfo = {
             ...user.academicInfo, // preserve other fields if needed
             college, 
             branch, 
             year, 
-            universitySchema, 
-            targetExamDate,
             isOnboarded: true
         };
         
