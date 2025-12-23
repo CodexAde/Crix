@@ -234,7 +234,7 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                 </div>
                 <div>
                     <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
-                    <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
+                    <p className="text-[8px] text-red-500 font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
                 </div>
             </Link>
 
@@ -263,7 +263,7 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col gap-1.5">
                                             <span className={clsx(
-                                                "text-[9px] uppercase tracking-[0.2em] font-black transition-colors",
+                                                "text-[9px] uppercase tracking-[0.2em] font-black transition-colors line-clamp-1",
                                                 isActiveChapter ? "text-accent" : "text-secondary/50 group-hover:text-secondary"
                                             )}>
                                                 {ch.unitTitle || 'Chapter'}
@@ -339,6 +339,7 @@ export default function ChatInterface() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoadingChapters, setIsLoadingChapters] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
+  const [subjectName, setSubjectName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [shareModal, setShareModal] = useState({ open: false, content: '' });
@@ -358,6 +359,24 @@ export default function ChatInterface() {
       }
       return null;
   }, [chapters, topicId]);
+
+  // Session Tracking - Save to localStorage for "Continue Learning"
+  useEffect(() => {
+    if (activeTopic && subjectId && chapterId && topicId && subjectName) {
+        const activeChapter = chapters.find(ch => ch._id === chapterId);
+        const session = {
+            subjectId,
+            chapterId,
+            topicId,
+            topicTitle: activeTopic.title,
+            subjectName: subjectName,
+            unitTitle: activeChapter?.unitTitle || "Unit",
+            timestamp: Date.now()
+        };
+        localStorage.setItem('crix_last_session', JSON.stringify(session));
+        console.log("Session saved:", session);
+    }
+  }, [activeTopic, subjectId, chapterId, topicId, subjectName, chapters]);
 
   const handleShare = (content) => {
     setShareModal({ open: true, content });
@@ -523,6 +542,7 @@ export default function ChatInterface() {
         console.log("Sidebar: Response", response.data);
 
         if (response.data?.subject?.units) {
+          setSubjectName(response.data.subject.name || "");
           // Flatten chapters from all units
           const allChapters = response.data.subject.units.flatMap(unit =>
             unit.chapters.map(ch => ({
@@ -746,25 +766,23 @@ export default function ChatInterface() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col h-full relative w-full">
             {/* Header */}
-            <header className="flex items-center justify-between px-6 py-5 bg-[#050505]/60 backdrop-blur-[40px] z-20 sticky top-0">
-                <div className="flex items-center gap-4">
+            <header className="flex items-center justify-between gap-4 px-6 py-4 bg-card/80 backdrop-blur-md sticky top-0 border-b border-border-soft">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
                     <button 
-                        onClick={() => {
-                            const currentChapter = chapters.find(c => c._id === chapterId);
-                            if (currentChapter?.unitId) {
-                                navigate(`/chapter/${subjectId}/${currentChapter.unitId}/${chapterId}`);
-                            } else {
-                                navigate(`/syllabus/${subjectId}`);
-                            }
-                        }} 
-                        className="md:hidden p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 active:scale-95 transition-all"
+                        onClick={() => navigate(-1)} 
+                        className="md:hidden p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
                     >
-                        <ArrowLeft className="w-5 h-5 text-primary" />
+                        <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />
                     </button>
                     
                     {/* Mobile Branding - Topic Name */}
                     <div className="md:hidden flex-1 min-w-0">
-                        <h2 className="text-lg font-black text-white tracking-tighter line-clamp-1 uppercase italic">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                            <p className="text-[10px] font-bold text-accent uppercase tracking-widest line-clamp-1">
+                                {subjectName || 'Subject'}
+                            </p>
+                        </div>
+                        <h2 className="text-sm font-bold text-white tracking-tight line-clamp-1 truncate">
                             {activeTopic?.title || 'Chat'}
                         </h2>
                     </div>
@@ -772,22 +790,27 @@ export default function ChatInterface() {
                     {/* Desktop Header Title */}
                      <div className="hidden md:flex items-center gap-4">
                         <button 
-                            onClick={() => {
-                                const currentChapter = chapters.find(c => c._id === chapterId);
-                                if (currentChapter?.unitId) {
-                                    navigate(`/chapter/${subjectId}/${currentChapter.unitId}/${chapterId}`);
-                                } else {
-                                    navigate(`/syllabus/${subjectId}`);
-                                }
-                            }}
-                            className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-secondary hover:text-primary transition-all duration-300 hover:scale-105 active:scale-95 group"
+                            onClick={() => navigate(-1)}
+                            className="p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
                         >
-                             <ArrowLeft className="w-5 h-5" />
+                             <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />
                         </button>
-                        <div className="h-6 w-px bg-white/10 mx-2" />
-                        <div className="flex flex-col">
-                            <span className="text-[10px] text-accent font-black tracking-[0.2em] uppercase opacity-70">Focusing on</span>
-                            <h2 className="text-xl font-black text-white tracking-tight line-clamp-1">
+                        <div className="h-10 w-px bg-white/10 mx-2" />
+                        <div className="flex flex-col justify-center">
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <p className="text-[10px] font-bold text-accent uppercase tracking-widest line-clamp-1">
+                                    {subjectName || 'Subject'}
+                                </p>
+                                {chapters.find(c => c._id === chapterId)?.unitTitle && (
+                                    <>
+                                        <span className="w-1 h-1 rounded-full bg-border-soft" />
+                                        <p className="text-[10px] font-medium text-secondary line-clamp-1">
+                                            {chapters.find(c => c._id === chapterId).unitTitle}
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                            <h2 className="text-lg font-bold text-white tracking-tight line-clamp-1">
                                 {activeTopic?.title || 'Chat'}
                             </h2>
                         </div>
@@ -795,7 +818,7 @@ export default function ChatInterface() {
                 </div>
 
                  {/* Desktop Actions */}
-                 <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-3 shrink-0">
                     <div className="hidden md:flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/5 border border-white/10">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
@@ -808,7 +831,7 @@ export default function ChatInterface() {
                         onClick={() => setSidebarOpen(true)}
                         className="md:hidden p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 active:scale-95 transition-all text-secondary hover:text-primary"
                     >
-                        <Menu className="w-6 h-6" />
+                        <Menu className="w-5 h-5" />
                     </button>
                  </div>
             </header>
@@ -936,7 +959,7 @@ export default function ChatInterface() {
 
             {/* Share Modal */}
             {shareModal.open && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="fixed inset-0 flex items-center justify-center">
                     <div 
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                         onClick={closeShareModal}

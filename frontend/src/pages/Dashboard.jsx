@@ -17,8 +17,19 @@ export default function Dashboard() {
   const [subjects, setSubjects] = useState(mockSubjects);
   const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1 });
   const [loading, setLoading] = useState(true);
+  const [lastSession, setLastSession] = useState(null);
 
   useEffect(() => {
+    // Load last session from localStorage
+    const savedSession = localStorage.getItem('crix_last_session');
+    if (savedSession) {
+        try {
+            setLastSession(JSON.parse(savedSession));
+        } catch (e) {
+            console.error("Failed to parse last session", e);
+        }
+    }
+
     const fetchDashboardData = async () => {
         try {
             const [syllabusRes, statsRes] = await Promise.all([
@@ -94,18 +105,24 @@ export default function Dashboard() {
                <span className="text-xs text-secondary font-medium">• 25 min remaining</span>
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-bold text-primary leading-tight mb-2">
-              Normal and Shear Stress
+            <h2 className="text-3xl md:text-5xl font-bold text-primary leading-tight mb-3 line-clamp-1 tracking-tight">
+              {lastSession?.topicTitle || 'Normal and Shear Stress'}
             </h2>
-            <p className="text-secondary text-sm md:text-base mb-6 max-w-lg">
-              Engineering Mechanics • Unit 1 • Introduction to Mechanics of Solid
-            </p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-8">
+              <p className="text-accent font-semibold text-sm md:text-base line-clamp-1">
+                {lastSession?.subjectName || 'Engineering Mechanics'}
+              </p>
+              <span className="w-1 h-1 rounded-full bg-border-soft hidden md:block" />
+              <p className="text-secondary text-sm md:text-base line-clamp-1">
+                {lastSession?.unitTitle || 'Unit 1 • Introduction to Mechanics of Solid'}
+              </p>
+            </div>
 
             <Link 
-              to={subjects[0]?._id ? `/syllabus/${subjects[0]._id}` : '#'} 
-              className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-main rounded-2xl font-bold text-sm hover:opacity-90 active:scale-[0.98] transition-all"
+              to={lastSession ? `/chat/${lastSession.subjectId}/${lastSession.chapterId}/${lastSession.topicId}` : (subjects[0]?._id ? `/syllabus/${subjects[0]._id}` : '#')} 
+              className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-main rounded-2xl font-bold text-sm hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/10"
             >
-              Continue Learning <ArrowRight className="w-4 h-4" />
+              {lastSession ? 'Resume Chat' : 'Continue Learning'} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -179,7 +196,7 @@ export default function Dashboard() {
                         <ChevronRight className="w-4 h-4" />
                      </div>
                   </div>
-                  <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors line-clamp-2">{subject.name}</h3>
+                  <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors line-clamp-1">{subject.name}</h3>
                 </div>
                 
                 <div className="mt-4">

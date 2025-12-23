@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import TopicGraph from '../components/TopicGraph';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ClipboardCheck } from 'lucide-react';
 import { PageLoader } from '../components/Spinner';
 
 const mockChaptersData = {
@@ -36,6 +36,7 @@ const mockChaptersData = {
 export default function ChapterView() {
   const { subjectId, unitId, chapterId } = useParams();
   const [chapter, setChapter] = useState(null);
+  const [subject, setSubject] = useState(null);
   const [progressMap, setProgressMap] = useState({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -54,7 +55,9 @@ export default function ChapterView() {
             axios.get(`/progress/${subjectId}`)
         ]);
 
-        const unit = syllabusRes.data.subject.units.find(u => u._id === unitId);
+        const sj = syllabusRes.data.subject;
+        setSubject(sj);
+        const unit = sj.units.find(u => u._id === unitId);
         if(unit) {
             const chap = unit.chapters.find(c => c._id === chapterId);
             setChapter(chap);
@@ -85,15 +88,40 @@ export default function ChapterView() {
 
   return (
     <div className="relative h-full flex flex-col bg-main">
-       <div className="bg-card/80 backdrop-blur-md sticky top-0 z-20 px-6 py-4 border-b border-border-soft flex items-center justify-between">
-           <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-border-soft rounded-full transition-colors">
-               <ArrowLeft className="w-5 h-5 text-secondary" />
-           </button>
-           <h1 className="text-lg font-bold text-primary truncate mx-4">{chapter.title}</h1>
-           <div className="w-9" /> 
-       </div>
+       <header className="bg-card/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 border-b border-border-soft flex items-center justify-between gap-4">
+            <button
+                onClick={() => navigate(-1)}
+                className="p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group shrink-0"
+            >
+                <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />
+            </button>
+            <div className="flex-1 text-center min-w-0 mx-4">
+                <div className="flex items-center justify-center gap-2 mb-0.5">
+                    <p className="text-[10px] font-bold text-accent uppercase tracking-widest line-clamp-1">
+                        {subject?.name || 'Subject'}
+                    </p>
+                    {subject?.units?.find(u => u._id === unitId) && (
+                        <>
+                            <span className="w-1 h-1 rounded-full bg-border-soft" />
+                            <p className="text-[10px] font-medium text-secondary line-clamp-1">
+                                {subject.units.find(u => u._id === unitId).title}
+                            </p>
+                        </>
+                    )}
+                </div>
+                <h1 className="text-lg font-bold text-primary line-clamp-1">{chapter.title}</h1>
+            </div>
+            <button
+                onClick={() => navigate('/tests')}
+                className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/20 transition-all active:scale-95 group text-white shrink-0"
+                title="Your Tests"
+            >
+                <span className="text-sm font-bold uppercase tracking-widest hidden sm:inline">Tests</span>
+                <ClipboardCheck className="w-5 h-5 transition-colors group-hover:text-accent" />
+            </button>
+       </header>
        
-       <div className="flex-1 overflow-y-auto pb-24 md:pb-4">
+       <div className="flex-1 pb-24 md:pb-4">
            <TopicGraph topics={topicsWithStatus} onSelectTopic={handleTopicClick} />
        </div>
     </div>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpen, Search, ArrowRight, Book, Layers } from 'lucide-react';
+import { BookOpen, Search, ArrowRight, Book, Layers, ArrowLeft, ClipboardCheck } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
 export default function Syllabus() {
+  const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +68,24 @@ export default function Syllabus() {
       </div>
       {/* Hero Section */}
       <div className="relative min-h-[400px] md:h-[450px] flex items-center justify-center overflow-hidden bg-[#050505] border-b border-white/5 py-20 md:py-0">
+        {/* Floating Top Navigation */}
+        <div className="absolute top-0 left-0 right-0 z-30 px-6 py-8 flex items-center justify-between">
+            <button
+                onClick={() => navigate(-1)}
+                className="p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
+            >
+                <ArrowLeft className="w-5 h-5 text-white group-hover:-translate-x-1 transition-transform" />
+            </button>
+            <button
+                onClick={() => navigate('/tests')}
+                className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/20 transition-all active:scale-95 group text-white"
+                title="Your Tests"
+            >
+                <span className="text-sm font-bold uppercase tracking-widest hidden sm:inline">Tests</span>
+                <ClipboardCheck className="w-5 h-5 transition-colors group-hover:text-accent" />
+            </button>
+        </div>
+
         {/* Neural Network Background Effect (The 'Mast' Grid) */}
         <div className="absolute inset-0 opacity-[0.15] pointer-events-none">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -181,7 +200,7 @@ export default function Syllabus() {
 
                     {/* Content */}
                     <div className="relative z-10 flex-1 mb-10">
-                      <h3 className="text-2xl font-bold text-white leading-tight mb-4 group-hover:text-accent transition-colors">
+                      <h3 className="text-2xl font-bold text-white leading-tight mb-4 group-hover:text-accent transition-colors line-clamp-1">
                         {subject.name}
                       </h3>
                       <div className="flex items-center gap-3 text-secondary group-hover:text-primary transition-colors">

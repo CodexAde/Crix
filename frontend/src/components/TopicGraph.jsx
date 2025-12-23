@@ -53,7 +53,7 @@ export default function TopicGraph({ topics, onSelectTopic }) {
                                        </span>
                                    )}
                                </div>
-                               <h3 className="text-lg font-bold text-primary mb-1 group-hover:text-accent transition-colors">
+                               <h3 className="text-lg font-bold text-primary mb-1 group-hover:text-accent transition-colors line-clamp-1">
                                    {topic.title}
                                </h3>
                                <p className="text-sm text-secondary line-clamp-2">

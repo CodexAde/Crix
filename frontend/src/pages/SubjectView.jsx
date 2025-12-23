@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Clock, ChevronRight, ArrowLeft, BookOpen, Play } from 'lucide-react';
+import { Clock, ChevronRight, ArrowLeft, BookOpen, Play, ClipboardCheck } from 'lucide-react';
 import { PageLoader } from '../components/Spinner';
 
 const mockSubjectsData = {
@@ -117,33 +117,40 @@ export default function SubjectView() {
     return (
         <div className="min-h-screen bg-main pb-24 md:pb-10">
             {/* Sticky Header */}
-<header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-20">
-  <div className="relative max-w-3xl mx-auto px-6 py-4 flex items-center">
-    
-    {/* <button
-      onClick={() => navigate(-1)}
-      className="p-2 hover:bg-border-soft rounded-full transition-colors absolute left-6"
-    >
-      <ArrowLeft className="w-5 h-5 text-primary" />
-    </button> */}
+<header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50">
+    <div className="relative mx-auto px-6 py-4 flex items-center justify-between">
+        <button
+            onClick={() => navigate(-1)}
+            className="p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
+        >
+            <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />
+        </button>
 
-    <div className="flex-1 text-center pointer-events-none">
-      <p className="text-xs font-medium text-accent mb-0.5">
-        {subject.code}
-      </p>
-      <h1 className="text-lg font-bold text-primary truncate">
-        {subject.name}
-      </h1>
+        <div className="flex-1 text-center min-w-0 mx-4">
+            <p className="text-xs font-medium text-accent mb-0.5 line-clamp-1">
+                {subject.code}
+            </p>
+            <h1 className="text-lg font-bold text-primary line-clamp-1">
+                {subject.name}
+            </h1>
+        </div>
+
+        <button
+             onClick={() => navigate('/tests')}
+            className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/20 transition-all active:scale-95 group text-white"
+            title="Take Tests"
+        >
+            <span className="text-sm font-bold uppercase tracking-widest hidden sm:inline">Tests</span>
+            <ClipboardCheck className="w-5 h-5 transition-colors group-hover:text-accent" />
+        </button>
     </div>
-
-  </div>
 </header>
 
             <main className="max-w-3xl mx-auto px-6 py-8">
                 {/* Unit Selector */}
                 <div className="my-8">
                     {/* <p className="text-sm text-secondary mb-3">Select Unit</p> */}
-                    <div className="flex gap-3 mt-4 mb-2 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar snap-x">
+                    <div className="flex gap-3 mt-4 mb-2 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar snap-x justify-center">
                         {subject.units.map((unit, index) => (
                             <button
                                 key={unit._id}
@@ -161,7 +168,7 @@ export default function SubjectView() {
 
                 {/* Active Unit Title */}
                 <div className="my-6">
-                    <h2 className="text-xl font-bold text-primary text-center">
+                    <h2 className="text-xl font-bold text-primary text-center line-clamp-1">
                         {subject.units[activeUnit].title}
                     </h2>
                     <p className="text-sm text-secondary mt-1 text-center">
@@ -187,7 +194,7 @@ export default function SubjectView() {
 
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="text-base font-semibold text-primary group-hover:text-accent transition-colors mb-1">
+                                    <h3 className="text-base font-semibold text-primary group-hover:text-accent transition-colors mb-1 line-clamp-1">
                                         {chapter.title}
                                     </h3>
                                     <p className="text-sm text-secondary line-clamp-1">{chapter.description}</p>

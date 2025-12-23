@@ -68,6 +68,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           
            <Route path="/syllabus" element={<Syllabus />} />
+           <Route path="/tests" element={<Syllabus />} />
 
           <Route path="/syllabus/:id" element={<SubjectView />} />
 

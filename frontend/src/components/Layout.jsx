@@ -35,9 +35,7 @@ export default function Layout() {
 
   // Scroll to top on route change
   useEffect(() => {
-    if (mainRef.current) {
-        mainRef.current.scrollTo(0, 0);
-    }
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   const navItems = [
@@ -73,17 +71,11 @@ export default function Layout() {
         lastScrollY.current = currentScrollY;
     };
 
-    // Attach to both possible scroll containers to be absolutely sure
+    // Attach to window
     window.addEventListener('scroll', handleScroll, { passive: true });
-    if (mainElement) {
-        mainElement.addEventListener('scroll', handleScroll, { passive: true });
-    }
     
     return () => {
         window.removeEventListener('scroll', handleScroll);
-        if (mainElement) {
-            mainElement.removeEventListener('scroll', handleScroll);
-        }
     };
   }, []);
 
@@ -97,7 +89,7 @@ export default function Layout() {
             </div>
             <div>
                 <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
-                <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
+                <p className="text-[8px] text-red-500 font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
             </div>
         </div>
 
@@ -182,7 +174,7 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 overflow-y-auto" ref={mainRef}>
+      <main className="flex-1 min-w-0" ref={mainRef}>
         <Outlet />
       </main>
 
