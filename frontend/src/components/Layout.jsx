@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Home, BookOpen, MessageCircle,MessageSquare, LogOut, User, Moon, Sun, Sparkles, PlusCircle } from 'lucide-react';
+import { Home, BookOpen, MessageCircle, Calendar, LogOut, User, Moon, Sun, Sparkles, PlusCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function Layout() {
@@ -42,42 +42,9 @@ export default function Layout() {
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: BookOpen, label: 'Syllabus', path: '/syllabus' },
     { icon: PlusCircle, label: 'Add', path: '/community-deploy' },
-    { icon: MessageSquare, label: 'Doubts', path: '/doubts' },
+    { icon: Calendar, label: 'Roadmap', path: '/roadmap' },
     { icon: User, label: 'Profile', path: '/user-profile' }
   ];
-
-  // Auto-hide bottom nav on scroll logic
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const mainElement = mainRef.current;
-    
-    const handleScroll = () => {
-        // Robust check: Look at both window and main element scroll positions
-        const winScroll = window.scrollY;
-        const mainScroll = mainElement ? mainElement.scrollTop : 0;
-        
-        // Use the value that is actually changing/active (usually the larger one if the other is 0)
-        const currentScrollY = Math.max(winScroll, mainScroll);
-        
-        // Threshold check (5px for responsiveness)
-        if (currentScrollY > lastScrollY.current + 5) {
-            setIsNavVisible(false);
-        } else if (currentScrollY < lastScrollY.current - 5) {
-            setIsNavVisible(true);
-        }
-        
-        lastScrollY.current = currentScrollY;
-    };
-
-    // Attach to window
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-        window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-main flex flex-col md:flex-row">
@@ -179,10 +146,7 @@ export default function Layout() {
       </main>
 
       {/* Mobile Bottom Taskbar */}
-      <nav className={clsx(
-          "md:hidden fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-lg border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out",
-          !isNavVisible && "translate-y-full"
-      )}>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-lg border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out">
         {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.path);

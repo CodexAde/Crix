@@ -5,34 +5,6 @@ import TopicGraph from '../components/TopicGraph';
 import { ArrowLeft, ClipboardCheck } from 'lucide-react';
 import { PageLoader } from '../components/Spinner';
 
-const mockChaptersData = {
-  ch1: { 
-    _id: 'ch1', 
-    title: 'Normal and Shear Stress', 
-    topics: [
-      { _id: 't1', title: 'Introduction to Stress', orderIndex: 1 },
-      { _id: 't2', title: 'Normal Stress Analysis', orderIndex: 2 },
-      { _id: 't3', title: 'Shear Stress Basics', orderIndex: 3 },
-    ]
-  },
-  ch2: { 
-    _id: 'ch2', 
-    title: 'Strain and Deformation', 
-    topics: [
-      { _id: 't4', title: 'Types of Strain', orderIndex: 1 },
-      { _id: 't5', title: 'Deformation Concepts', orderIndex: 2 },
-    ]
-  },
-  ch3: { 
-    _id: 'ch3', 
-    title: 'Stress-Strain Relationship', 
-    topics: [
-      { _id: 't6', title: 'Hookes Law', orderIndex: 1 },
-      { _id: 't7', title: 'Elastic Constants', orderIndex: 2 },
-    ]
-  },
-};
-
 export default function ChapterView() {
   const { subjectId, unitId, chapterId } = useParams();
   const [chapter, setChapter] = useState(null);
@@ -42,13 +14,6 @@ export default function ChapterView() {
   const navigate = useNavigate();
 
   const fetchData = useCallback(async () => {
-    if (subjectId.startsWith('mock') || mockChaptersData[chapterId]) {
-      setChapter(mockChaptersData[chapterId] || null);
-      setProgressMap({});
-      setLoading(false);
-      return;
-    }
-
     try {
         const [syllabusRes, progressRes] = await Promise.all([
             axios.get(`/syllabus/${subjectId}`),

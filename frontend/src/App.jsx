@@ -32,7 +32,7 @@ import Dashboard from './pages/Dashboard';
 import SubjectView from './pages/SubjectView';
 import ChapterView from './pages/ChapterView';
 import ChatInterface from './pages/ChatInterface';
-import Doubts from './pages/Doubts';
+import Roadmap from './pages/Roadmap';
 import Syllabus from './pages/Syllabus';
 import AddChapters from './pages/AddChapters';
 import UserProfile from './pages/UserProfile';
@@ -74,7 +74,7 @@ function AppRoutes() {
 
           <Route path="/chapter/:subjectId/:unitId/:chapterId" element={<ChapterView />} />
           
-          <Route path="/doubts" element={<Doubts />} />
+          <Route path="/roadmap" element={<Roadmap />} />
 
           <Route path="/community-deploy" element={<CommunityDeploy />} />
           <Route path="/add-chapters" element={<AddChapters />} />

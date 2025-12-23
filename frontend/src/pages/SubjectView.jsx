@@ -4,83 +4,6 @@ import axios from 'axios';
 import { Clock, ChevronRight, ArrowLeft, BookOpen, Play, ClipboardCheck } from 'lucide-react';
 import { PageLoader } from '../components/Spinner';
 
-const mockSubjectsData = {
-    mock1: {
-        _id: 'mock1',
-        name: 'Engineering Mechanics',
-        code: 'KME101',
-        units: [
-            {
-                _id: 'unit1',
-                unitNumber: 1,
-                title: 'Introduction to Mechanics of Solid',
-                chapters: [
-                    { _id: 'ch1', orderIndex: 1, title: 'Normal and Shear Stress', description: 'Understanding stress components in materials' },
-                    { _id: 'ch2', orderIndex: 2, title: 'Strain and Deformation', description: 'Types of strain and material deformation' },
-                    { _id: 'ch3', orderIndex: 3, title: 'Stress-Strain Relationship', description: 'Hookes law and material properties' },
-                ]
-            },
-            {
-                _id: 'unit2',
-                unitNumber: 2,
-                title: 'Centroid and Moment of Inertia',
-                chapters: [
-                    { _id: 'ch4', orderIndex: 1, title: 'Centroid of Areas', description: 'Finding center of gravity of shapes' },
-                    { _id: 'ch5', orderIndex: 2, title: 'Moment of Inertia', description: 'Second moment of area calculations' },
-                ]
-            },
-        ]
-    },
-    mock2: {
-        _id: 'mock2',
-        name: 'Engineering Physics',
-        code: 'KAS101',
-        units: [
-            {
-                _id: 'unit1',
-                unitNumber: 1,
-                title: 'Quantum Mechanics',
-                chapters: [
-                    { _id: 'ch1', orderIndex: 1, title: 'Wave-Particle Duality', description: 'Understanding dual nature of matter' },
-                    { _id: 'ch2', orderIndex: 2, title: 'Schrodinger Wave Equation', description: 'Mathematical formulation of quantum mechanics' },
-                ]
-            },
-        ]
-    },
-    mock3: {
-        _id: 'mock3',
-        name: 'Mathematics-I',
-        code: 'KAS103',
-        units: [
-            {
-                _id: 'unit1',
-                unitNumber: 1,
-                title: 'Differential Calculus',
-                chapters: [
-                    { _id: 'ch1', orderIndex: 1, title: 'Successive Differentiation', description: 'Higher order derivatives and Leibniz theorem' },
-                    { _id: 'ch2', orderIndex: 2, title: 'Mean Value Theorems', description: 'Rolles and Lagranges theorems' },
-                ]
-            },
-        ]
-    },
-    mock4: {
-        _id: 'mock4',
-        name: 'Professional Communication',
-        code: 'KAS107',
-        units: [
-            {
-                _id: 'unit1',
-                unitNumber: 1,
-                title: 'Communication Fundamentals',
-                chapters: [
-                    { _id: 'ch1', orderIndex: 1, title: 'Verbal Communication', description: 'Effective speaking and presentation skills' },
-                    { _id: 'ch2', orderIndex: 2, title: 'Non-Verbal Communication', description: 'Body language and visual cues' },
-                ]
-            },
-        ]
-    },
-};
-
 export default function SubjectView() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -90,12 +13,6 @@ export default function SubjectView() {
 
     useEffect(() => {
         const fetchSubject = async () => {
-            if (id.startsWith('mock')) {
-                setSubject(mockSubjectsData[id] || null);
-                setLoading(false);
-                return;
-            }
-
             try {
                 const { data } = await axios.get(`/syllabus/${id}`);
                 setSubject(data.subject);

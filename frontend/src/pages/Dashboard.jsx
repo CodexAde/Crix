@@ -5,16 +5,9 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 
-const mockSubjects = [
-  { _id: 'mock1', name: 'Engineering Mechanics', code: 'KME101', progress: 75 },
-  { _id: 'mock2', name: 'Engineering Physics', code: 'KAS101', progress: 50 },
-  { _id: 'mock3', name: 'Mathematics-I', code: 'KAS103', progress: 25 },
-  { _id: 'mock4', name: 'Professional Communication', code: 'KAS107', progress: 10 },
-];
-
 export default function Dashboard() {
   const { user } = useAuth();
-  const [subjects, setSubjects] = useState(mockSubjects);
+  const [subjects, setSubjects] = useState([]);
   const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1 });
   const [loading, setLoading] = useState(true);
   const [lastSession, setLastSession] = useState(null);
