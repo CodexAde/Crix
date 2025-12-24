@@ -1,34 +1,166 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Rocket, Timer, ChevronRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Calendar, Rocket, Timer, ChevronRight, Sparkles, CheckCircle2, FolderOpen, Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
+import RoadmapGenerator from '../components/RoadmapComponents/RoadmapGenerator';
+import RoadmapEditor from '../components/RoadmapComponents/RoadmapEditor';
+import {
+  generateRoadmapAI,
+  saveRoadmapService,
+  getMyRoadmaps,
+} from '../services/roadmapServices';
 
 export default function Roadmap() {
+  const [view, setView] = useState('hero');
+  const [loading, setLoading] = useState(false);
+  const [generatedRoadmap, setGeneratedRoadmap] = useState(null);
+  const [myRoadmaps, setMyRoadmaps] = useState([]);
+  const [fetchingRoadmaps, setFetchingRoadmaps] = useState(false);
+
   const scheduleOverview = [
     { title: "Quick Revision", duration: "7 Days", intensity: "High", icon: Rocket, color: "text-orange-500", bg: "bg-orange-500/10" },
     { title: "Standard Pace", duration: "15 Days", intensity: "Balanced", icon: Timer, color: "text-accent", bg: "bg-accent/10" },
     { title: "Deep Learning", duration: "30 Days", intensity: "Detailed", icon: Timer, color: "text-blue-500", bg: "bg-blue-500/10" }
   ];
 
+  useEffect(() => {
+    if (view === 'my-roadmaps') {
+      fetchRoadmaps();
+    }
+  }, [view]);
+
+  const fetchRoadmaps = async () => {
+    setFetchingRoadmaps(true);
+    try {
+      const data = await getMyRoadmaps();
+      setMyRoadmaps(data || []);
+    } catch (error) {
+      console.error("Error fetching roadmaps:", error);
+    } finally {
+      setFetchingRoadmaps(false);
+    }
+  };
+
+  const handleGenerate = async (subject, duration) => {
+    setLoading(true);
+    try {
+      const data = await generateRoadmapAI(subject, duration);
+      setGeneratedRoadmap({ ...data, subject, duration });
+      setView('editor');
+      toast.success('Neural path generated!');
+    } catch (error) {
+      console.error('Generation Error:', error);
+      toast.error(error.response?.data?.message || 'Failed to generate roadmap.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async (roadmapData) => {
+    try {
+      await saveRoadmapService(roadmapData);
+      toast.success('Roadmap saved!');
+      setView('hero');
+    } catch (error) {
+      console.error('Save Error:', error);
+      toast.error('Failed to save roadmap.');
+    }
+  };
+
+  if (view === 'generator') {
+    return (
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+        <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+          <button onClick={() => setView('hero')} className="text-secondary hover:text-accent text-sm font-bold mb-4">&larr; Back</button>
+          <h1 className="text-2xl md:text-3xl font-bold text-primary">Generate Roadmap</h1>
+        </motion.header>
+        <RoadmapGenerator onGenerate={handleGenerate} loading={loading} />
+      </div>
+    );
+  }
+
+  if (view === 'editor') {
+    return (
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+        <RoadmapEditor
+          initialData={generatedRoadmap}
+          onSave={handleSave}
+          onCancel={() => setView('hero')}
+        />
+      </div>
+    );
+  }
+
+  if (view === 'my-roadmaps') {
+    return (
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+        <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+          <button onClick={() => setView('hero')} className="text-secondary hover:text-accent text-sm font-bold mb-4">&larr; Back</button>
+          <h1 className="text-2xl md:text-3xl font-bold text-primary">My Roadmaps</h1>
+          <p className="text-secondary text-sm">Your saved study plans</p>
+        </motion.header>
+
+        {fetchingRoadmaps ? (
+          <div className="text-center py-20 text-secondary">Loading...</div>
+        ) : myRoadmaps.length === 0 ? (
+          <div className="text-center py-20">
+            <FolderOpen className="w-16 h-16 mx-auto text-secondary/30 mb-4" />
+            <p className="text-secondary">No roadmaps yet. Create one!</p>
+            <button onClick={() => setView('generator')} className="mt-4 px-6 py-3 bg-accent text-white rounded-xl font-bold">
+              Create Roadmap
+            </button>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {myRoadmaps.map((rm) => (
+              <motion.div
+                key={rm._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-6 rounded-3xl bg-card border border-white/10"
+              >
+                <h3 className="text-lg font-bold text-primary line-clamp-1">{rm.title}</h3>
+                <p className="text-secondary text-sm line-clamp-2 mt-1">{rm.description}</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs text-secondary">{rm.steps?.length || 0} Days</span>
+                  <span className="text-xs text-accent font-bold">{rm.subject}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
-      {/* Minimal Header */}
       <motion.header 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-10 md:mb-12"
       >
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-accent/5 flex items-center justify-center">
-            <Calendar className="w-5 h-5 md:w-6 md:h-6 text-accent" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-accent/5 flex items-center justify-center">
+              <Calendar className="w-5 h-5 md:w-6 md:h-6 text-accent" />
+            </div>
+            <div>
+              <h1 className="text-xl md:text-3xl font-bold text-primary">Study Roadmap</h1>
+              <p className="text-secondary text-xs md:text-sm">Personalized learning schedules</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-primary">Study Roadmap</h1>
-            <p className="text-secondary text-xs md:text-sm">Personalized learning schedules</p>
-          </div>
+          <button
+            onClick={() => setView('my-roadmaps')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-white/10 text-secondary hover:text-accent transition-colors text-sm font-bold"
+          >
+            <FolderOpen className="w-4 h-4" />
+            <span className="hidden sm:inline">My Roadmaps</span>
+          </button>
         </div>
       </motion.header>
 
       <div className="grid lg:grid-cols-12 gap-6 md:gap-10">
-        {/* Main Hero Section - Simplified */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -54,6 +186,8 @@ export default function Roadmap() {
               {[
                 "Automatic Chapter Allocation",
                 "Periodic Revision Milestones",
+                "Day-wise Topic Planning",
+                "AI-Powered Optimization",
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <CheckCircle2 className="w-4 h-4 text-green-500/70" />
@@ -65,17 +199,18 @@ export default function Roadmap() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => setView('generator')}
               className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 md:py-5 bg-accent text-white rounded-2xl font-bold shadow-xl shadow-accent/20 transition-all text-sm md:text-base"
             >
+              <Plus className="w-5 h-5" />
               Start Generating
               <ChevronRight className="w-4 h-4" />
             </motion.button>
           </div>
         </motion.div>
 
-        {/* Timelines Sidebar - Cleaned Up */}
         <div className="lg:col-span-4 space-y-4">
-          <p className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em] mb-4 px-2">Selected Modes</p>
+          <p className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em] mb-4 px-2">Schedule Modes</p>
           
           {scheduleOverview.map((item, i) => (
             <motion.div
@@ -83,7 +218,7 @@ export default function Roadmap() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 + i * 0.1 }}
-              className="p-5 md:p-6 rounded-[2rem] bg-card hover:bg-surface transition-all duration-300 group cursor-default"
+              className="p-5 md:p-6 rounded-[2rem] bg-card border border-white/5 hover:border-white/10 transition-all duration-300"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-2xl ${item.bg}`}>
@@ -101,29 +236,7 @@ export default function Roadmap() {
               </div>
             </motion.div>
           ))}
-
-          {/* Minimal Status */}
-          <div className="mt-8 p-6 rounded-[2rem] bg-accent/[0.03] border border-accent/5">
-            <div className="flex items-center justify-between mb-3 text-[10px] font-bold uppercase tracking-widest">
-              <span className="text-secondary">Engine Training</span>
-              <span className="text-accent underline underline-offset-4">82%</span>
-            </div>
-            <div className="w-full bg-border-soft h-1 rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: "82%" }}
-                transition={{ duration: 2 }}
-                className="bg-accent h-full rounded-full shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]"
-              />
-            </div>
-          </div>
         </div>
-      </div>
-
-      {/* Subtle Background Gradients - No lines/borders */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-accent/[0.02] blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-accent/[0.02] blur-[120px] rounded-full" />
       </div>
     </div>
   );
