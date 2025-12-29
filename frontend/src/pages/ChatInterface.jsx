@@ -253,7 +253,7 @@ const ChapterSidebar = memo(({
         <div className="flex flex-col h-full bg-card border-r border-border-soft relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1/2 bg-red-500/5 blur-[100px] pointer-events-none" />
             
-            <Link to="/dashboard" className="flex items-center gap-3 p-6 border-b border-border-soft/50 hover:bg-white/5 transition-all duration-300 relative z-10">
+            <Link className="flex items-center gap-3 p-6 border-b border-border-soft/50 hover:bg-white/5 transition-all duration-300 relative z-10">
                 <div className="w-9 h-9 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20 border border-white/10">
                     <Sparkles className="w-5 h-5 text-white" />
                 </div>

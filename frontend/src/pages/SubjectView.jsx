@@ -170,7 +170,7 @@ export default function SubjectView() {
 </AnimatePresence>
 
 
-                 {/* <div className="my-6">
+                 <div className="my-6">
                     <div className="flex gap-2.5 mb-2 overflow-x-auto pb-4 no-scrollbar snap-x px-4 md:justify-center">
                         {subject.units.map((unit, index) => (
                             <button
@@ -239,7 +239,7 @@ export default function SubjectView() {
                              <p className="text-secondary font-medium">No chapters generated for this unit yet.</p>
                         </div>
                     )}
-                </div> */}
+                </div>
             </main>
         </div>
     );
