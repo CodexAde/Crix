@@ -3,6 +3,7 @@ import { BookOpen, Search, ArrowRight, Book, Layers, ArrowLeft, MoreHorizontal, 
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import SubjectContext from '../context/Subject/SubjectContext';
 import UserContext from '../context/User/UserContext';
 
@@ -57,6 +58,17 @@ export default function Syllabus() {
   };
 
   const isAdded = (id) => userSubjects.some(s => s._id === id);
+
+  const handleCardClick = (subject) => {
+    if (isAdded(subject._id)) {
+      navigate(`/syllabus/${subject._id}`);
+    } else {
+      toast('Please add this subject first by clicking the + button', {
+        // icon: '📚',
+        duration: 3000,
+      });
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -139,7 +151,7 @@ export default function Syllabus() {
               return (
                 <motion.div key={subject._id} variants={itemVariants} className="group">
                   <div 
-                    // onClick={() => navigate(`/syllabus/${subject._id}`)}
+                    onClick={() => handleCardClick(subject)}
                     className="block bg-card rounded-[2rem] p-6 md:p-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] md:hover:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group/card cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
                   >
                      <div className="flex items-start justify-between mb-6 md:mb-8">
@@ -159,7 +171,7 @@ export default function Syllabus() {
                                 disabled={added || isAdding}
                                 className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 ${
                                     added 
-                                    ? 'bg-green-500 text-white shadow-[0_4px_12px_rgba(34,197,94,0.3)]' 
+                                    ? ' text-white shadow-[0_10px_30px_rgba(0,0,0,0.2)] backdrop-blur-md'
                                     : 'bg-card text-secondary hover:bg-primary hover:text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] hover:shadow-primary/20'
                                 }`}
                                 title={added ? "Already in your library" : "Add to library"}

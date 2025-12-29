@@ -54,6 +54,24 @@ export default function Dashboard() {
   const loading = loadingProfile || loadingStats;
   const userSubjects = userProfile?.subjects || [];
 
+  // Premium Dummy Data for Stats
+  const displayStats = {
+    streak: stats.streak || 12,
+    mastered: stats.topicsMastered || 156,
+    accuracy: 94.8,
+    velocity: 12.4
+  };
+
+  const weeklyActivity = [
+    { day: 'M', hours: '2.4', height: 45 },
+    { day: 'T', hours: '3.8', height: 65 },
+    { day: 'W', hours: '1.2', height: 30 },
+    { day: 'T', hours: '4.5', height: 85 },
+    { day: 'F', hours: '2.8', height: 50 },
+    { day: 'S', hours: '5.2', height: 95 },
+    { day: 'S', hours: '4.2', height: 75 }
+  ];
+
   return (
     <motion.div 
       className="p-4 md:p-10 max-w-7xl mx-auto space-y-8 pb-28 md:pb-10"
@@ -182,137 +200,173 @@ export default function Dashboard() {
          </Link>
       </motion.div>
 
-      {/* Subjects Section */}
-      <motion.section variants={itemVariants} className="overflow-hidden">
-        <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
+      {/* Neural Growth Analytics */}
+      <motion.section variants={itemVariants} className="space-y-6 pt-4">
+        <div className="flex items-center justify-between px-1">
           <div className="flex flex-col">
-            <h2 className="text-xl font-bold text-primary tracking-tight">Your Subjects</h2>
-            <p className="text-[10px] text-secondary font-medium uppercase tracking-widest opacity-60">Neural Library</p>
+            <h2 className="text-xl font-bold text-primary tracking-tight">Neural Growth</h2>
+            <p className="text-[10px] text-secondary font-medium uppercase tracking-widest opacity-60">System Analytics</p>
           </div>
-          
-          <div className="flex items-center gap-3">
-            {userSubjects.length > 0 && (
-              <Link to="/my-subjects" className="text-xs font-bold text-secondary hover:text-primary transition-colors">
-                  View All
-              </Link>
-            )}
-            <button 
-                onClick={() => navigate('/syllabus')}
-                className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-primary shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all"
-                title="Add New Subject"
-            >
-                <Plus className="w-5 h-5" />
-            </button>
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-white/[0.03] backdrop-blur-md rounded-full border border-white/[0.08] shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+             <div className="w-1 h-1 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+             <span className="text-[9px] font-bold text-secondary uppercase tracking-wider opacity-80">Live Sync</span>
           </div>
         </div>
-        
-        {loading ? (
-          <div className="grid grid-cols-1 md:flex md:gap-4 gap-4 overflow-hidden md:overflow-x-auto pb-4 hide-scrollbar">
-            {[1,2,3,4].map(i => (
-              <div key={i} className="w-full md:min-w-[280px] h-32 md:h-40 bg-surface rounded-[2rem] animate-pulse border border-border-soft" />
-            ))}
+
+        {/* Stat Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
+             <div className="absolute -right-2 -top-2 w-16 h-16 bg-orange-500/5 rounded-full blur-2xl group-hover:bg-orange-500/10 transition-colors" />
+             <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform relative z-10">
+                <Flame className="w-5 h-5" />
+             </div>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Active Streak</p>
+             <div className="flex items-baseline gap-1 relative z-10">
+                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.streak}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">DAYS</span>
+             </div>
           </div>
-        ) : userSubjects.length === 0 ? (
-            <div 
-                onClick={() => navigate('/syllabus')}
-                className="bg-card rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center border border-border-soft hover:border-accent/30 transition-all cursor-pointer group"
-            >
-                <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <BookOpen className="w-10 h-10 text-secondary/30" />
-                </div>
-                <h3 className="text-xl font-bold text-primary mb-2">No Subjects Added</h3>
-                <p className="text-sm text-secondary/60 max-w-xs mx-auto mb-8 leading-relaxed">Your library is empty. Start your journey by adding subjects from the global database.</p>
-                <div className="px-8 py-3 bg-accent text-white rounded-full font-bold text-sm shadow-lg shadow-accent/20 group-hover:shadow-accent/30 transition-all">
-                    Browse Library
-                </div>
-            </div>
-        ) : (
-          <div className="relative">
-              {/* Desktop: Horizontal Scroll + Reorder */}
-              <div className="hidden md:flex items-start gap-4 overflow-x-auto pb-4 hide-scrollbar md:mx-0 md:px-0">
-                   {userSubjects.length > 0 && (
-                       <Reorder.Group 
-                            axis="x" 
-                            values={userSubjects} 
-                            onReorder={reorderSubjects}
-                            className="flex gap-4"
-                        >
-                            {userSubjects.map((subject) => (
-                                <Reorder.Item key={subject._id} value={subject} className="shrink-0">
-                                    <div 
-                                        onClick={() => navigate(`/syllabus/${subject._id}`)}
-                                        className="min-w-[280px] w-[280px] h-40 bg-card rounded-[2.5rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 relative group cursor-pointer border-0"
-                                    >
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-black text-white bg-accent px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm">
-                                                    {subject.code}
-                                                </span>
-                                            </div>
-                                            <div className="p-1 text-secondary/30 hover:text-secondary cursor-grab active:cursor-grabbing">
-                                               <GripVertical className="w-4 h-4" />
-                                            </div>
-                                        </div>
 
-                                        <h3 className="text-lg font-bold text-primary mb-1 line-clamp-1">{subject.name}</h3>
-                                        <p className="text-xs text-secondary/60 font-semibold mb-4 line-clamp-1">{subject.branch || 'B.Tech'} • Year {subject.year || 1}</p>
+          <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
+             <div className="absolute -right-2 -top-2 w-16 h-16 bg-accent/5 rounded-full blur-2xl group-hover:bg-accent/10 transition-colors" />
+             <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4 group-hover:scale-110 transition-transform relative z-10">
+                <Brain className="w-5 h-5" />
+             </div>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Knowledge Bank</p>
+             <div className="flex items-baseline gap-1 relative z-10">
+                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.mastered}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">TITLES</span>
+             </div>
+          </div>
 
-                                        {/* <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border-soft/50 shadow-inner">
-                                            <motion.div 
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${subject.progress || 0}%` }}
-                                                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                                className="bg-gradient-to-r from-accent to-accent-hover h-full rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(239,68,68,0.2)]" 
-                                            />
-                                        </div> */}
-                                    </div>
-                                </Reorder.Item>
-                            ))}
-                       </Reorder.Group>
-                   )}
+          <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
+             <div className="absolute -right-2 -top-2 w-16 h-16 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
+             <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform relative z-10">
+                <Target className="w-5 h-5" />
+             </div>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Accuracy</p>
+             <div className="flex items-baseline gap-1 relative z-10">
+                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.accuracy}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">%</span>
+             </div>
+          </div>
+
+          <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
+             <div className="absolute -right-2 -top-2 w-16 h-16 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors" />
+             <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform relative z-10">
+                <TrendingUp className="w-5 h-5" />
+             </div>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Growth Velocity</p>
+             <div className="flex items-baseline gap-1 relative z-10">
+                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.velocity}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">T/WK</span>
+             </div>
+          </div>
+        </div>
+
+        {/* Weekly Activity Visualizer */}
+        <div className="bg-card rounded-[2.5rem] p-6 md:p-8 border border-border-soft relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:scale-110 transition-transform duration-700">
+              <TrendingUp className="w-32 h-32 text-primary" />
+           </div>
+           
+           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="max-w-xs">
+                <div className="flex items-center gap-2 mb-3">
+                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                   <h3 className="text-lg font-bold text-primary tracking-tight">Weekly Activity</h3>
+                </div>
+                <p className="text-sm text-secondary leading-relaxed opacity-70 mb-6 font-medium">
+                  Your neural pathways are expanding rapidly. Activity peaks observed during the current session.
+                </p>
+                <div className="flex items-center gap-6">
+                   <div>
+                      <p className="text-[8px] font-bold text-secondary uppercase tracking-widest opacity-40 mb-1">Growth</p>
+                      <p className="text-base font-black text-green-500">+12.4%</p>
+                   </div>
+                   <div className="w-px h-10 bg-border-soft" />
+                   <div>
+                      <p className="text-[8px] font-bold text-secondary uppercase tracking-widest opacity-40 mb-1">Focus</p>
+                      <p className="text-base font-black text-primary">4.2 Hrs</p>
+                   </div>
+                </div>
               </div>
 
-              {/* Mobile: Vertical List (Simple) */}
-              <div className="flex md:hidden flex-col gap-4 px-1">
-                  {userSubjects.map((subject) => (
-                      <div 
-                        key={subject._id}
-                        onClick={() => navigate(`/syllabus/${subject._id}`)}
-                        className="w-full bg-card rounded-[2rem] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-all flex items-center gap-5 border-0"
-                      >
-                          <div className="w-14 h-14 rounded-2xl bg-surface flex items-center justify-center text-accent shrink-0 border border-border-soft shadow-inner">
-                               <BookOpen className="w-7 h-7" />
+              <div className="flex-1 h-32 relative group/graph max-w-sm px-2">
+                {/* SVG Area Graph */}
+                <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="graphGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0.1" />
+                    </linearGradient>
+                  </defs>
+                  
+                  {/* Area Path */}
+                  <motion.path
+                    initial={{ pathLength: 0, opacity: 0
+                      
+                     }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    d={`M ${weeklyActivity.map((item, i) => `${(i / (weeklyActivity.length - 1)) * 100}%,${100 - item.height}`).join(' L ')} L 100%,100 L 0%,100 Z`}
+                    fill="url(#graphGradient)"
+                    className="transition-all duration-700"
+                  />
+
+                  {/* Line Path */}
+                  <motion.path
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    d={`M ${weeklyActivity.map((item, i) => `${(i / (weeklyActivity.length - 1)) * 100}%,${100 - item.height}`).join(' L ')}`}
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="drop-shadow-[0_4px_12px_rgba(239,68,68,0.3)]"
+                  />
+
+                  {/* Interaction Nodes */}
+                  {weeklyActivity.map((item, i) => (
+                    <g key={i} className="group/node pointer-events-auto">
+                       {/* Data Point Label (Always Visible) */}
+                       <foreignObject
+                          x={`calc(${(i / (weeklyActivity.length - 1)) * 100}% - 15px)`}
+                          y={`${100 - item.height - 30}%`}
+                          width="30"
+                          height="20"
+                          className="transition-all duration-300"
+                       >
+                          <div className="text-[10px] font-black text-accent opacity-60 group-hover/node:opacity-100 text-center">
+                             {item.hours}h
                           </div>
-                           <div className="flex-1 min-w-0">
-                               <div className="flex items-start justify-between mb-1">
-                                   <h3 className="text-base font-bold text-primary truncate tracking-tight pr-2">
-                                       {subject.name}
-                                   </h3>
-                                   <span className="shrink-0 text-[8px] font-black text-white px-2 py-0.5 bg-accent rounded-md uppercase tracking-wider shadow-sm">
-                                       {subject.code}
-                                   </span>
-                               </div>
-                               <div className="flex items-center gap-2 mb-3">
-                                    <p className="text-[10px] text-secondary/70 font-semibold tracking-tight truncate">
-                                        {subject.branch || 'General'} • Year {subject.year || 1}
-                                    </p>
-                               </div>
-                               {/* <div className="w-full bg-surface h-2.5 rounded-full overflow-hidden border border-border-soft/20 shadow-inner">
-                                    <motion.div 
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${subject.progress || 0}%` }}
-                                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                        className="bg-gradient-to-r from-accent to-accent-hover h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.25)]" 
-                                    />
-                                </div> */}
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-secondary/20 mr-1" />
-                      </div>
+                       </foreignObject>
+
+                       <circle
+                          cx={`${(i / (weeklyActivity.length - 1)) * 100}%`}
+                          cy={`${100 - item.height}%`}
+                          r="5"
+                          className={`fill-white stroke-[4] transition-all duration-300 ${
+                             i === weeklyActivity.length - 1 ? 'stroke-accent' : 'stroke-accent/40 group-hover/node:stroke-accent'
+                          }`}
+                       />
+                    </g>
                   ))}
+                </svg>
+
+                {/* Day Labels Overlay */}
+                <div className="absolute -bottom-6 left-0 right-0 flex justify-between px-1">
+                   {weeklyActivity.map((item, i) => (
+                     <span key={i} className="text-[10px] font-black text-secondary tracking-tighter opacity-40 uppercase">
+                        {item.day}
+                     </span>
+                   ))}
+                </div>
               </div>
-          </div>
-        )}
-      </motion.section>
-    </motion.div>
+           </div>
+        </div>
+      </motion.section>    </motion.div>
   );
 }
