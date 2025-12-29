@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Rocket, Timer, ChevronRight, Sparkles, CheckCircle2, FolderOpen, Plus, Loader2 } from 'lucide-react';
+import { Calendar, Rocket, Timer, ChevronRight, Sparkles, CheckCircle2, FolderOpen, Plus, Loader2, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import RoadmapGenerator from '../components/RoadmapComponents/RoadmapGenerator';
 import RoadmapEditor from '../components/RoadmapComponents/RoadmapEditor';
@@ -16,12 +16,12 @@ import {
 export default function Roadmap() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams();
+  const { id } = useParams(); 
   
   const getInitialView = () => {
     if (id) return 'detail';
     if (location.pathname === '/roadmap/my') return 'my-roadmaps';
-    if (location.pathname === '/roadmap/generate') return 'generator';
+    if (location.pathname === '/roadmap/add' || location.pathname === '/roadmap/generate') return 'generator';
     return 'hero';
   };
   
@@ -34,9 +34,9 @@ export default function Roadmap() {
   const [isFetchingDetail, setIsFetchingDetail] = useState(false);
 
   const scheduleOverview = [
-    { title: "Quick Revision", duration: "7 Days", intensity: "High", icon: Rocket, color: "text-orange-500", bg: "bg-orange-500/10" },
-    { title: "Standard Pace", duration: "15 Days", intensity: "Balanced", icon: Timer, color: "text-accent", bg: "bg-accent/10" },
-    { title: "Deep Learning", duration: "30 Days", intensity: "Detailed", icon: Timer, color: "text-blue-500", bg: "bg-blue-500/10" }
+    { title: "Sprint Mode", duration: "4 Days", intensity: "Very High", icon: Rocket, color: "text-orange-500", bg: "bg-orange-500/10" },
+    { title: "Standard Pace", duration: "5 Days", intensity: "High", icon: Timer, color: "text-accent", bg: "bg-accent/10" },
+    { title: "Deep Focus", duration: "7 Days", intensity: "Detailed", icon: Timer, color: "text-blue-500", bg: "bg-blue-500/10" }
   ];
 
   useEffect(() => {
@@ -108,10 +108,12 @@ export default function Roadmap() {
 
   if (view === 'generator') {
     return (
-      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen relative overflow-x-hidden">
         <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl font-bold text-primary">Generate Roadmap</h1>
-          <button onClick={() => navigate('/roadmap')} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10">&larr; Back</button>
+          <button onClick={() => navigate('/roadmap')} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10 active:scale-95 transition-all">
+            <ArrowLeft className="w-4 h-4 inline mr-2" /> Back
+          </button>
         </motion.header>
         <RoadmapGenerator onGenerate={handleGenerate} loading={loading} />
       </div>
@@ -120,7 +122,7 @@ export default function Roadmap() {
 
   if (view === 'detail') {
     return (
-      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen relative overflow-x-hidden">
         {isFetchingDetail ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
              <Loader2 className="w-10 h-10 text-accent animate-spin" />
@@ -138,7 +140,7 @@ export default function Roadmap() {
 
   if (view === 'editor') {
     return (
-      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen relative overflow-x-hidden">
         <RoadmapEditor
           initialData={generatedRoadmap}
           onSave={handleSave}
@@ -150,14 +152,16 @@ export default function Roadmap() {
 
   if (view === 'my-roadmaps') {
     return (
-      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen relative overflow-x-hidden">
         <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-primary">My Roadmaps</h1>
               <p className="text-secondary text-sm">Your saved study plans</p>
             </div>
-            <button onClick={() => navigate('/roadmap')} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10">&larr; Back</button>
+            <button onClick={() => navigate(-1)} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10 active:scale-95 transition-all">
+                <ArrowLeft className="w-4 h-4 inline mr-2" /> Back
+            </button>
           </div>
         </motion.header>
 
@@ -167,7 +171,7 @@ export default function Roadmap() {
           <div className="text-center py-20">
             <FolderOpen className="w-16 h-16 mx-auto text-secondary/30 mb-4" />
             <p className="text-secondary">No roadmaps yet. Create one!</p>
-            <button onClick={() => setView('generator')} className="mt-4 px-6 py-3 bg-accent text-white rounded-xl font-bold">
+            <button onClick={() => navigate('/roadmap/add')} className="mt-4 px-6 py-3 bg-accent text-white rounded-xl font-bold">
               Create Roadmap
             </button>
           </div>
@@ -196,7 +200,7 @@ export default function Roadmap() {
   }
 
   return (
-    <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen relative overflow-x-hidden">
       <motion.header 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -213,11 +217,11 @@ export default function Roadmap() {
             </div>
           </div>
           <button
-            onClick={() => navigate('/roadmap/my')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-white/10 text-secondary hover:text-accent transition-colors text-sm font-bold"
+            onClick={() => navigate('/roadmap/add')}
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-card flex items-center justify-center text-primary shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all"
+            title="Create New Roadmap"
           >
-            <FolderOpen className="w-4 h-4" />
-            <span className="hidden sm:inline">My Roadmaps</span>
+            <Plus className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
       </motion.header>
@@ -261,11 +265,11 @@ export default function Roadmap() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setView('generator')}
+              onClick={() => navigate('/roadmap/my')}
               className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 md:py-5 bg-accent text-white rounded-2xl font-bold shadow-xl shadow-accent/20 transition-all text-sm md:text-base"
             >
-              <Plus className="w-5 h-5" />
-              Start Generating
+              <FolderOpen className="w-5 h-5" />
+              My Roadmaps
               <ChevronRight className="w-4 h-4" />
             </motion.button>
           </div>

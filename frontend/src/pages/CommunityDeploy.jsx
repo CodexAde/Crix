@@ -47,7 +47,7 @@ const CommunityDeploy = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-main text-white overflow-hidden pb-32">
+        <div className="min-h-screen bg-main text-white relative overflow-hidden pb-32">
             {/* Background Neural Grid (The 'Mast' Grid) */}
             <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

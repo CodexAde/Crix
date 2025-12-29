@@ -5,7 +5,7 @@ import { getSyllabusSubjects } from '../../services/roadmapServices';
 
 export default function RoadmapGenerator({ onGenerate, loading }) {
   const [subject, setSubject] = useState('');
-  const [duration, setDuration] = useState(30);
+  const [duration, setDuration] = useState(7);
   const [subjects, setSubjects] = useState([]);
   const [fetching, setFetching] = useState(true);
 
@@ -76,8 +76,8 @@ export default function RoadmapGenerator({ onGenerate, loading }) {
           <div className="flex items-center gap-4">
             <input
               type="range"
-              min="7"
-              max="30"
+              min="4"
+              max="7"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
               className="flex-1 h-3 bg-surface rounded-lg appearance-none cursor-pointer accent-accent"

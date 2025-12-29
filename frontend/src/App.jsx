@@ -79,6 +79,7 @@ function AppRoutes() {
           
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/roadmap/my" element={<Roadmap />} />
+          <Route path="/roadmap/add" element={<Roadmap />} />
           <Route path="/roadmap/generate" element={<Roadmap />} />
           <Route path="/roadmap/:id" element={<Roadmap />} />
 
