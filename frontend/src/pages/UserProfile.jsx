@@ -3,29 +3,33 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { 
-    User, 
-    Mail, 
-    BookOpen, 
-    GraduationCap, 
-    Calendar, 
-    Sparkles, 
-    Edit2, 
-    Check, 
+import {
+    User,
+    Mail,
+    BookOpen,
+    GraduationCap,
+    Calendar,
+    Sparkles,
+    Edit2,
+    Check,
     X,
     Camera,
     Shield,
     Sun,
     Moon,
-    Layers
+    Layers,
+    LogOut
 } from 'lucide-react';
 
 export default function UserProfile() {
-    const { user, setUser } = useAuth();
+    const { user, setUser, logout } = useAuth();
     const { isDark, toggleTheme } = useTheme();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
-    
+    const handleLogout = () => {
+        // setShowUserMenu(false);
+        logout();
+    };
     // Form state
     const [formData, setFormData] = useState({
         name: '',
@@ -67,7 +71,7 @@ export default function UserProfile() {
 
             const { data } = await axios.put('/users/profile', payload);
             console.log('Update Response:', data);
-            
+
             if (data.success) {
                 setUser(data.user);
                 toast.success(data.message || 'Profile updated successfully!');
@@ -89,7 +93,7 @@ export default function UserProfile() {
     return (
         <div className="min-h-screen bg-main pb-24 md:pb-10 p-6 md:p-8">
             <div className="max-w-4xl mx-auto space-y-8">
-                
+
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
@@ -101,10 +105,10 @@ export default function UserProfile() {
                         </h1>
                         <p className="text-secondary mt-1 ml-13">Manage your personal and academic details</p>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                         {/* Theme Toggle */}
-                        <button 
+                        <button
                             onClick={toggleTheme}
                             className="p-2.5 bg-surface border border-border-soft hover:border-accent text-secondary hover:text-primary rounded-xl transition-all"
                             title="Toggle Theme"
@@ -112,8 +116,16 @@ export default function UserProfile() {
                             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         </button>
 
+                        <button
+                            onClick={handleLogout}
+                            className="p-2.5 bg-surface border border-border-soft hover:border-accent text-secondary hover:text-primary rounded-xl transition-all"
+                            title="Toggle Theme"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </button>
+
                         {!isEditing ? (
-                            <button 
+                            <button
                                 onClick={() => setIsEditing(true)}
                                 className="flex items-center gap-2 px-5 py-2.5 bg-surface border border-border-soft hover:border-accent text-primary rounded-xl transition-all"
                             >
@@ -123,13 +135,13 @@ export default function UserProfile() {
                             </button>
                         ) : (
                             <div className="flex items-center gap-3">
-                                <button 
+                                <button
                                     onClick={() => setIsEditing(false)}
                                     className="px-5 py-2.5 text-secondary hover:text-primary transition-colors"
                                 >
                                     Cancel
                                 </button>
-                                <button 
+                                <button
                                     onClick={handleSave}
                                     disabled={loading}
                                     className="flex items-center gap-2 px-6 py-2.5 bg-accent text-white rounded-xl hover:opacity-90 transition-all font-medium"
@@ -149,7 +161,7 @@ export default function UserProfile() {
 
                 {/* Main Content Grid */}
                 <div className="grid md:grid-cols-3 gap-6">
-                    
+
                     {/* Left Column: Avatar & Basic Info */}
                     <div className="md:col-span-1 space-y-6">
                         {/* User Card */}
@@ -168,18 +180,18 @@ export default function UserProfile() {
                                     <Camera className="w-4 h-4" />
                                 </button>
                             </div>
-                            
+
                             {isEditing ? (
                                 <input
                                     type="text"
                                     value={formData.name}
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full bg-surface border border-border-soft rounded-lg px-3 py-2 text-primary text-center font-bold mb-1 focus:outline-none focus:border-accent"
                                 />
                             ) : (
                                 <h2 className="text-xl font-bold text-primary">{user?.name}</h2>
                             )}
-                            
+
                             <p className="text-sm text-secondary flex items-center gap-1 mt-1">
                                 <Mail className="w-3 h-3" />
                                 {user?.email}
@@ -200,7 +212,7 @@ export default function UserProfile() {
                         </div>
 
                         {/* Learning Style Card */}
-                        <div 
+                        <div
                             onClick={() => persona && setShowPersonaModal(true)}
                             className={`bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-3xl p-6 border border-accent/20 transition-all ${persona ? 'cursor-pointer hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5' : ''}`}
                         >
@@ -208,7 +220,7 @@ export default function UserProfile() {
                                 <Sparkles className="w-5 h-5 text-accent" />
                                 AI Persona
                             </h3>
-                            
+
                             {persona ? (
                                 <div className="space-y-4">
                                     <div className="bg-surface/50 rounded-xl p-3 border border-white/5">
@@ -248,7 +260,7 @@ export default function UserProfile() {
                                             <input
                                                 type="text"
                                                 value={formData.college}
-                                                onChange={(e) => setFormData({...formData, college: e.target.value})}
+                                                onChange={(e) => setFormData({ ...formData, college: e.target.value })}
                                                 className="w-full bg-surface border border-border-soft rounded-xl px-4 py-3 pl-11 text-primary focus:outline-none focus:border-accent transition-colors"
                                                 placeholder="Enter your college name"
                                             />
@@ -271,7 +283,7 @@ export default function UserProfile() {
                                         <div className="relative">
                                             <select
                                                 value={formData.branch}
-                                                onChange={(e) => setFormData({...formData, branch: e.target.value})}
+                                                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                                                 className="w-full bg-surface border border-border-soft rounded-xl px-4 py-3 pl-11 text-primary appearance-none focus:outline-none focus:border-accent cursor-pointer"
                                             >
                                                 <option value="">Select Branch</option>
@@ -301,7 +313,7 @@ export default function UserProfile() {
                                         <div className="relative">
                                             <select
                                                 value={formData.year}
-                                                onChange={(e) => setFormData({...formData, year: e.target.value})}
+                                                onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                                                 className="w-full bg-surface border border-border-soft rounded-xl px-4 py-3 pl-11 text-primary appearance-none focus:outline-none focus:border-accent cursor-pointer"
                                             >
                                                 <option value="1">1st Year</option>
@@ -329,7 +341,7 @@ export default function UserProfile() {
                                             <input
                                                 type="date"
                                                 value={formData.targetExamDate}
-                                                onChange={(e) => setFormData({...formData, targetExamDate: e.target.value})}
+                                                onChange={(e) => setFormData({ ...formData, targetExamDate: e.target.value })}
                                                 className="w-full bg-surface border border-border-soft rounded-xl px-4 py-3 pl-11 text-primary focus:outline-none focus:border-accent"
                                             />
                                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">
@@ -347,7 +359,7 @@ export default function UserProfile() {
                         </section>
 
                         <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-4 flex gap-4">
-                             <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
                                 <Shield className="w-5 h-5 text-blue-400" />
                             </div>
                             <div>
@@ -371,32 +383,32 @@ export default function UserProfile() {
                                 AI Persona Details
                                 {isEditing && <span className="text-xs bg-accent/20 text-accent px-2 py-1 rounded-full border border-accent/20">Editing Mode</span>}
                             </h2>
-                            <button 
+                            <button
                                 onClick={() => setShowPersonaModal(false)}
                                 className="p-2 hover:bg-surface rounded-full text-secondary hover:text-primary transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                        
+
                         <div className="p-6 space-y-8">
                             {/* Core Preferences Grid */}
                             <div className="grid md:grid-cols-2 gap-6">
-                                <EditableDetailItem isEditing={isEditing} label="Language" value={persona.language_preference} onChange={(val) => setPersona({...persona, language_preference: val})} />
-                                <EditableDetailItem isEditing={isEditing} label="Script" value={persona.script_preference} onChange={(val) => setPersona({...persona, script_preference: val})} />
-                                <EditableDetailItem isEditing={isEditing} label="Tone" value={persona.tone} onChange={(val) => setPersona({...persona, tone: val})} />
-                                <EditableDetailItem isEditing={isEditing} label="Formality" value={persona.formality} onChange={(val) => setPersona({...persona, formality: val})} />
-                                <EditableDetailItem isEditing={isEditing} label="Pacing" value={persona.pacing} onChange={(val) => setPersona({...persona, pacing: val})} />
-                                <EditableDetailItem isEditing={isEditing} label="Emoji Usage" value={persona.emoji_usage} onChange={(val) => setPersona({...persona, emoji_usage: val})} />
-                                <EditableDetailItem isEditing={isEditing} label="Explanation Depth" value={persona.explanation_depth} className="md:col-span-2" onChange={(val) => setPersona({...persona, explanation_depth: val})} />
+                                <EditableDetailItem isEditing={isEditing} label="Language" value={persona.language_preference} onChange={(val) => setPersona({ ...persona, language_preference: val })} />
+                                <EditableDetailItem isEditing={isEditing} label="Script" value={persona.script_preference} onChange={(val) => setPersona({ ...persona, script_preference: val })} />
+                                <EditableDetailItem isEditing={isEditing} label="Tone" value={persona.tone} onChange={(val) => setPersona({ ...persona, tone: val })} />
+                                <EditableDetailItem isEditing={isEditing} label="Formality" value={persona.formality} onChange={(val) => setPersona({ ...persona, formality: val })} />
+                                <EditableDetailItem isEditing={isEditing} label="Pacing" value={persona.pacing} onChange={(val) => setPersona({ ...persona, pacing: val })} />
+                                <EditableDetailItem isEditing={isEditing} label="Emoji Usage" value={persona.emoji_usage} onChange={(val) => setPersona({ ...persona, emoji_usage: val })} />
+                                <EditableDetailItem isEditing={isEditing} label="Explanation Depth" value={persona.explanation_depth} className="md:col-span-2" onChange={(val) => setPersona({ ...persona, explanation_depth: val })} />
                             </div>
 
                             {/* Detailed Sections */}
                             <div className="space-y-4">
                                 <h3 className="text-lg font-semibold text-primary border-b border-border-soft pb-2">Teaching Style</h3>
-                                <EditableTextArea isEditing={isEditing} label="How I Explain" value={persona.explanation_style} onChange={(val) => setPersona({...persona, explanation_style: val})} />
-                                <EditableTextArea isEditing={isEditing} label="Examples I Use" value={persona.examples_preference} onChange={(val) => setPersona({...persona, examples_preference: val})} />
-                                <EditableTextArea isEditing={isEditing} label="Motivation Style" value={persona.motivation_style} onChange={(val) => setPersona({...persona, motivation_style: val})} />
+                                <EditableTextArea isEditing={isEditing} label="How I Explain" value={persona.explanation_style} onChange={(val) => setPersona({ ...persona, explanation_style: val })} />
+                                <EditableTextArea isEditing={isEditing} label="Examples I Use" value={persona.examples_preference} onChange={(val) => setPersona({ ...persona, examples_preference: val })} />
+                                <EditableTextArea isEditing={isEditing} label="Motivation Style" value={persona.motivation_style} onChange={(val) => setPersona({ ...persona, motivation_style: val })} />
                             </div>
 
                             {/* Do's and Don'ts */}
@@ -406,9 +418,9 @@ export default function UserProfile() {
                                     {isEditing ? (
                                         <div className="space-y-2">
                                             <p className="text-xs text-secondary">Enter rules separated by new lines. Start with "Do" or "Don't".</p>
-                                            <textarea 
+                                            <textarea
                                                 value={Array.isArray(persona.do_and_dont) ? persona.do_and_dont.join('\n') : persona.do_and_dont}
-                                                onChange={(e) => setPersona({...persona, do_and_dont: e.target.value.split('\n')})}
+                                                onChange={(e) => setPersona({ ...persona, do_and_dont: e.target.value.split('\n') })}
                                                 className="w-full bg-surface border border-border-soft rounded-xl px-4 py-3 text-primary focus:outline-none focus:border-accent min-h-[150px]"
                                             />
                                         </div>
@@ -433,7 +445,7 @@ export default function UserProfile() {
 
                             {isEditing && (
                                 <div className="mt-6 flex justify-end">
-                                    <button 
+                                    <button
                                         onClick={() => setShowPersonaModal(false)}
                                         className="bg-accent text-white px-6 py-2 rounded-xl font-medium hover:opacity-90"
                                     >
@@ -454,7 +466,7 @@ function EditableDetailItem({ label, value, className = '', isEditing, onChange 
         <div className={`space-y-1 ${className}`}>
             <span className="text-xs font-semibold text-secondary uppercase tracking-wider">{label}</span>
             {isEditing ? (
-                <input 
+                <input
                     type="text"
                     value={value || ''}
                     onChange={(e) => onChange(e.target.value)}
@@ -474,7 +486,7 @@ function EditableTextArea({ label, value, isEditing, onChange }) {
         <div className={isEditing ? "" : "bg-surface/50 rounded-xl p-4 border border-border-soft"}>
             <span className="text-sm font-medium text-accent block mb-2">{label}</span>
             {isEditing ? (
-                <textarea 
+                <textarea
                     value={value || ''}
                     onChange={(e) => onChange(e.target.value)}
                     className="w-full bg-surface border border-border-soft rounded-xl px-4 py-3 text-primary focus:outline-none focus:border-accent min-h-[100px]"
