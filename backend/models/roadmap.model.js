@@ -1,14 +1,21 @@
 import mongoose from "mongoose";
 
-const stepSchema = new mongoose.Schema({
-  day: { type: Number, required: true },
-  topic: { type: String, required: true },
+const topicSchema = new mongoose.Schema({
+  title: { type: String, required: true },
   description: String,
+  orderIndex: Number,
+  content: String,
   status: {
     type: String,
     enum: ["pending", "completed"],
     default: "pending",
   },
+});
+
+const daySchema = new mongoose.Schema({
+  dayNumber: { type: Number, required: true },
+  title: { type: String, required: true },
+  topics: [topicSchema],
 });
 
 const roadmapSchema = new mongoose.Schema(
@@ -18,6 +25,14 @@ const roadmapSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    name: {
+      type: String,
+      required: true,
+    },
+    code: String,
+    branch: String,
+    year: Number,
+    image: String,
     subject: {
       type: String,
       required: true,
@@ -26,16 +41,12 @@ const roadmapSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subject",
     },
-    title: {
-      type: String,
-      required: true,
-    },
     description: String,
     duration: {
       type: Number,
       required: true,
     },
-    steps: [stepSchema],
+    days: [daySchema],
   },
   { timestamps: true }
 );

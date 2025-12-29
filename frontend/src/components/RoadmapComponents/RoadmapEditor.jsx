@@ -61,7 +61,7 @@ function ExitModal({ onSave, onDiscard, onCancel }) {
   );
 }
 
-function DayCard({ step, index, onUpdate, onRemove }) {
+function DayCard({ day, dayIndex, onUpdateDay, onRemoveDay, onAddTopic, onUpdateTopic, onRemoveTopic }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -71,32 +71,20 @@ function DayCard({ step, index, onUpdate, onRemove }) {
     >
       <div className="flex items-start gap-4">
         <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent font-bold text-sm shrink-0">
-          Day {step.day}
+          Day {day.dayNumber}
         </div>
 
         <div className="flex-1 min-w-0">
           <input
-            value={step.topic}
-            onChange={(e) => onUpdate(index, 'topic', e.target.value)}
+            value={day.title}
+            onChange={(e) => onUpdateDay(dayIndex, 'title', e.target.value)}
             className="w-full bg-transparent text-base font-bold text-primary focus:outline-none border-b border-transparent focus:border-accent/30 truncate"
-            placeholder="Topic name"
+            placeholder="Day title..."
           />
           
-          <p
-            className={`text-secondary text-sm mt-1 ${expanded ? '' : 'line-clamp-2'} cursor-pointer`}
-            onClick={() => setExpanded(!expanded)}
-          >
-            {step.description || 'Click to add description...'}
+          <p className="text-secondary text-xs mt-1">
+            {day.topics?.length || 0} topics
           </p>
-
-          {expanded && (
-            <textarea
-              value={step.description}
-              onChange={(e) => onUpdate(index, 'description', e.target.value)}
-              className="w-full bg-surface/50 text-secondary text-sm resize-none focus:outline-none mt-2 p-3 rounded-xl h-24"
-              placeholder="Detailed description..."
-            />
-          )}
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
@@ -107,13 +95,57 @@ function DayCard({ step, index, onUpdate, onRemove }) {
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
           <button
-            onClick={() => onRemove(index)}
+            onClick={() => onRemoveDay(dayIndex)}
             className="p-2 text-secondary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
           >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-4 space-y-3 pl-4 border-l-2 border-white/10">
+              {day.topics?.map((topic, topicIndex) => (
+                <div key={topicIndex} className="group/topic flex gap-3 p-3 rounded-xl bg-surface/50">
+                  <div className="flex-1 space-y-2">
+                    <input
+                      value={topic.title}
+                      onChange={(e) => onUpdateTopic(dayIndex, topicIndex, 'title', e.target.value)}
+                      className="w-full bg-transparent text-sm font-semibold text-primary focus:outline-none"
+                      placeholder="Topic title..."
+                    />
+                    <textarea
+                      value={topic.description || ''}
+                      onChange={(e) => onUpdateTopic(dayIndex, topicIndex, 'description', e.target.value)}
+                      className="w-full bg-transparent text-xs text-secondary resize-none focus:outline-none h-12"
+                      placeholder="Description..."
+                    />
+                  </div>
+                  <button
+                    onClick={() => onRemoveTopic(dayIndex, topicIndex)}
+                    className="p-1 text-secondary hover:text-red-500 transition-colors opacity-0 group-hover/topic:opacity-100"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => onAddTopic(dayIndex)}
+                className="w-full py-2 text-xs text-secondary hover:text-accent border border-dashed border-white/10 rounded-xl"
+              >
+                + Add Topic
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -146,23 +178,45 @@ export default function RoadmapEditor({ initialData, onSave, onCancel }) {
     setHasChanges(true);
   };
 
-  const addStep = () => {
-    const newDay = roadmap.steps.length > 0 ? roadmap.steps[roadmap.steps.length - 1].day + 1 : 1;
+  const addDay = () => {
+    const newDayNumber = roadmap.days?.length > 0 ? roadmap.days[roadmap.days.length - 1].dayNumber + 1 : 1;
     handleChange({
       ...roadmap,
-      steps: [...roadmap.steps, { day: newDay, topic: 'New Topic', description: '', status: 'pending' }],
+      days: [...(roadmap.days || []), { dayNumber: newDayNumber, title: `Day ${newDayNumber}`, topics: [] }],
     });
   };
 
-  const removeStep = (index) => {
-    const newSteps = roadmap.steps.filter((_, i) => i !== index);
-    handleChange({ ...roadmap, steps: newSteps });
+  const removeDay = (dayIndex) => {
+    const newDays = roadmap.days.filter((_, i) => i !== dayIndex);
+    handleChange({ ...roadmap, days: newDays });
   };
 
-  const updateStep = (index, field, value) => {
-    const newSteps = [...roadmap.steps];
-    newSteps[index] = { ...newSteps[index], [field]: value };
-    handleChange({ ...roadmap, steps: newSteps });
+  const updateDay = (dayIndex, field, value) => {
+    const newDays = [...roadmap.days];
+    newDays[dayIndex] = { ...newDays[dayIndex], [field]: value };
+    handleChange({ ...roadmap, days: newDays });
+  };
+
+  const addTopic = (dayIndex) => {
+    const newDays = [...roadmap.days];
+    const topics = newDays[dayIndex].topics || [];
+    newDays[dayIndex] = {
+      ...newDays[dayIndex],
+      topics: [...topics, { title: 'New Topic', description: '', orderIndex: topics.length }],
+    };
+    handleChange({ ...roadmap, days: newDays });
+  };
+
+  const removeTopic = (dayIndex, topicIndex) => {
+    const newDays = [...roadmap.days];
+    newDays[dayIndex].topics = newDays[dayIndex].topics.filter((_, i) => i !== topicIndex);
+    handleChange({ ...roadmap, days: newDays });
+  };
+
+  const updateTopic = (dayIndex, topicIndex, field, value) => {
+    const newDays = [...roadmap.days];
+    newDays[dayIndex].topics[topicIndex] = { ...newDays[dayIndex].topics[topicIndex], [field]: value };
+    handleChange({ ...roadmap, days: newDays });
   };
 
   const handleSave = () => {
@@ -199,8 +253,8 @@ export default function RoadmapEditor({ initialData, onSave, onCancel }) {
             {editingTitle ? (
               <div className="flex items-center gap-2">
                 <input
-                  value={roadmap.title}
-                  onChange={(e) => handleChange({ ...roadmap, title: e.target.value })}
+                  value={roadmap.name}
+                  onChange={(e) => handleChange({ ...roadmap, name: e.target.value })}
                   className="bg-transparent border-b-2 border-accent text-xl font-bold text-primary focus:outline-none w-full"
                 />
                 <button onClick={() => setEditingTitle(false)} className="text-green-500 p-2">
@@ -209,7 +263,7 @@ export default function RoadmapEditor({ initialData, onSave, onCancel }) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h3 className="text-xl md:text-2xl font-bold text-primary truncate">{roadmap.title}</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-primary truncate">{roadmap.name}</h3>
                 <button onClick={() => setEditingTitle(true)} className="text-secondary hover:text-accent p-1">
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -235,20 +289,23 @@ export default function RoadmapEditor({ initialData, onSave, onCancel }) {
         </div>
 
         <div className="grid gap-3">
-          {roadmap.steps.map((step, index) => (
+          {roadmap.days?.map((day, dayIndex) => (
             <DayCard
-              key={index}
-              step={step}
-              index={index}
-              onUpdate={updateStep}
-              onRemove={removeStep}
+              key={dayIndex}
+              day={day}
+              dayIndex={dayIndex}
+              onUpdateDay={updateDay}
+              onRemoveDay={removeDay}
+              onAddTopic={addTopic}
+              onUpdateTopic={updateTopic}
+              onRemoveTopic={removeTopic}
             />
           ))}
 
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            onClick={addStep}
+            onClick={addDay}
             className="w-full py-4 border-2 border-dashed border-white/10 rounded-2xl text-secondary hover:text-accent hover:border-accent/30 transition-all flex items-center justify-center gap-2 font-bold"
           >
             <Plus className="w-5 h-5" />

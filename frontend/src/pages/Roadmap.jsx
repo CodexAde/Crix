@@ -1,21 +1,37 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Rocket, Timer, ChevronRight, Sparkles, CheckCircle2, FolderOpen, Plus } from 'lucide-react';
+import { Calendar, Rocket, Timer, ChevronRight, Sparkles, CheckCircle2, FolderOpen, Plus, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import RoadmapGenerator from '../components/RoadmapComponents/RoadmapGenerator';
 import RoadmapEditor from '../components/RoadmapComponents/RoadmapEditor';
+import RoadmapDetail from '../components/RoadmapComponents/RoadmapDetail';
 import {
   generateRoadmapAI,
   saveRoadmapService,
   getMyRoadmaps,
+  getRoadmapById,
 } from '../services/roadmapServices';
 
 export default function Roadmap() {
-  const [view, setView] = useState('hero');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = useParams();
+  
+  const getInitialView = () => {
+    if (id) return 'detail';
+    if (location.pathname === '/roadmap/my') return 'my-roadmaps';
+    if (location.pathname === '/roadmap/generate') return 'generator';
+    return 'hero';
+  };
+  
+  const [view, setView] = useState(getInitialView());
   const [loading, setLoading] = useState(false);
   const [generatedRoadmap, setGeneratedRoadmap] = useState(null);
   const [myRoadmaps, setMyRoadmaps] = useState([]);
   const [fetchingRoadmaps, setFetchingRoadmaps] = useState(false);
+  const [selectedRoadmap, setSelectedRoadmap] = useState(null);
+  const [isFetchingDetail, setIsFetchingDetail] = useState(false);
 
   const scheduleOverview = [
     { title: "Quick Revision", duration: "7 Days", intensity: "High", icon: Rocket, color: "text-orange-500", bg: "bg-orange-500/10" },
@@ -24,10 +40,33 @@ export default function Roadmap() {
   ];
 
   useEffect(() => {
+    if (id) {
+      setView('detail');
+      fetchRoadmapDetail(id);
+    } else {
+      setView(getInitialView());
+    }
+  }, [id, location.pathname]);
+
+  useEffect(() => {
     if (view === 'my-roadmaps') {
       fetchRoadmaps();
     }
   }, [view]);
+
+  const fetchRoadmapDetail = async (roadmapId) => {
+    setIsFetchingDetail(true);
+    try {
+      const data = await getRoadmapById(roadmapId);
+      setSelectedRoadmap(data.roadmap);
+    } catch (error) {
+      console.error("Error fetching roadmap detail:", error);
+      toast.error("Failed to load roadmap");
+      navigate('/roadmap/my');
+    } finally {
+      setIsFetchingDetail(false);
+    }
+  };
 
   const fetchRoadmaps = async () => {
     setFetchingRoadmaps(true);
@@ -60,7 +99,7 @@ export default function Roadmap() {
     try {
       await saveRoadmapService(roadmapData);
       toast.success('Roadmap saved!');
-      setView('hero');
+      navigate('/roadmap/my');
     } catch (error) {
       console.error('Save Error:', error);
       toast.error('Failed to save roadmap.');
@@ -70,11 +109,29 @@ export default function Roadmap() {
   if (view === 'generator') {
     return (
       <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
-        <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <button onClick={() => setView('hero')} className="text-secondary hover:text-accent text-sm font-bold mb-4">&larr; Back</button>
+        <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl font-bold text-primary">Generate Roadmap</h1>
+          <button onClick={() => navigate('/roadmap')} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10">&larr; Back</button>
         </motion.header>
         <RoadmapGenerator onGenerate={handleGenerate} loading={loading} />
+      </div>
+    );
+  }
+
+  if (view === 'detail') {
+    return (
+      <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
+        {isFetchingDetail ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+             <Loader2 className="w-10 h-10 text-accent animate-spin" />
+             <p className="text-secondary font-bold">Loading Path...</p>
+          </div>
+        ) : (
+          <RoadmapDetail 
+            roadmap={selectedRoadmap} 
+            onBack={() => navigate('/roadmap/my')} 
+          />
+        )}
       </div>
     );
   }
@@ -95,9 +152,13 @@ export default function Roadmap() {
     return (
       <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen">
         <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <button onClick={() => setView('hero')} className="text-secondary hover:text-accent text-sm font-bold mb-4">&larr; Back</button>
-          <h1 className="text-2xl md:text-3xl font-bold text-primary">My Roadmaps</h1>
-          <p className="text-secondary text-sm">Your saved study plans</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-primary">My Roadmaps</h1>
+              <p className="text-secondary text-sm">Your saved study plans</p>
+            </div>
+            <button onClick={() => navigate('/roadmap')} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10">&larr; Back</button>
+          </div>
         </motion.header>
 
         {fetchingRoadmaps ? (
@@ -117,12 +178,13 @@ export default function Roadmap() {
                 key={rm._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-6 rounded-3xl bg-card border border-white/10"
+                onClick={() => navigate(`/roadmap/${rm._id}`)}
+                className="p-6 rounded-3xl bg-card border border-white/10 cursor-pointer hover:border-accent/30 hover:bg-accent/5 transition-all"
               >
-                <h3 className="text-lg font-bold text-primary line-clamp-1">{rm.title}</h3>
+                <h3 className="text-lg font-bold text-primary line-clamp-1">{rm.name || rm.title}</h3>
                 <p className="text-secondary text-sm line-clamp-2 mt-1">{rm.description}</p>
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs text-secondary">{rm.steps?.length || 0} Days</span>
+                  <span className="text-xs text-secondary">{rm.days?.length || rm.steps?.length || 0} Days</span>
                   <span className="text-xs text-accent font-bold">{rm.subject}</span>
                 </div>
               </motion.div>
@@ -151,7 +213,7 @@ export default function Roadmap() {
             </div>
           </div>
           <button
-            onClick={() => setView('my-roadmaps')}
+            onClick={() => navigate('/roadmap/my')}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-white/10 text-secondary hover:text-accent transition-colors text-sm font-bold"
           >
             <FolderOpen className="w-4 h-4" />

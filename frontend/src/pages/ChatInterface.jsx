@@ -329,8 +329,8 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
     );
 });
 
-export default function ChatInterface() {
-  const { subjectId, chapterId, topicId } = useParams();
+export default function ChatInterface({ isRoadmap = false }) {
+  const { subjectId, chapterId, topicId, roadmapId, dayId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -350,7 +350,9 @@ export default function ChatInterface() {
   const chatAreaRef = useRef(null);
   const abortControllerRef = useRef(null);
 
-  // Derive active topic for header
+  const activeChapterId = isRoadmap ? dayId : chapterId;
+  const activeSubjectId = isRoadmap ? roadmapId : subjectId;
+
   const activeTopic = useMemo(() => {
       if (!chapters.length || !topicId) return null;
       for (const ch of chapters) {
@@ -360,13 +362,12 @@ export default function ChatInterface() {
       return null;
   }, [chapters, topicId]);
 
-  // Session Tracking - Save to localStorage for "Continue Learning"
   useEffect(() => {
-    if (activeTopic && subjectId && chapterId && topicId && subjectName) {
-        const activeChapter = chapters.find(ch => ch._id === chapterId);
+    if (activeTopic && activeSubjectId && activeChapterId && topicId && subjectName && !isRoadmap) {
+        const activeChapter = chapters.find(ch => ch._id === activeChapterId);
         const session = {
-            subjectId,
-            chapterId,
+            subjectId: activeSubjectId,
+            chapterId: activeChapterId,
             topicId,
             topicTitle: activeTopic.title,
             subjectName: subjectName,
@@ -376,7 +377,7 @@ export default function ChatInterface() {
         localStorage.setItem('crix_last_session', JSON.stringify(session));
         console.log("Session saved:", session);
     }
-  }, [activeTopic, subjectId, chapterId, topicId, subjectName, chapters]);
+  }, [activeTopic, activeSubjectId, activeChapterId, topicId, subjectName, chapters, isRoadmap]);
 
   const handleShare = (content) => {
     setShareModal({ open: true, content });
@@ -414,21 +415,17 @@ export default function ChatInterface() {
     }
   }, [isLoading]);
 
-  // Scroll to user message when sent (to top of viewport)
   useEffect(() => {
     const lastMsg = messages[messages.length - 1];
     if (!isLoading && lastMsg?.role === 'user') {
-      // Small timeout to ensure DOM update
       setTimeout(() => {
         latestUserMsgRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 50);
     }
   }, [messages, isLoading]);
 
-  // Auto-scroll when AI finishes typing
   useEffect(() => {
     if (!isTyping && messages.length > 0) {
-      // AI just finished typing, scroll to show complete answer
       const timer = setTimeout(() => {
         scrollToBottom();
       }, 1000);
@@ -436,14 +433,12 @@ export default function ChatInterface() {
     }
   }, [isTyping]);
 
-  // Scroll handler to toggle button visibility
   useEffect(() => {
     const chatArea = chatAreaRef.current;
     if (!chatArea) return;
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = chatArea;
-      // Show button if user is scrolled up more than 100px from bottom
       const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
       setShowScrollButton(isScrolledUp);
     };
@@ -452,19 +447,15 @@ export default function ChatInterface() {
     return () => chatArea.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Mobile keyboard scroll handling - like ChatGPT (instant scroll)
   useEffect(() => {
     let scrollTimeoutId = null;
 
     const scrollToInput = () => {
-      // Clear any pending scroll
       if (scrollTimeoutId) clearTimeout(scrollTimeoutId);
 
-      // Scroll the chat area to bottom so input is visible
       if (chatAreaRef.current) {
         chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
       }
-      // Also use scrollIntoView on messages end
       messagesEndRef.current?.scrollIntoView({ behavior: 'instant', block: 'end' });
     };
 
@@ -472,7 +463,6 @@ export default function ChatInterface() {
       if (window.visualViewport) {
         const viewport = window.visualViewport;
         const heightDiff = window.innerHeight - viewport.height;
-        // If keyboard is open (height difference > 100px)
         if (heightDiff > 100) {
           scrollToInput();
         }
@@ -480,21 +470,16 @@ export default function ChatInterface() {
     };
 
     const handleInputFocus = () => {
-      // Immediate scroll
-      // scrollToInput();
-      // Single backup scroll after keyboard opens
       scrollTimeoutId = setTimeout(scrollToInput, 300);
     };
 
-    // Listen for visual viewport changes
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleViewportChange);
     }
 
-    // Listen for input focus
-    const input = inputRef.current;
-    if (input) {
-      input.addEventListener('focus', handleInputFocus);
+    const inputEl = inputRef.current;
+    if (inputEl) {
+      inputEl.addEventListener('focus', handleInputFocus);
     }
 
     return () => {
@@ -502,23 +487,16 @@ export default function ChatInterface() {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleViewportChange);
       }
-      if (input) {
-        input.removeEventListener('focus', handleInputFocus);
+      if (inputEl) {
+        inputEl.removeEventListener('focus', handleInputFocus);
       }
     };
   }, []);
 
-  // Global keydown to focus input - only for regular typing
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Skip if already in an input
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-      // Skip if any modifier key is held (for shortcuts like Cmd+C, Cmd+V)
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-
-      // Only focus on single printable characters (letters, numbers, symbols)
-      // This ensures shortcuts don't trigger focus
       if (e.key.length === 1 && !e.repeat) {
         inputRef.current?.focus();
       }
@@ -528,43 +506,61 @@ export default function ChatInterface() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Fetch chapters for sidebar
   useEffect(() => {
-    const fetchChapters = async () => {
-      if (!subjectId) {
-        console.warn("Sidebar: No subjectId found");
-        return;
-      }
-      try {
-        console.log("Sidebar: Fetching chapters for", subjectId);
-        // Corrected URL to match ChapterView behavior
-        const response = await axios.get(`/syllabus/${subjectId}`);
-        console.log("Sidebar: Response", response.data);
-
-        if (response.data?.subject?.units) {
-          setSubjectName(response.data.subject.name || "");
-          // Flatten chapters from all units
-          const allChapters = response.data.subject.units.flatMap(unit =>
-            unit.chapters.map(ch => ({
-              ...ch,
-              unitId: unit._id,
-              unitTitle: unit.title
-            }))
-          );
-          console.log("Sidebar: Processed chapters", allChapters);
-          setChapters(allChapters);
-        } else {
-             console.warn("Sidebar: Invalid data structure", response.data);
+    const fetchData = async () => {
+      if (isRoadmap) {
+        if (!roadmapId) {
+          console.warn("Sidebar: No roadmapId found");
+          setIsLoadingChapters(false);
+          return;
         }
-      } catch (error) {
-        console.error("Failed to fetch chapters:", error);
-      } finally {
-        setIsLoadingChapters(false);
+        try {
+          const response = await axios.get(`/roadmaps/${roadmapId}`);
+          if (response.data?.data?.roadmap?.days) {
+            const roadmap = response.data.data.roadmap;
+            setSubjectName(roadmap.name || "Roadmap");
+            const allDays = roadmap.days.map(day => ({
+              _id: day._id,
+              title: day.title,
+              unitTitle: `Day ${day.dayNumber}`,
+              topics: day.topics || []
+            }));
+            setChapters(allDays);
+          }
+        } catch (error) {
+          console.error("Failed to fetch roadmap:", error);
+        } finally {
+          setIsLoadingChapters(false);
+        }
+      } else {
+        if (!subjectId) {
+          console.warn("Sidebar: No subjectId found");
+          setIsLoadingChapters(false);
+          return;
+        }
+        try {
+          const response = await axios.get(`/syllabus/${subjectId}`);
+          if (response.data?.subject?.units) {
+            setSubjectName(response.data.subject.name || "");
+            const allChapters = response.data.subject.units.flatMap(unit =>
+              unit.chapters.map(ch => ({
+                ...ch,
+                unitId: unit._id,
+                unitTitle: unit.title
+              }))
+            );
+            setChapters(allChapters);
+          }
+        } catch (error) {
+          console.error("Failed to fetch chapters:", error);
+        } finally {
+          setIsLoadingChapters(false);
+        }
       }
     };
 
-    fetchChapters();
-  }, [subjectId]);
+    fetchData();
+  }, [subjectId, roadmapId, isRoadmap]);
 
   // Fetch chat history on mount
   // Fetch chat history on mount
@@ -698,19 +694,17 @@ export default function ChatInterface() {
 
   // Modified handle function for accordion topic clicks
   const handleTopicClick = useCallback((newChapterId, newTopicId) => {
-      // Navigate to new topic
-      navigate(`/chat/${subjectId}/${newChapterId}/${newTopicId}`);
+      if (isRoadmap) {
+        navigate(`/roadmap/${roadmapId}/${newChapterId}/${newTopicId}`);
+      } else {
+        navigate(`/chat/${subjectId}/${newChapterId}/${newTopicId}`);
+      }
       setSidebarOpen(false);
 
-      // Trigger scroll explicitly as requested
       setTimeout(() => {
           scrollToBottom();
       }, 100);
-
-      // Also reset chat specific states if needed
-      // setMessages([]); // Optional: clear messages if you want instant visual feedback before load
-      // setIsLoading(true);
-  }, [subjectId, navigate]);
+  }, [subjectId, roadmapId, navigate, isRoadmap]);
 
   return (
     <div className="fixed inset-0 flex bg-main overflow-hidden">
@@ -718,7 +712,7 @@ export default function ChatInterface() {
         <div className="hidden md:block w-64 h-full flex-shrink-0 z-30">
             <ChapterSidebar
                 chapters={chapters}
-                activeChapterId={chapterId}
+                activeChapterId={activeChapterId}
                 activeTopicId={topicId}
                 isLoading={isLoadingChapters}
                 onTopicSelect={handleTopicClick}
@@ -747,7 +741,7 @@ export default function ChatInterface() {
                     >
                         <ChapterSidebar
                             chapters={chapters}
-                            activeChapterId={chapterId}
+                            activeChapterId={activeChapterId}
                             activeTopicId={topicId}
                             isLoading={isLoadingChapters}
                             onTopicSelect={handleTopicClick}
@@ -769,7 +763,7 @@ export default function ChatInterface() {
             <header className="flex items-center justify-between gap-4 px-6 py-4 bg-card/80 backdrop-blur-md sticky top-0 border-b border-border-soft">
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                     <button 
-                        onClick={() => navigate(-1)} 
+                        onClick={() => isRoadmap ? navigate(`/roadmap/${roadmapId}`) : navigate(`/syllabus/${subjectId}`)} 
                         className="md:hidden p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
                     >
                         <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />
@@ -790,7 +784,7 @@ export default function ChatInterface() {
                     {/* Desktop Header Title */}
                      <div className="hidden md:flex items-center gap-4">
                         <button 
-                            onClick={() => navigate(-1)}
+                            onClick={() => isRoadmap ? navigate(`/roadmap/${roadmapId}`) : navigate(`/syllabus/${subjectId}`)}
                             className="p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
                         >
                              <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />

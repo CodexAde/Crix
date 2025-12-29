@@ -8,6 +8,10 @@ export const findRoadmapsByUser = async (userId) => {
   return await Roadmap.find({ user: userId }).sort({ createdAt: -1 });
 };
 
+export const findRoadmapById = async (id) => {
+  return await Roadmap.findById(id);
+};
+
 export const deleteRoadmapById = async (id, userId) => {
   return await Roadmap.findOneAndDelete({ _id: id, user: userId });
 };

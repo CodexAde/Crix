@@ -75,7 +75,9 @@ function AppRoutes() {
           <Route path="/chapter/:subjectId/:unitId/:chapterId" element={<ChapterView />} />
           
           <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/roadmap/my-roadmap" element={<Roadmap />} />
+          <Route path="/roadmap/my" element={<Roadmap />} />
+          <Route path="/roadmap/generate" element={<Roadmap />} />
+          <Route path="/roadmap/:id" element={<Roadmap />} />
 
           <Route path="/community-deploy" element={<CommunityDeploy />} />
           <Route path="/add-chapters" element={<AddChapters />} />
@@ -87,6 +89,15 @@ function AppRoutes() {
         <ProtectedRoute>
             <RequireOnboarding>
                 <ChatInterface />
+            </RequireOnboarding>
+        </ProtectedRoute>
+      } />
+      
+      {/* Roadmap Chat Route */}
+      <Route path="/roadmap/:roadmapId/:dayId/:topicId" element={
+        <ProtectedRoute>
+            <RequireOnboarding>
+                <ChatInterface isRoadmap={true} />
             </RequireOnboarding>
         </ProtectedRoute>
       } />
