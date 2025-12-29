@@ -9,7 +9,12 @@ const getSubjects = async (req, res) => {
         
         const filter = {};
         if (year) filter.year = year;
-        if (branch) filter.branch = branch;
+        if (branch) {
+            filter.$or = [
+                { branch: branch },
+                { branch: "All" }
+            ];
+        }
 
         const subjects = await Subject.find(filter).select("-units.chapters"); // Exclude heavy chapters content for list view
         

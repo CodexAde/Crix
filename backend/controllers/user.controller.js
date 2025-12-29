@@ -365,7 +365,15 @@ const addUserSubject = async (req, res) => {
 const getUserSubjects = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).populate("subjects", "name code image year branch units");
-        return res.status(200).json({ subjects: user.subjects || [] });
+        const validSubjects = user.subjects?.filter(s => s !== null) || [];
+        
+        // Update user if they have dead references to clean up DB
+        if (user.subjects?.length !== validSubjects.length) {
+            user.subjects = validSubjects.map(s => s._id);
+            await user.save({ validateBeforeSave: false });
+        }
+
+        return res.status(200).json({ subjects: validSubjects });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

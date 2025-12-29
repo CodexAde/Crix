@@ -1,47 +1,92 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { Clock, ChevronRight, ArrowLeft, BookOpen, Play, ClipboardCheck, Sparkles } from 'lucide-react';
+import { Clock, ChevronRight, ArrowLeft, BookOpen, Play, ClipboardCheck, Sparkles, Plus, Loader2 } from 'lucide-react';
 import SyllabusContext from '../context/Syllabus/SyllabusContext';
 import UserContext from '../context/User/UserContext';
+import SubjectContext from '../context/Subject/SubjectContext';
 import { PageLoader } from '../components/Spinner';
 
 export default function SubjectView() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { userProfile, loading: loadingProfile } = useContext(UserContext);
+    const { userSubjects, addUserSubject } = useContext(SubjectContext);
     const { activeUnitData, loadingUnit, fetchUnitContent, clearActiveUnit } = useContext(SyllabusContext);
+    
+    const [fetchedSubject, setFetchedSubject] = useState(null);
+    const [loadingSubject, setLoadingSubject] = useState(false);
+    const [addingSubject, setAddingSubject] = useState(false);
     const [activeUnitIndex, setActiveUnitIndex] = useState(0);
 
-    // Get subject from context if available
-    const subject = useMemo(() => {
+    // Get subject from user profile OR fetched state
+    const subjectInLibrary = useMemo(() => {
         return userProfile?.subjects?.find(s => s._id === id);
     }, [userProfile, id]);
 
+    const subject = subjectInLibrary || fetchedSubject;
+
+    // Fetch subject if not in library
+    useEffect(() => {
+        if (!subjectInLibrary) {
+            const fetchGeneralSubject = async () => {
+                try {
+                    setLoadingSubject(true);
+                    const { data } = await axios.get(`/syllabus/${id}`);
+                    setFetchedSubject(data.subject);
+                } catch (error) {
+                    console.error("Failed to fetch subject details:", error);
+                } finally {
+                    setLoadingSubject(false);
+                }
+            };
+            fetchGeneralSubject();
+        }
+    }, [id, subjectInLibrary]);
+
     useEffect(() => {
         if (subject && subject.units?.length > 0) {
-            // Fetch Unit 1 automatically if we have the subject structure
             fetchUnitContent(id, subject.units[0]._id);
         }
-        
         return () => clearActiveUnit();
     }, [id, subject, fetchUnitContent, clearActiveUnit]);
 
-    // Handle Unit Switch
     const handleUnitChange = (index) => {
         if (activeUnitIndex === index) return;
         setActiveUnitIndex(index);
-        clearActiveUnit(); // Clear immediately to show loading state/skeletons
+        clearActiveUnit();
         if (subject?.units?.[index]) {
             fetchUnitContent(id, subject.units[index]._id);
         }
     };
 
-    if (loadingProfile && !subject) {
+    const handleAddSubject = async () => {
+        setAddingSubject(true);
+        await addUserSubject(id);
+        setAddingSubject(false);
+    };
+
+    if ((loadingProfile || loadingSubject) && !subject) {
         return <PageLoader text="Loading subject details..." />;
     }
 
-    if (!subject) return <div className="p-10 text-center text-secondary">Subject not found</div>;
+    if (!subject) return (
+        <div className="min-h-screen bg-main flex items-center justify-center p-10">
+            <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center mx-auto shadow-inner">
+                    <BookOpen className="w-8 h-8 text-secondary/30" />
+                </div>
+                <p className="text-secondary font-medium">Bhai, subject nahi mila!</p>
+                <button 
+                  onClick={() => navigate('/syllabus')}
+                  className="text-accent font-bold hover:underline"
+                >
+                  Go to Library
+                </button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-main pb-24 md:pb-10">
@@ -50,7 +95,7 @@ export default function SubjectView() {
                 <div className="mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">
                     <button
                         onClick={() => navigate(-1)}
-                        className="absolute left-6 p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
+                        className="absolute left-6 p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 group"
                     >
                         <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />
                     </button>
@@ -66,8 +111,7 @@ export default function SubjectView() {
 
                     <button
                         onClick={() => navigate('/tests')}
-                        className="absolute right-6 flex items-center gap-2 px-4 py-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/10 transition-all active:scale-95 group text-white shadow-xl shadow-black/5"
-                        title="Take Tests"
+                        className="absolute right-6 flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all active:scale-95 group text-white shadow-xl shadow-black/5"
                     >
                         <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Tests</span>
                         <ClipboardCheck className="w-4 h-4 transition-colors group-hover:text-accent" />
@@ -76,14 +120,45 @@ export default function SubjectView() {
             </header>
 
             <main className="max-w-3xl mx-auto px-6 py-8">
+                {/* Add to Library Prompt */}
+                <AnimatePresence>
+                    {!subjectInLibrary && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="mb-10 p-6 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent border border-accent/20 rounded-[2.5rem] relative overflow-hidden group"
+                        >
+                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                                <Sparkles className="w-20 h-20 text-accent" />
+                            </div>
+                            
+                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 justify-between text-center md:text-left">
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-black text-primary tracking-tight">Syllabus not added</h3>
+                                    <p className="text-sm text-secondary/70 font-medium">Bhai, add this subject to start exploring and track progress! ✨</p>
+                                </div>
+                                <button
+                                    onClick={handleAddSubject}
+                                    disabled={addingSubject}
+                                    className="px-8 py-3.5 bg-accent text-white rounded-full font-black text-sm shadow-xl shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-2"
+                                >
+                                    {addingSubject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                    Add Now
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 {/* Unit Selector */}
-                <div className="my-10">
-                    <div className="flex gap-2.5 mb-2 overflow-x-auto pb-4 no-scrollbar snap-x justify-center">
+                <div className="my-6">
+                    <div className="flex gap-2.5 mb-2 overflow-x-auto pb-4 no-scrollbar snap-x px-4 md:justify-center">
                         {subject.units.map((unit, index) => (
                             <button
                                 key={unit._id}
                                 onClick={() => handleUnitChange(index)}
-                                className={`px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex-shrink-0 snap-center text-xs ${activeUnitIndex === index
+                                className={`px-5 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap flex-shrink-0 snap-center text-xs ${activeUnitIndex === index
                                     ? 'bg-accent text-white shadow-lg shadow-accent/30 scale-105'
                                     : 'bg-card border border-border-soft text-secondary hover:border-accent/40 hover:text-primary'
                                     }`}
@@ -119,9 +194,10 @@ export default function SubjectView() {
                     ) : activeUnitData?.chapters?.length > 0 ? (
                         activeUnitData.chapters.map((chapter) => (
                             <Link
-                                to={`/chapter/${subject._id}/${activeUnitData._id}/${chapter._id}`}
+                                to={subjectInLibrary ? `/chapter/${subject._id}/${activeUnitData._id}/${chapter._id}` : '#'}
+                                onClick={(e) => !subjectInLibrary && (e.preventDefault(), handleAddSubject())}
                                 key={chapter._id}
-                                className="group block bg-card rounded-[2rem] border border-border-soft hover:border-accent/40 hover:shadow-2xl hover:shadow-black/5 transition-all overflow-hidden"
+                                className={`group block bg-card rounded-[2rem] border border-border-soft hover:border-accent/40 hover:shadow-2xl hover:shadow-black/5 transition-all overflow-hidden ${!subjectInLibrary ? 'opacity-80' : ''}`}
                             >
                                 <div className="p-6 flex items-center gap-6">
                                     <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center shrink-0 shadow-lg shadow-accent/20 group-hover:scale-110 transition-all duration-500">
@@ -148,17 +224,6 @@ export default function SubjectView() {
                         </div>
                     )}
                 </div>
-
-                {/* Progress Bar */}
-                {/* <div className="mt-10 bg-card rounded-2xl border border-border-soft p-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="font-medium text-primary">Your Progress</p>
-            <span className="text-sm font-bold text-accent">0%</span>
-          </div>
-          <div className="h-2 bg-border-soft rounded-full overflow-hidden">
-            <div className="h-full bg-accent rounded-full w-0" />
-          </div>
-        </div> */}
             </main>
         </div>
     );
