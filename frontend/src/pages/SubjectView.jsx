@@ -102,11 +102,9 @@ export default function SubjectView() {
                             className="group block bg-card rounded-2xl border border-border-soft hover:border-accent/50 hover:shadow-soft transition-all overflow-hidden"
                         >
                             <div className="p-5 flex items-center gap-5">
-                                {/* Chapter Number */}
-                                <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
-                                    <span className="text-xl font-bold text-accent group-hover:text-white transition-colors">
-                                        {chapter.orderIndex}
-                                    </span>
+                                {/* Chapter Icon */}
+                                <div className="w-14 h-14 bg-transparent rounded-2xl bg-accent flex items-center justify-center shrink-0 shadow-lg shadow-accent/20 group-hover:scale-105 transition-all">
+                                    <BookOpen className="w-6 h-6 text-red-500" />
                                 </div>
 
                                 {/* Content */}

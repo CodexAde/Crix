@@ -212,21 +212,25 @@ export default function Dashboard() {
                                         className="min-w-[280px] w-[280px] h-40 bg-card rounded-[2.5rem] p-6 border border-border-soft hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5 transition-all relative group cursor-pointer"
                                     >
                                         <div className="flex items-start justify-between mb-4">
-                                            <span className="text-[10px] font-bold text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                                {subject.code}
-                                            </span>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[10px] font-black text-white bg-accent px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm">
+                                                    {subject.code}
+                                                </span>
+                                            </div>
                                             <div className="p-1 text-secondary/30 hover:text-secondary cursor-grab active:cursor-grabbing">
                                                <GripVertical className="w-4 h-4" />
                                             </div>
                                         </div>
 
                                         <h3 className="text-lg font-bold text-primary mb-1 line-clamp-1">{subject.name}</h3>
-                                        <p className="text-xs text-secondary mb-4 line-clamp-1">{subject.branch} • Year {subject.year}</p>
+                                        <p className="text-xs text-secondary/60 font-semibold mb-4 line-clamp-1">{subject.branch || 'B.Tech'} • Year {subject.year || 1}</p>
 
-                                        <div className="w-full bg-surface h-1.5 rounded-full overflow-hidden border border-border-soft/50">
-                                            <div 
-                                                className="bg-primary h-full rounded-full transition-all duration-300" 
-                                                style={{ width: `${subject.progress || 0}%` }}
+                                        <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border-soft/50 shadow-inner">
+                                            <motion.div 
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${subject.progress || 0}%` }}
+                                                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                                className="bg-gradient-to-r from-accent to-accent-hover h-full rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(239,68,68,0.2)]" 
                                             />
                                         </div>
                                     </div>
@@ -247,22 +251,30 @@ export default function Dashboard() {
                           <div className="w-14 h-14 rounded-2xl bg-surface flex items-center justify-center text-accent shrink-0 border border-border-soft shadow-inner">
                                <BookOpen className="w-7 h-7" />
                           </div>
-                          <div className="flex-1 min-w-0">
-                               <div className="flex items-center justify-between mb-0.5">
-                                   <h3 className="text-base font-bold text-primary truncate tracking-tight">{subject.name}</h3>
-                                   <span className="text-[9px] font-black text-accent px-2 py-0.5 bg-accent/10 rounded-lg uppercase tracking-wider">{subject.code}</span>
+                           <div className="flex-1 min-w-0">
+                               <div className="flex items-start justify-between mb-1">
+                                   <h3 className="text-base font-bold text-primary truncate tracking-tight pr-2">
+                                       {subject.name}
+                                   </h3>
+                                   <span className="shrink-0 text-[8px] font-black text-white px-2 py-0.5 bg-accent rounded-md uppercase tracking-wider shadow-sm">
+                                       {subject.code}
+                                   </span>
                                </div>
                                <div className="flex items-center gap-2 mb-3">
-                                    <p className="text-[11px] text-secondary font-medium tracking-tight truncate">{subject.branch} • Year {subject.year}</p>
+                                    <p className="text-[10px] text-secondary/70 font-semibold tracking-tight truncate">
+                                        {subject.branch || 'General'} • Year {subject.year || 1}
+                                    </p>
                                </div>
-                               <div className="w-full bg-surface h-1.5 rounded-full overflow-hidden border border-border-soft/20">
-                                    <div 
-                                        className="bg-primary h-full rounded-full transition-all duration-300" 
-                                        style={{ width: `${subject.progress || 0}%` }}
+                               <div className="w-full bg-surface h-2.5 rounded-full overflow-hidden border border-border-soft/20 shadow-inner">
+                                    <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${subject.progress || 0}%` }}
+                                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                        className="bg-gradient-to-r from-accent to-accent-hover h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.25)]" 
                                     />
                                 </div>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-secondary/30" />
+                          <ChevronRight className="w-5 h-5 text-secondary/20 mr-1" />
                       </div>
                   ))}
               </div>
