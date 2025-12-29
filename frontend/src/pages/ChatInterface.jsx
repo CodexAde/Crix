@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
+import { useState, useRef, useContext, useEffect, useMemo, useCallback, memo } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,9 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+
+import UserContext from '../context/User/UserContext';
+import SyllabusContext from '../context/Syllabus/SyllabusContext';
 
 // Syntax highlighting for code blocks
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -209,25 +212,47 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
 });
 
 // Sidebar Component with Accordion
-const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoading, onTopicSelect }) => {
-    const [expandedChId, setExpandedChId] = useState(activeChapterId);
+const ChapterSidebar = memo(({ 
+    units = [], 
+    roadmapChapters = [],
+    isRoadmap = false,
+    activeChapterId, 
+    activeTopicId, 
+    isLoading, 
+    onTopicSelect,
+    onUnitClick,
+    activeUnitContent,
+    loadingUnit
+}) => {
+    const [expandedUnitId, setExpandedUnitId] = useState(null);
+    const [expandedRoadmapId, setExpandedRoadmapId] = useState(activeChapterId);
+
+    // Auto-expand active chapter's unit
+    useEffect(() => {
+        if (!isRoadmap && activeUnitContent?._id) {
+            setExpandedUnitId(activeUnitContent._id);
+        }
+    }, [activeUnitContent, isRoadmap]);
 
     useEffect(() => {
-        if (activeChapterId) {
-            setExpandedChId(activeChapterId);
+        if (isRoadmap && activeChapterId) {
+            setExpandedRoadmapId(activeChapterId);
         }
-    }, [activeChapterId]);
+    }, [activeChapterId, isRoadmap]);
 
-    const handleChapterClick = (chId) => {
-        setExpandedChId(prev => prev === chId ? null : chId);
+    const handleUnitClick = (unitId) => {
+        setExpandedUnitId(prev => prev === unitId ? null : unitId);
+        onUnitClick(unitId);
+    };
+
+    const handleRoadmapClick = (chId) => {
+        setExpandedRoadmapId(prev => prev === chId ? null : chId);
     };
 
     return (
         <div className="flex flex-col h-full bg-card border-r border-border-soft relative overflow-hidden">
-            {/* Ambient Background Glows */}
             <div className="absolute top-0 left-0 w-full h-1/2 bg-red-500/5 blur-[100px] pointer-events-none" />
             
-            {/* Branding */}
             <Link to="/dashboard" className="flex items-center gap-3 p-6 border-b border-border-soft/50 hover:bg-white/5 transition-all duration-300 relative z-10">
                 <div className="w-9 h-9 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20 border border-white/10">
                     <Sparkles className="w-5 h-5 text-white" />
@@ -238,45 +263,47 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                 </div>
             </Link>
 
-            {/* Chapters List */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar relative z-10">
                 {isLoading ? (
                     [1,2,3,4].map(i => (
-                        <div key={i} className="h-20 bg-white/5 rounded-2xl animate-pulse border border-white/5" />
+                        <div key={i} className="h-16 bg-white/5 rounded-2xl animate-pulse border border-white/5" />
                     ))
-                ) : (
-                    chapters.map((ch) => {
-                        const isExpanded = expandedChId === ch._id;
-                        const isActiveChapter = activeChapterId === ch._id;
+                ) : isRoadmap ? (
+                    roadmapChapters.map((ch) => {
+                        const isExpanded = expandedRoadmapId === ch._id;
+                        const isChapterActive = activeChapterId === ch._id;
 
                         return (
-                            <div key={ch._id} className="flex flex-col space-y-2">
+                            <div 
+                                key={ch._id}
+                                className={clsx(
+                                    "flex flex-col rounded-[1.8rem] transition-all duration-500 relative border overflow-hidden",
+                                    isChapterActive
+                                      ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
+                                      : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
+                                )}
+                            >
                                 <button
-                                    onClick={() => handleChapterClick(ch._id)}
-                                    className={clsx(
-                                        "w-full text-left p-5 rounded-[1.8rem] transition-all duration-500 group relative border",
-                                        isActiveChapter
-                                          ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
-                                          : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
-                                    )}
+                                    onClick={() => handleRoadmapClick(ch._id)}
+                                    className="w-full text-left p-5 group relative"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col gap-1.5">
                                             <span className={clsx(
                                                 "text-[9px] uppercase tracking-[0.2em] font-black transition-colors line-clamp-1",
-                                                isActiveChapter ? "text-accent" : "text-secondary/50 group-hover:text-secondary"
+                                                isChapterActive ? "text-accent" : "text-secondary/50 group-hover:text-secondary"
                                             )}>
                                                 {ch.unitTitle || 'Chapter'}
                                             </span>
                                             <span className={clsx(
                                                 "text-sm font-bold line-clamp-1 leading-tight transition-colors",
-                                                isActiveChapter ? "text-white" : "text-secondary group-hover:text-primary"
+                                                isChapterActive ? "text-white" : "text-secondary group-hover:text-primary"
                                             )}>
                                                 {ch.title}
                                             </span>
                                         </div>
                                     </div>
-                                    {isActiveChapter && (
+                                    {isChapterActive && (
                                         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-accent rounded-r-full shadow-[0_0_15px_rgba(0,122,255,0.8)]" />
                                     )}
                                 </button>
@@ -284,37 +311,131 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                                 <AnimatePresence initial={false}>
                                     {isExpanded && (
                                         <motion.div
-                                            initial={{ height: 0, opacity: 0, y: -10 }}
-                                            animate={{ height: "auto", opacity: 1, y: 0 }}
-                                            exit={{ height: 0, opacity: 0, y: -10 }}
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
                                             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                                            className="overflow-hidden"
                                         >
-                                            <div className="pl-6 pr-2 py-2 space-y-2 border-l border-accent/20 ml-6 my-2">
-                                                {ch.topics && ch.topics.length > 0 ? (
-                                                    ch.topics.map((topic) => {
-                                                        const isTopicActive = topic._id === activeTopicId;
+                                            <div className="px-5 pb-5 pt-0 space-y-2">
+                                                <div className="h-px bg-white/10 mb-4 mx-2" />
+                                                {ch.topics.map(topic => {
+                                                    const isTopicActive = topic._id === activeTopicId;
+                                                    return (
+                                                        <button
+                                                            key={topic._id}
+                                                            onClick={() => onTopicSelect(ch._id, topic._id)}
+                                                            className={clsx(
+                                                                "w-full text-left py-3 px-4 rounded-2xl text-xs transition-all flex items-center gap-3 group/topic",
+                                                                isTopicActive
+                                                                    ? "bg-accent text-white font-bold shadow-lg shadow-accent/20"
+                                                                    : "text-secondary hover:text-primary hover:bg-white/5"
+                                                            )}
+                                                        >
+                                                            <span className={clsx(
+                                                                "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors shadow-sm",
+                                                                isTopicActive ? "bg-white scale-125" : "bg-white/20 group-hover/topic:bg-white/40"
+                                                            )} />
+                                                            <span className="line-clamp-1">{topic.title}</span>
+                                                        </button>
+                                                    )
+                                                })}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        )
+                    })
+                ) : (
+                    units.map((unit) => {
+                        const isExpanded = expandedUnitId === unit._id;
+                        const isUnitLoading = loadingUnit && isExpanded && !activeUnitContent?.chapters;
+
+                        return (
+                            <div 
+                                key={unit._id}
+                                className={clsx(
+                                    "flex flex-col rounded-[1.8rem] transition-all duration-500 relative border overflow-hidden",
+                                    isExpanded
+                                      ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
+                                      : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
+                                )}
+                            >
+                                <button
+                                    onClick={() => handleUnitClick(unit._id)}
+                                    className="w-full text-left p-5 group relative"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className={clsx(
+                                                "text-[9px] uppercase tracking-[0.2em] font-black transition-colors line-clamp-1",
+                                                isExpanded ? "text-accent" : "text-secondary/50 group-hover:text-secondary"
+                                            )}>
+                                                Unit {unit.unitNumber}
+                                            </span>
+                                            <span className={clsx(
+                                                "text-sm font-bold line-clamp-1 leading-tight transition-colors",
+                                                isExpanded ? "text-white" : "text-secondary group-hover:text-primary"
+                                            )}>
+                                                {unit.title}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {isExpanded && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-accent rounded-r-full shadow-[0_0_15px_rgba(0,122,255,0.8)]" />
+                                    )}
+                                </button>
+
+                                <AnimatePresence initial={false}>
+                                    {isExpanded && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                                        >
+                                            <div className="px-5 pb-5 pt-0 space-y-4">
+                                                <div className="h-px bg-white/10 mx-2" />
+                                                {isUnitLoading ? (
+                                                    [1, 2].map(i => (
+                                                        <div key={i} className="h-10 w-full bg-white/5 rounded-xl animate-pulse" />
+                                                    ))
+                                                ) : activeUnitContent?.chapters ? (
+                                                    activeUnitContent.chapters.map((ch) => {
+                                                        const isChapterActive = ch._id === activeChapterId;
                                                         return (
-                                                            <button
-                                                                key={topic._id}
-                                                                onClick={() => onTopicSelect(ch._id, topic._id)}
-                                                                className={clsx(
-                                                                    "w-full text-left py-3 px-4 rounded-2xl text-xs transition-all flex items-center gap-3 group/topic",
-                                                                    isTopicActive
-                                                                        ? "bg-accent text-white font-bold shadow-lg shadow-accent/20"
-                                                                        : "text-secondary hover:text-primary hover:bg-white/5"
-                                                                )}
-                                                            >
-                                                                <span className={clsx(
-                                                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors shadow-sm",
-                                                                    isTopicActive ? "bg-white scale-125" : "bg-white/20 group-hover/topic:bg-white/40"
-                                                                )} />
-                                                                <span className="line-clamp-1">{topic.title}</span>
-                                                            </button>
+                                                            <div key={ch._id} className="space-y-2">
+                                                                <div className="px-4 py-1 text-[10px] font-black text-accent uppercase tracking-widest line-clamp-1">
+                                                                    {ch.title}
+                                                                </div>
+                                                                <div className="space-y-1 ml-2 border-l border-white/5 pl-4">
+                                                                    {ch.topics.map(topic => {
+                                                                        const isTopicActive = topic._id === activeTopicId;
+                                                                        return (
+                                                                            <button
+                                                                                key={topic._id}
+                                                                                onClick={() => onTopicSelect(ch._id, topic._id)}
+                                                                                className={clsx(
+                                                                                    "w-full text-left py-2.5 px-4 rounded-xl text-xs transition-all flex items-center gap-3 group/topic",
+                                                                                    isTopicActive
+                                                                                        ? "bg-accent/20 text-white font-bold"
+                                                                                        : "text-secondary hover:text-primary hover:bg-white/5"
+                                                                                )}
+                                                                            >
+                                                                                <span className={clsx(
+                                                                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors shadow-sm",
+                                                                                    isTopicActive ? "bg-accent shadow-[0_0_8px_rgba(0,122,255,0.6)]" : "bg-white/20 group-hover/topic:bg-white/40"
+                                                                                )} />
+                                                                                <span className="line-clamp-1">{topic.title}</span>
+                                                                            </button>
+                                                                        )
+                                                                    })}
+                                                                </div>
+                                                            </div>
                                                         )
                                                     })
                                                 ) : (
-                                                    <div className="text-[10px] text-secondary/30 uppercase tracking-widest italic px-4 py-3">Void</div>
+                                                    <div className="text-[10px] text-secondary/30 uppercase tracking-widest italic px-4 py-3 text-center">Empty</div>
                                                 )}
                                             </div>
                                         </motion.div>
@@ -333,51 +454,84 @@ export default function ChatInterface({ isRoadmap = false }) {
   const { subjectId, chapterId, topicId, roadmapId, dayId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { userProfile, loading: loadingProfile } = useContext(UserContext);
+  const { activeUnitData, loadingUnit, fetchUnitContent } = useContext(SyllabusContext);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [chapters, setChapters] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoadingChapters, setIsLoadingChapters] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
-  const [subjectName, setSubjectName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [shareModal, setShareModal] = useState({ open: false, content: '' });
+  
+  // Roadmap States
+  const [roadmapChapters, setRoadmapChapters] = useState([]);
+  const [subjectNameState, setSubjectNameState] = useState("");
+  const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(false);
+
   const messagesEndRef = useRef(null);
   const latestUserMsgRef = useRef(null);
   const inputRef = useRef(null);
-  const inputContainerRef = useRef(null);
   const chatAreaRef = useRef(null);
   const abortControllerRef = useRef(null);
+  const chatCache = useRef({});
 
   const activeChapterId = isRoadmap ? dayId : chapterId;
   const activeSubjectId = isRoadmap ? roadmapId : subjectId;
 
+  // Find subject and units from context
+  const subject = useMemo(() => userProfile?.subjects?.find(s => s._id === activeSubjectId), [userProfile, activeSubjectId]);
+  const units = useMemo(() => subject?.units || [], [subject]);
+  const subjectName = useMemo(() => isRoadmap ? subjectNameState : (subject?.name || ""), [isRoadmap, subjectNameState, subject]);
+
+  // Derive unitId from activeChapterId by searching in units
+  // Note: units in UserContext only have IDs and Names, so we might need activeUnitData
+  // but we usually know which unit a chapter belongs to if we are coming from SubjectView.
+  // For ChatInterface, we can find which unit contains the activeChapterId once activeUnitData is loaded
+  // or by searching in the subject.units if they had chapter IDs (they don't in the optimized profile).
+  // Strategy: Try to find unitId in activeUnitData first.
+  const unitId = useMemo(() => {
+    if (activeUnitData?.chapters?.some(c => c._id === activeChapterId)) {
+        return activeUnitData._id;
+    }
+    // If not in current activeUnitData, we might need to find it from the subject's units
+    // but optimized units don't have chapters. 
+    // However, the SubjectView usually navigates here.
+    return activeUnitData?._id; 
+  }, [activeUnitData, activeChapterId]);
+
+  // Find current topic
   const activeTopic = useMemo(() => {
-      if (!chapters.length || !topicId) return null;
-      for (const ch of chapters) {
+      const currentChapters = isRoadmap ? roadmapChapters : activeUnitData?.chapters;
+      if (!currentChapters || !topicId) return null;
+      for (const ch of currentChapters) {
           const found = ch.topics?.find(t => t._id === topicId);
           if (found) return found;
       }
       return null;
-  }, [chapters, topicId]);
+  }, [isRoadmap, roadmapChapters, activeUnitData, topicId]);
+
+  const activeUnitTitle = useMemo(() => {
+    if (isRoadmap) {
+        return roadmapChapters.find(c => c._id === activeChapterId)?.unitTitle || "";
+    }
+    return activeUnitData?.title || "";
+  }, [isRoadmap, roadmapChapters, activeChapterId, activeUnitData]);
 
   useEffect(() => {
     if (activeTopic && activeSubjectId && activeChapterId && topicId && subjectName && !isRoadmap) {
-        const activeChapter = chapters.find(ch => ch._id === activeChapterId);
         const session = {
             subjectId: activeSubjectId,
             chapterId: activeChapterId,
             topicId,
             topicTitle: activeTopic.title,
             subjectName: subjectName,
-            unitTitle: activeChapter?.unitTitle || "Unit",
+            unitTitle: activeUnitData?.title || "Unit",
             timestamp: Date.now()
         };
         localStorage.setItem('crix_last_session', JSON.stringify(session));
-        console.log("Session saved:", session);
     }
-  }, [activeTopic, activeSubjectId, activeChapterId, topicId, subjectName, chapters, isRoadmap]);
+  }, [activeTopic, activeSubjectId, activeChapterId, topicId, subjectName, activeUnitData, isRoadmap]);
 
   const handleShare = (content) => {
     setShareModal({ open: true, content });
@@ -506,68 +660,51 @@ export default function ChatInterface({ isRoadmap = false }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Roadmap Data Fetching
   useEffect(() => {
-    const fetchData = async () => {
-      if (isRoadmap) {
-        if (!roadmapId) {
-          console.warn("Sidebar: No roadmapId found");
-          setIsLoadingChapters(false);
-          return;
+    const fetchRoadmap = async () => {
+      if (!isRoadmap || !roadmapId) return;
+      setIsLoadingRoadmap(true);
+      try {
+        const response = await axios.get(`/roadmaps/${roadmapId}`);
+        if (response.data?.data?.roadmap?.days) {
+          const roadmap = response.data.data.roadmap;
+          setSubjectNameState(roadmap.name || "Roadmap");
+          const allDays = roadmap.days.map(day => ({
+            _id: day._id,
+            title: day.title,
+            unitTitle: `Day ${day.dayNumber}`,
+            topics: day.topics || []
+          }));
+          setRoadmapChapters(allDays);
         }
-        try {
-          const response = await axios.get(`/roadmaps/${roadmapId}`);
-          if (response.data?.data?.roadmap?.days) {
-            const roadmap = response.data.data.roadmap;
-            setSubjectName(roadmap.name || "Roadmap");
-            const allDays = roadmap.days.map(day => ({
-              _id: day._id,
-              title: day.title,
-              unitTitle: `Day ${day.dayNumber}`,
-              topics: day.topics || []
-            }));
-            setChapters(allDays);
-          }
-        } catch (error) {
-          console.error("Failed to fetch roadmap:", error);
-        } finally {
-          setIsLoadingChapters(false);
-        }
-      } else {
-        if (!subjectId) {
-          console.warn("Sidebar: No subjectId found");
-          setIsLoadingChapters(false);
-          return;
-        }
-        try {
-          const response = await axios.get(`/syllabus/${subjectId}`);
-          if (response.data?.subject?.units) {
-            setSubjectName(response.data.subject.name || "");
-            const allChapters = response.data.subject.units.flatMap(unit =>
-              unit.chapters.map(ch => ({
-                ...ch,
-                unitId: unit._id,
-                unitTitle: unit.title
-              }))
-            );
-            setChapters(allChapters);
-          }
-        } catch (error) {
-          console.error("Failed to fetch chapters:", error);
-        } finally {
-          setIsLoadingChapters(false);
-        }
+      } catch (error) {
+        console.error("Failed to fetch roadmap:", error);
+      } finally {
+        setIsLoadingRoadmap(false);
       }
     };
+    fetchRoadmap();
+  }, [isRoadmap, roadmapId]);
 
-    fetchData();
-  }, [subjectId, roadmapId, isRoadmap]);
+  // Fetch missing unit content if needed
+  useEffect(() => {
+    if (!isRoadmap && activeSubjectId && !activeUnitData && units.length > 0) {
+        fetchUnitContent(activeSubjectId, units[0]._id);
+    }
+  }, [activeSubjectId, isRoadmap, fetchUnitContent, activeUnitData, units]);
 
-  // Fetch chat history on mount
-  // Fetch chat history on mount
+  // Fetch chat history with caching
   useEffect(() => {
     const fetchChatHistory = async () => {
+      if (chatCache.current[topicId]) {
+        setMessages(chatCache.current[topicId]);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
-      setMessages([]); // Clear previous messages immediately
+      setMessages([]); 
       try {
         const response = await fetch(`/api/v1/ai/chat/${topicId}`, {
           credentials: 'include',
@@ -576,6 +713,7 @@ export default function ChatInterface({ isRoadmap = false }) {
 
         if (data.success && data.messages.length > 0) {
           setMessages(data.messages);
+          chatCache.current[topicId] = data.messages;
         } else {
           setMessages([]);
         }
@@ -711,11 +849,16 @@ export default function ChatInterface({ isRoadmap = false }) {
         {/* Desktop Sidebar */}
         <div className="hidden md:block w-64 h-full flex-shrink-0 z-30">
             <ChapterSidebar
-                chapters={chapters}
+                units={isRoadmap ? [] : units}
+                roadmapChapters={roadmapChapters}
+                isRoadmap={isRoadmap}
                 activeChapterId={activeChapterId}
                 activeTopicId={topicId}
-                isLoading={isLoadingChapters}
+                isLoading={isRoadmap ? isLoadingRoadmap : loadingProfile}
                 onTopicSelect={handleTopicClick}
+                onUnitClick={(unitId) => !isRoadmap && fetchUnitContent(activeSubjectId, unitId)}
+                activeUnitContent={activeUnitData}
+                loadingUnit={loadingUnit}
             />
         </div>
 
@@ -740,11 +883,16 @@ export default function ChatInterface({ isRoadmap = false }) {
                         className="fixed inset-y-0 left-0 w-[85%] max-w-xs z-50 md:hidden bg-main shadow-2xl"
                     >
                         <ChapterSidebar
-                            chapters={chapters}
+                            units={isRoadmap ? [] : units}
+                            roadmapChapters={roadmapChapters}
+                            isRoadmap={isRoadmap}
                             activeChapterId={activeChapterId}
                             activeTopicId={topicId}
-                            isLoading={isLoadingChapters}
+                            isLoading={isRoadmap ? isLoadingRoadmap : loadingProfile}
                             onTopicSelect={handleTopicClick}
+                            onUnitClick={(unitId) => !isRoadmap && fetchUnitContent(activeSubjectId, unitId)}
+                            activeUnitContent={activeUnitData}
+                            loadingUnit={loadingUnit}
                         />
                         <button
                             onClick={() => setSidebarOpen(false)}
@@ -795,11 +943,11 @@ export default function ChatInterface({ isRoadmap = false }) {
                                 <p className="text-[10px] font-bold text-accent uppercase tracking-widest line-clamp-1">
                                     {subjectName || 'Subject'}
                                 </p>
-                                {chapters.find(c => c._id === chapterId)?.unitTitle && (
+                                {activeUnitTitle && (
                                     <>
                                         <span className="w-1 h-1 rounded-full bg-border-soft" />
                                         <p className="text-[10px] font-medium text-secondary line-clamp-1">
-                                            {chapters.find(c => c._id === chapterId).unitTitle}
+                                            {activeUnitTitle}
                                         </p>
                                     </>
                                 )}
