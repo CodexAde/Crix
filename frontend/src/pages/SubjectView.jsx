@@ -121,38 +121,56 @@ export default function SubjectView() {
 
             <main className="max-w-3xl mx-auto px-6 py-8">
                 {/* Add to Library Prompt */}
-                <AnimatePresence>
-                    {!subjectInLibrary && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="mb-10 p-6 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent border border-accent/20 rounded-[2.5rem] relative overflow-hidden group"
-                        >
-                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                                <Sparkles className="w-20 h-20 text-accent" />
-                            </div>
-                            
-                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 justify-between text-center md:text-left">
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-black text-primary tracking-tight">Syllabus not added</h3>
-                                    <p className="text-sm text-secondary/70 font-medium">Bhai, add this subject to start exploring and track progress! ✨</p>
-                                </div>
-                                <button
-                                    onClick={handleAddSubject}
-                                    disabled={addingSubject}
-                                    className="px-8 py-3.5 bg-accent text-white rounded-full font-black text-sm shadow-xl shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-2"
-                                >
-                                    {addingSubject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                                    Add Now
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+<AnimatePresence>
+  {!subjectInLibrary && (
+    <motion.div
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      className="mb-10 rounded-[2.5rem] p-7 md:p-8 relative overflow-hidden
+      bg-gradient-to-br from-white/10 via-white/5 to-transparent
+      backdrop-blur-xl
+      shadow-[0_25px_80px_rgba(0,0,0,0.35)]
+      hover:shadow-[0_35px_120px_rgba(0,0,0,0.45)]
+      transition-all duration-700"
+    >
+      <div className="absolute -top-10 -right-10 opacity-[0.08] rotate-12 pointer-events-none">
+        <Sparkles className="w-40 h-40 text-white" />
+      </div>
 
-                {/* Unit Selector */}
-                <div className="my-6">
+      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        <div className="space-y-1.5">
+          <h3 className="text-lg md:text-xl font-semibold text-primary tracking-tight">
+            Syllabus not added
+          </h3>
+          <p className="text-sm text-secondary/60 leading-relaxed">
+            Bhai, add this subject to start exploring and track progress.
+          </p>
+        </div>
+
+        <button
+          onClick={handleAddSubject}
+          disabled={addingSubject}
+          className="px-7 py-3 rounded-full text-sm font-semibold text-white
+          bg-gradient-to-br from-accent to-accent/80
+          shadow-[0_12px_35px_rgba(0,0,0,0.35)]
+          hover:shadow-[0_18px_55px_rgba(0,0,0,0.45)]
+          active:scale-95 transition-all flex items-center gap-2"
+        >
+          {addingSubject ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+          Add to Library
+        </button>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+
+                 {/* <div className="my-6">
                     <div className="flex gap-2.5 mb-2 overflow-x-auto pb-4 no-scrollbar snap-x px-4 md:justify-center">
                         {subject.units.map((unit, index) => (
                             <button
@@ -169,7 +187,6 @@ export default function SubjectView() {
                     </div>
                 </div>
 
-                {/* Active Unit Title */}
                 <div className="mb-12 text-center">
                     <h2 className="text-2xl md:text-3xl font-black text-primary mb-2 tracking-tight">
                         {subject.units[activeUnitIndex].title}
@@ -183,7 +200,6 @@ export default function SubjectView() {
                     </div>
                 </div>
 
-                {/* Chapters List */}
                 <div className="space-y-4">
                     {loadingUnit ? (
                         <div className="space-y-4">
@@ -223,7 +239,7 @@ export default function SubjectView() {
                              <p className="text-secondary font-medium">No chapters generated for this unit yet.</p>
                         </div>
                     )}
-                </div>
+                </div> */}
             </main>
         </div>
     );

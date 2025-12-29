@@ -4,10 +4,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import SubjectContext from '../context/Subject/SubjectContext';
+import UserContext from '../context/User/UserContext';
+
 
 export default function Syllabus() {
   const navigate = useNavigate();
   const { userSubjects, addUserSubject } = useContext(SubjectContext);
+  const { fetchProfile } = useContext(UserContext);
   const [subjects, setSubjects] = useState([]);
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +26,7 @@ export default function Syllabus() {
         setFilteredSubjects(subjectsData);
       } catch (error) {
         console.error('Failed to fetch subjects:', error);
-      } finally {
+      } finally { 
         setLoading(false);
       }
     };
@@ -49,6 +52,8 @@ export default function Syllabus() {
     setAddingId(subjectId);
     await addUserSubject(subjectId);
     setAddingId(null);
+    fetchProfile();
+    navigate('/dashboard');
   };
 
   const isAdded = (id) => userSubjects.some(s => s._id === id);
@@ -134,7 +139,7 @@ export default function Syllabus() {
               return (
                 <motion.div key={subject._id} variants={itemVariants} className="group">
                   <div 
-                    onClick={() => navigate(`/syllabus/${subject._id}`)}
+                    // onClick={() => navigate(`/syllabus/${subject._id}`)}
                     className="block bg-card rounded-[2rem] p-6 md:p-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] md:hover:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group/card cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
                   >
                      <div className="flex items-start justify-between mb-6 md:mb-8">
@@ -164,7 +169,7 @@ export default function Syllabus() {
                                 ) : added ? (
                                     <Check className="w-5 h-5" />
                                 ) : (
-                                    <Plus className="w-5 h-5" />
+                                    <Plus disabled={added || isAdding} className="w-5 h-5 text-secondary" />
                                 )}
                             </button>
                         </div>
