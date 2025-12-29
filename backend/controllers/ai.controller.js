@@ -2,6 +2,17 @@ import OpenAI from 'openai';
 import { User } from "../models/user.model.js";
 import { Subject } from "../models/syllabus.model.js";
 import { Chat } from "../models/chat.model.js";
+import { Reply } from "../models/reply.model.js";
+
+// Helper for word-by-word streaming
+const streamTextWordByWord = async (res, text, delay = 30) => {
+    const words = text.split(' ');
+    for (let i = 0; i < words.length; i++) {
+        const word = words[i] + (i === words.length - 1 ? "" : " ");
+        res.write(`data: ${JSON.stringify({ text: word })}\n\n`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+    }
+};
 
 // Initialize OpenAI client for OpenRouter
 let openai = null;
@@ -47,6 +58,39 @@ const streamChat = async (req, res) => {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
+
+        // 0. Check for Pre-defined Replies (Action based)
+        // If message is exactly "Summarize" or "Give me 5 MCQs", etc.
+        const preDefinedReply = await Reply.findOne({
+            topicId,
+            action: message.trim()
+        });
+
+        if (preDefinedReply) {
+            console.log(`Serving pre-defined reply for topic ${topicId}, action: ${message}`);
+            
+            // Stream the cached content
+            await streamTextWordByWord(res, preDefinedReply.content);
+
+            // Save to chat history
+            await Chat.findOneAndUpdate(
+                { userId, topicId },
+                {
+                    $push: {
+                        messages: {
+                            $each: [
+                                { role: 'user', content: message },
+                                { role: 'assistant', content: preDefinedReply.content }
+                            ]
+                        }
+                    }
+                },
+                { upsert: true, new: true }
+            );
+
+            res.write('data: [DONE]\n\n');
+            return res.end();
+        }
 
         // 1. Fetch Context
         const user = await User.findById(userId);

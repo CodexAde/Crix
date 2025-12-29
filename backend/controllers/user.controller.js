@@ -159,7 +159,7 @@ const getCurrentUser = async (req, res) => {
 
 const updateOnboardingDetails = async (req, res) => {
     try {
-        const { college, branch, year, personaProfile, referralCode } = req.body;
+        const { college, branch, year, gender, personaProfile, referralCode } = req.body;
         
         // Simple validation
         if(!branch || !year) {
@@ -172,7 +172,7 @@ const updateOnboardingDetails = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // If user doesn't have a referral code (e.g. Google Auth), they MUST provide one now
+        // ... (referral logic remains same) ...
         if (!user.referralCode) {
             if (!referralCode) {
                 return res.status(400).json({ message: "Referral code is required for registration" });
@@ -197,6 +197,7 @@ const updateOnboardingDetails = async (req, res) => {
             college, 
             branch, 
             year, 
+            gender,
             isOnboarded: true
         };
         

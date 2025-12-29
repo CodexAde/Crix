@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema(
             year: Number, // 1
             universitySchema: String, // AKTU 2023
             targetExamDate: Date,
+            gender: {
+                type: String,
+                enum: ['male', 'female', 'other'],
+                default: 'other'
+            },
             isOnboarded: {
                 type: Boolean,
                 default: false
