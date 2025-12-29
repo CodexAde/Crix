@@ -77,42 +77,73 @@ export default function Dashboard() {
 
       {/* HERO: Today's Focus */}
       <motion.section variants={itemVariants}>
-        <div className="bg-card rounded-[2rem] p-6 md:p-8 shadow-sm border border-border-soft relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-[0.03] md:group-hover:opacity-[0.08] transition-opacity">
-                <Target className="w-32 h-32 text-primary" />
+        <div className="bg-card rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-border-soft relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] md:group-hover:opacity-[0.08] transition-opacity">
+                <Target className="w-40 h-40 text-primary" />
             </div>
             
           <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-4">
-               <span className="px-3 py-1 bg-accent text-white text-[10px] font-bold uppercase tracking-wider rounded-full">
-                  Today's Focus
+            <div className="flex items-center gap-2 mb-6">
+               <span className="px-3 py-1 bg-accent text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg shadow-accent/20">
+                  {lastSession ? "Today's Focus" : "Start Your Journey"}
                </span>
-               <span className="text-xs text-secondary font-medium">• 25 min remaining</span>
+               <span className="text-xs text-secondary font-medium tracking-tight opacity-70">
+                 {lastSession ? "• 25 min remaining" : "• Instant Learning Available"}
+               </span>
             </div>
 
-            <h2 className="text-3xl md:text-5xl font-bold text-primary leading-tight mb-3 line-clamp-1 tracking-tight">
-              {lastSession?.topicTitle || 'Calculus' /* Defaulting to something generic if no session */}
-            </h2>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-8">
-              <p className="text-accent font-semibold text-sm md:text-base line-clamp-1">
-                {lastSession?.subjectName || (userSubjects[0]?.name || 'Select a subject to start')}
-              </p>
-              {lastSession?.unitTitle && (
-                  <>
-                  <span className="w-1 h-1 rounded-full bg-border-soft hidden md:block" />
-                  <p className="text-secondary text-sm md:text-base line-clamp-1">
-                    {lastSession.unitTitle}
+            {!lastSession ? (
+              <>
+                <h2 className="text-4xl md:text-6xl font-extrabold text-primary leading-[1.1] mb-6 tracking-tighter">
+                  {userSubjects.length > 0 
+                    ? <>Dive into <span className="text-accent">{userSubjects[0].name.split(' ')[0]}</span></>
+                    : <>Build your <span className="text-accent">Global Library</span></>
+                  }
+                </h2>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-10">
+                  <p className="text-secondary text-base md:text-xl font-medium max-w-xl leading-relaxed opacity-80">
+                    {userSubjects.length > 0 
+                      ? "You have subjects ready. Pick a topic and start your AI-powered interactive learning session now."
+                      : "Your library is empty. Discover subjects from the global database and start generating your neural paths."
+                    }
                   </p>
-                  </>
-              )}
-            </div>
+                </div>
+                
+                <Link 
+                  to={userSubjects.length > 0 ? `/syllabus/${userSubjects[0]._id}` : '/syllabus'} 
+                  className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-main rounded-[1.5rem] font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-xl shadow-primary/10 group/btn"
+                >
+                  {userSubjects.length > 0 ? 'Start Learning' : 'Explore Library'} 
+                  <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                </Link>
+              </>
+            ) : (
+              <>
+                <h2 className="text-4xl md:text-6xl font-extrabold text-primary leading-[1.1] mb-4 line-clamp-1 tracking-tighter">
+                  {lastSession.topicTitle}
+                </h2>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-10">
+                  <p className="text-accent font-bold text-lg md:text-2xl tracking-tight">
+                    {lastSession.subjectName}
+                  </p>
+                  {lastSession.unitTitle && (
+                      <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-border-soft hidden md:block" />
+                      <p className="text-secondary text-lg md:text-xl font-medium tracking-tight opacity-70">
+                        {lastSession.unitTitle}
+                      </p>
+                      </>
+                  )}
+                </div>
 
-            <Link 
-              to={lastSession ? `/chat/${lastSession.subjectId}/${lastSession.chapterId}/${lastSession.topicId}` : (userSubjects[0]?._id ? `/syllabus/${userSubjects[0]._id}` : '/syllabus')} 
-              className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-main rounded-2xl font-bold text-sm hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/10"
-            >
-              {lastSession ? 'Resume Chat' : 'Start Learning'} <ArrowRight className="w-4 h-4" />
-            </Link>
+                <Link 
+                  to={`/chat/${lastSession.subjectId}/${lastSession.chapterId}/${lastSession.topicId}`} 
+                  className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-main rounded-[1.5rem] font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-xl shadow-primary/10 group/btn"
+                >
+                  Resume Chat <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </motion.section>
@@ -225,14 +256,14 @@ export default function Dashboard() {
                                         <h3 className="text-lg font-bold text-primary mb-1 line-clamp-1">{subject.name}</h3>
                                         <p className="text-xs text-secondary/60 font-semibold mb-4 line-clamp-1">{subject.branch || 'B.Tech'} • Year {subject.year || 1}</p>
 
-                                        <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border-soft/50 shadow-inner">
+                                        {/* <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border-soft/50 shadow-inner">
                                             <motion.div 
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${subject.progress || 0}%` }}
                                                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                                                 className="bg-gradient-to-r from-accent to-accent-hover h-full rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(239,68,68,0.2)]" 
                                             />
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </Reorder.Item>
                             ))}
@@ -265,14 +296,14 @@ export default function Dashboard() {
                                         {subject.branch || 'General'} • Year {subject.year || 1}
                                     </p>
                                </div>
-                               <div className="w-full bg-surface h-2.5 rounded-full overflow-hidden border border-border-soft/20 shadow-inner">
+                               {/* <div className="w-full bg-surface h-2.5 rounded-full overflow-hidden border border-border-soft/20 shadow-inner">
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${subject.progress || 0}%` }}
                                         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                                         className="bg-gradient-to-r from-accent to-accent-hover h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.25)]" 
                                     />
-                                </div>
+                                </div> */}
                           </div>
                           <ChevronRight className="w-5 h-5 text-secondary/20 mr-1" />
                       </div>
