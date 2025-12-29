@@ -1,5 +1,9 @@
 import { User } from "../models/user.model.js";
 import { Referral } from "../models/referral.model.js";
+import { asyncHandler } from "../utils/Constructors/asyncHandler.js";
+import { ApiError } from "../utils/Constructors/ApiError.js";
+import { ApiResponse } from "../utils/Constructors/ApiResponse.js";
+import mongoose from "mongoose";
 
 const generateAccessAndRefresTokens = async (userId) => {
     try {
@@ -271,8 +275,69 @@ export {
     generateAccessAndRefresTokens,
     addUserSubject,
     getUserSubjects,
-    reorderSubjects
+    reorderSubjects,
+    getUserProfile
 };
+
+const getUserProfile = asyncHandler(async (req, res) => {
+    const userProfile = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup: {
+                from: "subjects",
+                localField: "subjects",
+                foreignField: "_id",
+                as: "subjectDetails"
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                email: 1,
+                avatar: 1,
+                academicInfo: 1,
+                subjects: {
+                    $map: {
+                        input: "$subjectDetails",
+                        as: "subject",
+                        in: {
+                            _id: "$$subject._id",
+                            name: "$$subject.name",
+                            code: "$$subject.code",
+                            image: "$$subject.image",
+                            year: "$$subject.year",
+                            branch: "$$subject.branch",
+                            units: {
+                                $map: {
+                                    input: "$$subject.units",
+                                    as: "unit",
+                                    in: {
+                                        _id: "$$unit._id",
+                                        unitNumber: "$$unit.unitNumber",
+                                        title: "$$unit.title"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]);
+
+    if (!userProfile?.length) {
+        throw new ApiError(404, "User profile not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, userProfile[0], "User profile fetched successfully")
+    );
+});
 
 const addUserSubject = async (req, res) => {
     try {

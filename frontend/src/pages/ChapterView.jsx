@@ -1,49 +1,51 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import TopicGraph from '../components/TopicGraph';
 import { ArrowLeft, ClipboardCheck } from 'lucide-react';
+import UserContext from '../context/User/UserContext';
+import SyllabusContext from '../context/Syllabus/SyllabusContext';
 import { PageLoader } from '../components/Spinner';
 
 export default function ChapterView() {
   const { subjectId, unitId, chapterId } = useParams();
-  const [chapter, setChapter] = useState(null);
-  const [subject, setSubject] = useState(null);
+  const { userProfile, loading: loadingProfile } = useContext(UserContext);
+  const { activeUnitData, loadingUnit, fetchUnitContent } = useContext(SyllabusContext);
   const [progressMap, setProgressMap] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(true);
   const navigate = useNavigate();
 
-  const fetchData = useCallback(async () => {
-    try {
-        const [syllabusRes, progressRes] = await Promise.all([
-            axios.get(`/syllabus/${subjectId}`),
-            axios.get(`/progress/${subjectId}`)
-        ]);
+  // Find subject and unit in context
+  const subject = useMemo(() => userProfile?.subjects?.find(s => s._id === subjectId), [userProfile, subjectId]);
+  const unitHeader = useMemo(() => subject?.units?.find(u => u._id === unitId), [subject, unitId]);
 
-        const sj = syllabusRes.data.subject;
-        setSubject(sj);
-        const unit = sj.units.find(u => u._id === unitId);
-        if(unit) {
-            const chap = unit.chapters.find(c => c._id === chapterId);
-            setChapter(chap);
-        }
-        setProgressMap(progressRes.data.progressMap);
-    } catch (error) {
-        console.error(error);
-    } finally {
-        setLoading(false);
-    }
-  }, [subjectId, unitId, chapterId]);
+  // Use activeUnitData as source for chapters
+  const chapter = useMemo(() => {
+    return activeUnitData?.chapters?.find(c => c._id === chapterId);
+  }, [activeUnitData, chapterId]);
 
+  // Fetch missing data
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    const fetchMissingData = async () => {
+        try {
+            const fetchers = [];
+            // 1. Fetch unit content if not available
+            if (!chapter || activeUnitData?._id !== unitId) {
+                fetchUnitContent(subjectId, unitId);
+            }
+            // 2. Fetch progress
+            const progressRes = await axios.get(`/progress/${subjectId}`);
+            setProgressMap(progressRes.data.progressMap);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoadingProgress(false);
+        }
+    };
+    fetchMissingData();
+  }, [subjectId, unitId, chapterId, chapter, activeUnitData?._id, fetchUnitContent]);
 
-  const handleTopicClick = (topic) => {
-    navigate(`/chat/${subjectId}/${chapterId}/${topic._id}`);
-  };
-
-  if (loading) return <PageLoader text="Loading chapter..." />;
+  if (loadingProfile || (loadingUnit && !chapter) || loadingProgress) return <PageLoader text="Loading chapter..." />;
   if (!chapter) return <div className="p-10 text-center text-secondary">Chapter not found</div>;
 
   const topicsWithStatus = chapter.topics.map(t => ({
@@ -62,14 +64,14 @@ export default function ChapterView() {
             </button>
             <div className="flex-1 text-center min-w-0 mx-4">
                 <div className="flex items-center justify-center gap-2 mb-0.5">
-                    <p className="text-[10px] font-bold text-accent uppercase tracking-widest line-clamp-1">
+                     <p className="text-[10px] font-bold text-accent uppercase tracking-widest line-clamp-1">
                         {subject?.name || 'Subject'}
                     </p>
-                    {subject?.units?.find(u => u._id === unitId) && (
+                    {unitHeader && (
                         <>
                             <span className="w-1 h-1 rounded-full bg-border-soft" />
                             <p className="text-[10px] font-medium text-secondary line-clamp-1">
-                                {subject.units.find(u => u._id === unitId).title}
+                                {unitHeader.title}
                             </p>
                         </>
                     )}
@@ -87,7 +89,7 @@ export default function ChapterView() {
        </header>
        
        <div className="flex-1 pb-24 md:pb-4">
-           <TopicGraph topics={topicsWithStatus} onSelectTopic={handleTopicClick} />
+           <TopicGraph topics={topicsWithStatus} onSelectTopic={(topic) => navigate(`/chat/${subjectId}/${chapterId}/${topic._id}`)} />
        </div>
     </div>
   );

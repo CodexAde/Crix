@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, loginUser, logoutUser, getCurrentUser, updateOnboardingDetails, updateUserProfile, addUserSubject, getUserSubjects, reorderSubjects } from "../controllers/user.controller.js";
+import { registerUser, loginUser, logoutUser, getCurrentUser, updateOnboardingDetails, updateUserProfile, addUserSubject, getUserSubjects, reorderSubjects, getUserProfile } from "../controllers/user.controller.js";
 import { googleAuth, googleAuthCallback } from "../controllers/googleAuth.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
@@ -16,7 +16,7 @@ router.route("/auth/google/callback").get(googleAuthCallback);
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/me").get(verifyJWT, getCurrentUser);
 router.route("/onboarding").post(verifyJWT, updateOnboardingDetails);
-router.route("/profile").put(verifyJWT, updateUserProfile);
+router.route("/profile").get(verifyJWT, getUserProfile).put(verifyJWT, updateUserProfile);
 router.route("/subjects").get(verifyJWT, getUserSubjects).post(verifyJWT, addUserSubject).patch(verifyJWT, reorderSubjects);
 
 export default router;

@@ -1,14 +1,14 @@
 import { useEffect, useState, useContext } from 'react';
-import { useAuth } from '../context/AuthContext';
 import SubjectContext from '../context/Subject/SubjectContext';
+import UserContext from '../context/User/UserContext';
 import { Flame, Brain, BookMarked, ArrowRight, Sparkles, Clock, Target, TrendingUp, BookOpen, GraduationCap, Zap, ChevronRight, Lightbulb, Plus, GripVertical } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, Reorder } from 'framer-motion';
 
 export default function Dashboard() {
-  const { user } = useAuth();
-  const { userSubjects, loadingSubjects, reorderSubjects } = useContext(SubjectContext);
+  const { userProfile, loading: loadingProfile } = useContext(UserContext);
+  const { reorderSubjects } = useContext(SubjectContext);
   const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1 });
   const [loadingStats, setLoadingStats] = useState(true);
   const [lastSession, setLastSession] = useState(null);
@@ -51,7 +51,8 @@ export default function Dashboard() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   };
 
-  const loading = loadingSubjects || loadingStats;
+  const loading = loadingProfile || loadingStats;
+  const userSubjects = userProfile?.subjects || [];
 
   return (
     <motion.div 
@@ -64,11 +65,11 @@ export default function Dashboard() {
       <motion.header variants={itemVariants} className="flex items-center justify-between">
         <div>
            <p className="text-secondary text-sm font-medium mb-0.5">Welcome back,</p>
-           <h1 className="text-2xl font-bold text-primary">{user?.name?.split(' ')[0]}</h1>
+           <h1 className="text-2xl font-bold text-primary">{userProfile?.name?.split(' ')[0]}</h1>
         </div>
         <Link to="/user-profile" className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center border border-accent/20">
-            {user?.avatar ? (
-                <img src={user.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
+            {userProfile?.avatar ? (
+                <img src={userProfile.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
             ) : (
                 <Sparkles className="w-5 h-5 text-accent" />
             )}
@@ -240,7 +241,7 @@ export default function Dashboard() {
                                 <Reorder.Item key={subject._id} value={subject} className="shrink-0">
                                     <div 
                                         onClick={() => navigate(`/syllabus/${subject._id}`)}
-                                        className="min-w-[280px] w-[280px] h-40 bg-card rounded-[2.5rem] p-6 border border-border-soft hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5 transition-all relative group cursor-pointer"
+                                        className="min-w-[280px] w-[280px] h-40 bg-card rounded-[2.5rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 relative group cursor-pointer border-0"
                                     >
                                         <div className="flex items-start justify-between mb-4">
                                             <div className="flex flex-col gap-1">
@@ -277,7 +278,7 @@ export default function Dashboard() {
                       <div 
                         key={subject._id}
                         onClick={() => navigate(`/syllabus/${subject._id}`)}
-                        className="w-full bg-card rounded-[2rem] p-5 border border-border-soft active:scale-[0.98] transition-all shadow-sm flex items-center gap-5"
+                        className="w-full bg-card rounded-[2rem] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-all flex items-center gap-5 border-0"
                       >
                           <div className="w-14 h-14 rounded-2xl bg-surface flex items-center justify-center text-accent shrink-0 border border-border-soft shadow-inner">
                                <BookOpen className="w-7 h-7" />

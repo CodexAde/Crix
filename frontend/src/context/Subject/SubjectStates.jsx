@@ -52,7 +52,12 @@ const SubjectStates = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            fetchUserSubjects();
+            if (Array.isArray(user.subjects)) {
+                setUserSubjects(user.subjects);
+                setLoadingSubjects(false);
+            } else {
+                fetchUserSubjects();
+            }
         } else {
              setUserSubjects([]);
              setLoadingSubjects(false);

@@ -121,6 +121,8 @@ function ScrollToTop() {
 }
 
 import SubjectStates from './context/Subject/SubjectStates';
+import UserStates from './context/User/UserStates';
+import SyllabusStates from './context/Syllabus/SyllabusStates';
 
 export default function App() {
   return (
@@ -128,35 +130,38 @@ export default function App() {
       <ScrollToTop />
       <ThemeProvider>
         <AuthProvider>
-          <SubjectStates>
-            <Toaster 
-              position="top-center"
-              toastOptions={{
-                duration: 3000,
-                style: {
-                  background: '#1e1e2e',
-                  color: '#fff',
-                  borderRadius: '1rem',
-                  padding: '12px 20px',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '14px',
-                },
-                success: {
-                  iconTheme: {
-                    primary: '#10B981',
-                    secondary: '#fff',
-                  },
-                },
-                error: {
-                  iconTheme: {
-                    primary: '#EF4444',
-                    secondary: '#fff',
-                  },
-                },
-              }}
-            />
-            <AppRoutes />
-          </SubjectStates>
+          <UserStates>
+            <SubjectStates>
+              <SyllabusStates>
+                <Toaster 
+                  position="top-center"
+                  toastOptions={{
+                    duration: 3000,
+                    style: {
+                      background: '#1e1e2e',
+                      color: '#fff',
+                      borderRadius: '1rem',
+                      padding: '12px 20px',
+                      fontFamily: 'Inter, sans-serif',
+                    },
+                    success: {
+                      iconTheme: {
+                        primary: '#10B981',
+                        secondary: '#fff',
+                      },
+                    },
+                    error: {
+                      iconTheme: {
+                        primary: '#EF4444',
+                        secondary: '#fff',
+                      },
+                    },
+                  }}
+                />
+                <AppRoutes />
+              </SyllabusStates>
+            </SubjectStates>
+          </UserStates>
         </AuthProvider>
       </ThemeProvider>
     </Router>

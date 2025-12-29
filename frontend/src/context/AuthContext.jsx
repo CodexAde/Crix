@@ -17,8 +17,9 @@ export const AuthProvider = ({ children }) => {
 
   const checkUser = async () => {
     try {
-      const { data } = await axios.get('/users/me');
-      setUser(data.user);
+      const { data } = await axios.get('/users/profile');
+      // Backend returns { data: userProfile, message: ... } via ApiResponse
+      setUser(data.data);
     } catch (error) {
       setUser(null);
     } finally {
