@@ -53,20 +53,6 @@ export default function Dashboard() {
 
   const loading = loadingSubjects || loadingStats;
 
-  const AddSubjectCard = () => (
-    <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => navigate('/syllabus')}
-        className="w-full md:min-w-[280px] md:w-[280px] h-32 md:h-40 flex flex-col items-center justify-center bg-card rounded-[2rem] border-2 border-dashed border-border-soft hover:border-accent hover:bg-accent/5 cursor-pointer transition-all group shrink-0"
-    >
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-surface border border-border-soft group-hover:border-accent group-hover:bg-accent group-hover:text-white flex items-center justify-center text-secondary transition-all mb-2 md:mb-3 shadow-sm">
-            <Plus className="w-5 h-5 md:w-6 md:h-6" />
-        </div>
-        <span className="text-xs md:text-sm font-bold text-secondary group-hover:text-primary transition-colors">Add New Subject</span>
-    </motion.div>
-  );
-
   return (
     <motion.div 
       className="p-4 md:p-10 max-w-7xl mx-auto space-y-8 pb-28 md:pb-10"
@@ -166,13 +152,26 @@ export default function Dashboard() {
 
       {/* Subjects Section */}
       <motion.section variants={itemVariants} className="overflow-hidden">
-        <div className="flex items-center justify-between mb-4 px-1">
-          <h2 className="text-lg font-bold text-primary">Your Subjects</h2>
-          {userSubjects.length > 0 && (
-            <Link to="/my-subjects" className="text-xs font-semibold text-accent hover:underline">
-                View All
-            </Link>
-          )}
+        <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
+          <div className="flex flex-col">
+            <h2 className="text-xl font-bold text-primary tracking-tight">Your Subjects</h2>
+            <p className="text-[10px] text-secondary font-medium uppercase tracking-widest opacity-60">Neural Library</p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {userSubjects.length > 0 && (
+              <Link to="/my-subjects" className="text-xs font-bold text-secondary hover:text-primary transition-colors">
+                  View All
+              </Link>
+            )}
+            <button 
+                onClick={() => navigate('/syllabus')}
+                className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-primary shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all"
+                title="Add New Subject"
+            >
+                <Plus className="w-5 h-5" />
+            </button>
+          </div>
         </div>
         
         {loading ? (
@@ -181,11 +180,24 @@ export default function Dashboard() {
               <div key={i} className="w-full md:min-w-[280px] h-32 md:h-40 bg-surface rounded-[2rem] animate-pulse border border-border-soft" />
             ))}
           </div>
+        ) : userSubjects.length === 0 ? (
+            <div 
+                onClick={() => navigate('/syllabus')}
+                className="bg-card rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center border border-border-soft hover:border-accent/30 transition-all cursor-pointer group"
+            >
+                <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <BookOpen className="w-10 h-10 text-secondary/30" />
+                </div>
+                <h3 className="text-xl font-bold text-primary mb-2">No Subjects Added</h3>
+                <p className="text-sm text-secondary/60 max-w-xs mx-auto mb-8 leading-relaxed">Your library is empty. Start your journey by adding subjects from the global database.</p>
+                <div className="px-8 py-3 bg-accent text-white rounded-full font-bold text-sm shadow-lg shadow-accent/20 group-hover:shadow-accent/30 transition-all">
+                    Browse Library
+                </div>
+            </div>
         ) : (
           <div className="relative">
               {/* Desktop: Horizontal Scroll + Reorder */}
               <div className="hidden md:flex items-start gap-4 overflow-x-auto pb-4 hide-scrollbar md:mx-0 md:px-0">
-                  <AddSubjectCard />
                    {userSubjects.length > 0 && (
                        <Reorder.Group 
                             axis="x" 
@@ -197,7 +209,7 @@ export default function Dashboard() {
                                 <Reorder.Item key={subject._id} value={subject} className="shrink-0">
                                     <div 
                                         onClick={() => navigate(`/syllabus/${subject._id}`)}
-                                        className="min-w-[280px] w-[280px] h-40 bg-card rounded-[2rem] p-6 border border-border-soft hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5 transition-all relative group cursor-pointer"
+                                        className="min-w-[280px] w-[280px] h-40 bg-card rounded-[2.5rem] p-6 border border-border-soft hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5 transition-all relative group cursor-pointer"
                                     >
                                         <div className="flex items-start justify-between mb-4">
                                             <span className="text-[10px] font-bold text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
@@ -226,32 +238,31 @@ export default function Dashboard() {
 
               {/* Mobile: Vertical List (Simple) */}
               <div className="flex md:hidden flex-col gap-4 px-1">
-                  <AddSubjectCard />
                   {userSubjects.map((subject) => (
                       <div 
                         key={subject._id}
                         onClick={() => navigate(`/syllabus/${subject._id}`)}
-                        className="w-full bg-card rounded-[1.5rem] p-4 border border-border-soft active:scale-[0.98] transition-all shadow-sm flex items-center gap-4"
+                        className="w-full bg-card rounded-[2rem] p-5 border border-border-soft active:scale-[0.98] transition-all shadow-sm flex items-center gap-5"
                       >
-                          <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center text-accent shrink-0 border border-border-soft">
-                               <BookOpen className="w-6 h-6" />
+                          <div className="w-14 h-14 rounded-2xl bg-surface flex items-center justify-center text-accent shrink-0 border border-border-soft shadow-inner">
+                               <BookOpen className="w-7 h-7" />
                           </div>
                           <div className="flex-1 min-w-0">
                                <div className="flex items-center justify-between mb-0.5">
-                                   <h3 className="text-sm font-bold text-primary truncate">{subject.name}</h3>
-                                   <span className="text-[8px] font-bold text-accent px-1.5 py-0.5 bg-accent/10 rounded-full uppercase">{subject.code}</span>
+                                   <h3 className="text-base font-bold text-primary truncate tracking-tight">{subject.name}</h3>
+                                   <span className="text-[9px] font-black text-accent px-2 py-0.5 bg-accent/10 rounded-lg uppercase tracking-wider">{subject.code}</span>
                                </div>
-                               <div className="flex items-center gap-2 mb-2">
-                                    <p className="text-[10px] text-secondary truncate">{subject.branch} • Year {subject.year}</p>
+                               <div className="flex items-center gap-2 mb-3">
+                                    <p className="text-[11px] text-secondary font-medium tracking-tight truncate">{subject.branch} • Year {subject.year}</p>
                                </div>
-                               <div className="w-full bg-surface h-1 rounded-full overflow-hidden border border-border-soft/30">
+                               <div className="w-full bg-surface h-1.5 rounded-full overflow-hidden border border-border-soft/20">
                                     <div 
                                         className="bg-primary h-full rounded-full transition-all duration-300" 
                                         style={{ width: `${subject.progress || 0}%` }}
                                     />
                                 </div>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-secondary/40" />
+                          <ChevronRight className="w-5 h-5 text-secondary/30" />
                       </div>
                   ))}
               </div>

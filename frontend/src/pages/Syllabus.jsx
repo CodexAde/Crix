@@ -65,17 +65,17 @@ export default function Syllabus() {
 
   return (
     <div className="min-h-screen bg-main relative pb-20">
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-main/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 md:px-10 h-20 flex items-center justify-between">
-           <div className="flex items-center gap-4">
+       {/* Header */}
+      <div className="sticky top-0 z-40 bg-main">
+        <div className="max-w-7xl mx-auto px-4 md:px-10 h-16 md:h-20 flex items-center justify-between">
+           <div className="flex items-center gap-3">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2.5 hover:bg-surface rounded-full transition-all text-secondary hover:text-primary active:scale-90"
+                    className="p-2 hover:bg-surface rounded-full transition-all text-secondary hover:text-primary active:scale-90"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <h1 className="text-xl font-bold tracking-tight text-primary">Library</h1>
+                <h1 className="text-lg md:text-xl font-bold tracking-tight text-primary">Library</h1>
            </div>
            
            <div className="hidden md:flex relative w-80 group">
@@ -135,12 +135,12 @@ export default function Syllabus() {
                 <motion.div key={subject._id} variants={itemVariants} className="group">
                   <div 
                     onClick={() => navigate(`/syllabus/${subject._id}`)}
-                    className="block bg-card rounded-[2.5rem] p-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] md:hover:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group/card cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                    className="block bg-card rounded-[2rem] p-6 md:p-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] md:hover:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group/card cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
                   >
-                     <div className="flex items-start justify-between mb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-surface flex items-center justify-center text-primary group-hover/card:scale-105 transition-all duration-500 shadow-sm">
-                                <BookOpen className="w-7 h-7" />
+                     <div className="flex items-start justify-between mb-6 md:mb-8">
+                        <div className="flex items-center gap-3 md:gap-4">
+                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-surface flex items-center justify-center text-primary group-hover/card:scale-105 transition-all duration-500 shadow-sm">
+                                <BookOpen className="w-6 h-6 md:w-7 md:h-7" />
                             </div>
                             <div>
                                 <span className="text-[11px] font-bold text-accent uppercase tracking-widest bg-accent/5 px-2.5 py-1 rounded-lg">{subject.code}</span>
@@ -148,14 +148,14 @@ export default function Syllabus() {
                         </div>
                         
                         {/* Apple-style Add Button */}
-                        <div className="relative z-10">
+                         <div className="relative z-10">
                             <button
                                 onClick={(e) => handleAddSubject(e, subject._id)}
                                 disabled={added || isAdding}
-                                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm active:scale-90 ${
+                                className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 ${
                                     added 
-                                    ? 'bg-green-500 text-white shadow-green-500/20' 
-                                    : 'bg-surface text-secondary hover:bg-primary hover:text-white hover:shadow-primary/20'
+                                    ? 'bg-green-500 text-white shadow-[0_4px_12px_rgba(34,197,94,0.3)]' 
+                                    : 'bg-card text-secondary hover:bg-primary hover:text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] hover:shadow-primary/20'
                                 }`}
                                 title={added ? "Already in your library" : "Add to library"}
                             >
@@ -170,8 +170,8 @@ export default function Syllabus() {
                         </div>
                      </div>
 
-                     <h3 className="text-2xl font-bold text-primary mb-3 tracking-tight group-hover/card:text-accent transition-colors duration-300">{subject.name}</h3>
-                     <p className="text-sm text-secondary/60 leading-relaxed mb-8 line-clamp-2">{subject.description || `Comprehensive guide to ${subject.name}, covering fundamental concepts and advanced applications.`}</p>
+                      <h3 className="text-xl md:text-2xl font-bold text-primary mb-2 md:mb-3 tracking-tight group-hover/card:text-accent transition-colors duration-300 line-clamp-1">{subject.name}</h3>
+                     <p className="text-xs md:text-sm text-secondary/60 leading-relaxed mb-6 md:mb-8 line-clamp-2">{subject.description || `Comprehensive guide to ${subject.name}, covering fundamental concepts and advanced applications.`}</p>
 
                      <div className="flex items-center justify-between pt-6">
                         <div className="flex items-center gap-2.5 text-xs font-bold text-secondary uppercase tracking-wider">

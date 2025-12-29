@@ -146,7 +146,7 @@ export default function Layout() {
       </main>
 
       {/* Mobile Bottom Taskbar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-lg border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out">
         {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.path);
