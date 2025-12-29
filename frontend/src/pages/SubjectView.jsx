@@ -29,7 +29,9 @@ export default function SubjectView() {
 
     // Handle Unit Switch
     const handleUnitChange = (index) => {
+        if (activeUnitIndex === index) return;
         setActiveUnitIndex(index);
+        clearActiveUnit(); // Clear immediately to show loading state/skeletons
         if (subject?.units?.[index]) {
             fetchUnitContent(id, subject.units[index]._id);
         }
@@ -76,13 +78,13 @@ export default function SubjectView() {
             <main className="max-w-3xl mx-auto px-6 py-8">
                 {/* Unit Selector */}
                 <div className="my-10">
-                    <div className="flex gap-4 mb-2 overflow-x-auto pb-4 no-scrollbar snap-x justify-center">
+                    <div className="flex gap-2.5 mb-2 overflow-x-auto pb-4 no-scrollbar snap-x justify-center">
                         {subject.units.map((unit, index) => (
                             <button
                                 key={unit._id}
                                 onClick={() => handleUnitChange(index)}
-                                className={`px-6 py-3.5 rounded-2xl font-bold transition-all whitespace-nowrap flex-shrink-0 snap-center text-sm ${activeUnitIndex === index
-                                    ? 'bg-accent text-white shadow-xl shadow-accent/30 scale-105'
+                                className={`px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap flex-shrink-0 snap-center text-xs ${activeUnitIndex === index
+                                    ? 'bg-accent text-white shadow-lg shadow-accent/30 scale-105'
                                     : 'bg-card border border-border-soft text-secondary hover:border-accent/40 hover:text-primary'
                                     }`}
                             >
@@ -100,7 +102,7 @@ export default function SubjectView() {
                     <div className="flex items-center justify-center gap-2 text-secondary/60">
                         <span className="w-8 h-[1px] bg-border-soft" />
                         <p className="text-xs font-bold uppercase tracking-widest">
-                            {activeUnitData ? `${activeUnitData.chapters?.length || 0} chapters` : 'Loading...'}
+                            {activeUnitData ? `${activeUnitData.chapters?.length || 0} chapter${activeUnitData.chapters?.length === 1 ? '' : 's'}` : 'Loading...'}
                         </p>
                         <span className="w-8 h-[1px] bg-border-soft" />
                     </div>

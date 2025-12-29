@@ -276,25 +276,19 @@ const ChapterSidebar = memo(({
                         return (
                             <div 
                                 key={ch._id}
-                                className={clsx(
-                                    "flex flex-col rounded-[1.8rem] transition-all duration-500 relative border overflow-hidden",
-                                    isChapterActive
-                                      ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
-                                      : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
-                                )}
+                                className="flex flex-col relative"
                             >
                                 <button
                                     onClick={() => handleRoadmapClick(ch._id)}
-                                    className="w-full text-left p-5 group relative"
+                                    className={clsx(
+                                        "w-full text-left p-7 group relative rounded-[1.8rem] transition-all duration-500 border",
+                                        isChapterActive
+                                          ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
+                                          : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
+                                    )}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col gap-1.5">
-                                            <span className={clsx(
-                                                "text-[9px] uppercase tracking-[0.2em] font-black transition-colors line-clamp-1",
-                                                isChapterActive ? "text-accent" : "text-secondary/50 group-hover:text-secondary"
-                                            )}>
-                                                {ch.unitTitle || 'Chapter'}
-                                            </span>
                                             <span className={clsx(
                                                 "text-sm font-bold line-clamp-1 leading-tight transition-colors",
                                                 isChapterActive ? "text-white" : "text-secondary group-hover:text-primary"
@@ -354,25 +348,19 @@ const ChapterSidebar = memo(({
                         return (
                             <div 
                                 key={unit._id}
-                                className={clsx(
-                                    "flex flex-col rounded-[1.8rem] transition-all duration-500 relative border overflow-hidden",
-                                    isExpanded
-                                      ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
-                                      : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
-                                )}
+                                className="flex flex-col relative"
                             >
                                 <button
                                     onClick={() => handleUnitClick(unit._id)}
-                                    className="w-full text-left p-5 group relative"
+                                    className={clsx(
+                                        "w-full text-left p-7 group relative rounded-[1.8rem] transition-all duration-500 border",
+                                        isExpanded
+                                          ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
+                                          : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
+                                    )}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col gap-1.5">
-                                            <span className={clsx(
-                                                "text-[9px] uppercase tracking-[0.2em] font-black transition-colors line-clamp-1",
-                                                isExpanded ? "text-accent" : "text-secondary/50 group-hover:text-secondary"
-                                            )}>
-                                                Unit {unit.unitNumber}
-                                            </span>
                                             <span className={clsx(
                                                 "text-sm font-bold line-clamp-1 leading-tight transition-colors",
                                                 isExpanded ? "text-white" : "text-secondary group-hover:text-primary"
@@ -405,9 +393,6 @@ const ChapterSidebar = memo(({
                                                         const isChapterActive = ch._id === activeChapterId;
                                                         return (
                                                             <div key={ch._id} className="space-y-2">
-                                                                <div className="px-4 py-1 text-[10px] font-black text-accent uppercase tracking-widest line-clamp-1">
-                                                                    {ch.title}
-                                                                </div>
                                                                 <div className="space-y-1 ml-2 border-l border-white/5 pl-4">
                                                                     {ch.topics.map(topic => {
                                                                         const isTopicActive = topic._id === activeTopicId;
@@ -559,8 +544,18 @@ export default function ChatInterface({ isRoadmap = false }) {
     window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareModal.content.slice(0, 200))}`, '_blank');
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  const scrollToBottom = (behavior = "smooth") => {
+    // If behavior is an event object (from onClick), default to "smooth"
+    const scrollBehavior = typeof behavior === 'string' ? behavior : "smooth";
+    
+    if (chatAreaRef.current) {
+        chatAreaRef.current.scrollTo({
+            top: chatAreaRef.current.scrollHeight,
+            behavior: scrollBehavior
+        });
+    } else {
+        messagesEndRef.current?.scrollIntoView({ behavior: scrollBehavior, block: "end" });
+    }
   };
 
   useEffect(() => {
@@ -580,12 +575,9 @@ export default function ChatInterface({ isRoadmap = false }) {
 
   useEffect(() => {
     if (!isTyping && messages.length > 0) {
-      const timer = setTimeout(() => {
-        scrollToBottom();
-      }, 1000);
-      return () => clearTimeout(timer);
+      scrollToBottom();
     }
-  }, [isTyping]);
+  }, [isTyping, messages.length]);
 
   useEffect(() => {
     const chatArea = chatAreaRef.current;
@@ -624,7 +616,7 @@ export default function ChatInterface({ isRoadmap = false }) {
     };
 
     const handleInputFocus = () => {
-      scrollTimeoutId = setTimeout(scrollToInput, 300);
+      setTimeout(scrollToInput, 100);
     };
 
     if (window.visualViewport) {
@@ -840,7 +832,7 @@ export default function ChatInterface({ isRoadmap = false }) {
       setSidebarOpen(false);
 
       setTimeout(() => {
-          scrollToBottom();
+          scrollToBottom("smooth");
       }, 100);
   }, [subjectId, roadmapId, navigate, isRoadmap]);
 
@@ -871,16 +863,18 @@ export default function ChatInterface({ isRoadmap = false }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
                         onClick={() => setSidebarOpen(false)}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+                        className="fixed inset-0 bg-black/40 z-40 md:hidden pointer-events-auto"
                     />
                     {/* Drawer */}
                     <motion.div
                         initial={{ x: '-100%' }}
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
-                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed inset-y-0 left-0 w-[85%] max-w-xs z-50 md:hidden bg-main shadow-2xl"
+                        transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
+                        className="fixed inset-y-0 left-0 w-[85%] max-w-xs z-50 md:hidden bg-main shadow-2xl overflow-hidden"
+                        style={{ willChange: 'transform' }}
                     >
                         <ChapterSidebar
                             units={isRoadmap ? [] : units}
