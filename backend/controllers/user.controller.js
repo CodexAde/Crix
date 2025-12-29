@@ -267,5 +267,63 @@ export {
     getCurrentUser, 
     updateOnboardingDetails,
     updateUserProfile,
-    generateAccessAndRefresTokens
+    generateAccessAndRefresTokens,
+    addUserSubject,
+    getUserSubjects,
+    reorderSubjects
+};
+
+const addUserSubject = async (req, res) => {
+    try {
+        const { subjectId } = req.body;
+        
+        if (!subjectId) {
+            return res.status(400).json({ message: "Subject ID is required" });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { $addToSet: { subjects: subjectId } },
+            { new: true }
+        ).select("-password -refreshToken").populate("subjects", "name code image");
+
+        return res.status(200).json({ 
+            message: "Subject added successfully", 
+            subjects: user.subjects 
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const getUserSubjects = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate("subjects", "name code image year branch units");
+        return res.status(200).json({ subjects: user.subjects || [] });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+const reorderSubjects = async (req, res) => {
+    try {
+        const { newOrder } = req.body;
+        
+        if (!newOrder || !Array.isArray(newOrder)) {
+            return res.status(400).json({ message: "Invalid order data" });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { subjects: newOrder },
+            { new: true }
+        ).select("-password -refreshToken").populate("subjects", "name code image");
+
+        return res.status(200).json({ 
+            message: "Subjects reordered successfully", 
+            subjects: user.subjects 
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
 };

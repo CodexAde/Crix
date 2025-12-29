@@ -1,27 +1,26 @@
-import { useEffect, useState } from 'react';
-import { BookOpen, Search, ArrowRight, Book, Layers, ArrowLeft, ClipboardCheck } from 'lucide-react';
+import { useEffect, useState, useContext } from 'react';
+import { BookOpen, Search, ArrowRight, Book, Layers, ArrowLeft, MoreHorizontal, Plus, Check, Loader2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import SubjectContext from '../context/Subject/SubjectContext';
 
 export default function Syllabus() {
   const navigate = useNavigate();
+  const { userSubjects, addUserSubject } = useContext(SubjectContext);
   const [subjects, setSubjects] = useState([]);
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [addingId, setAddingId] = useState(null);
 
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         const response = await axios.get('/syllabus');
         const subjectsData = response.data.subjects || [];
-        const subjectsWithProgress = subjectsData.map(sub => ({
-          ...sub,
-          progress: sub.progress || Math.floor(Math.random() * (100 - 70 + 1)) + 70
-        }));
-        setSubjects(subjectsWithProgress);
-        setFilteredSubjects(subjectsWithProgress);
+        setSubjects(subjectsData);
+        setFilteredSubjects(subjectsData);
       } catch (error) {
         console.error('Failed to fetch subjects:', error);
       } finally {
@@ -42,201 +41,153 @@ export default function Syllabus() {
     setFilteredSubjects(filtered);
   }, [searchQuery, subjects]);
 
+  const handleAddSubject = async (e, subjectId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isAdded(subjectId)) return;
+    
+    setAddingId(subjectId);
+    await addUserSubject(subjectId);
+    setAddingId(null);
+  };
+
+  const isAdded = (id) => userSubjects.some(s => s._id === id);
+
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    hidden: { opacity: 0, scale: 0.98, y: 10 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }
   };
 
   return (
-    <div className="min-h-screen bg-main overflow-x-hidden relative">
-      {/* Background Neural Grid (The 'Mast' Grid) for Main Content */}
-      <div className="absolute inset-0 opacity-[0.05] pointer-events-none -z-10">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                  <pattern id="mast-grid-syllabus-main" width="40" height="40" patternUnits="userSpaceOnUse">
-                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
-                      <circle cx="0" cy="0" r="1.5" fill="currentColor" />
-                  </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#mast-grid-syllabus-main)" />
-          </svg>
-      </div>
-      {/* Hero Section */}
-      <div className="relative min-h-[400px] md:h-[450px] flex items-center justify-center overflow-hidden bg-[#050505] border-b border-white/5 py-20 md:py-0">
-        {/* Floating Top Navigation */}
-        <div className="absolute top-0 left-0 right-0 z-30 px-6 py-8 flex items-center justify-between">
-            <button
-                onClick={() => navigate(-1)}
-                className="p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group"
-            >
-                <ArrowLeft className="w-5 h-5 text-white group-hover:-translate-x-1 transition-transform" />
-            </button>
-            <button
-                onClick={() => navigate('/tests')}
-                className="flex items-center gap-2.5 px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/20 transition-all active:scale-95 group text-white"
-                title="Your Tests"
-            >
-                <span className="text-sm font-bold uppercase tracking-widest hidden sm:inline">Tests</span>
-                <ClipboardCheck className="w-5 h-5 transition-colors group-hover:text-accent" />
-            </button>
-        </div>
-
-        {/* Neural Network Background Effect (The 'Mast' Grid) */}
-        <div className="absolute inset-0 opacity-[0.15] pointer-events-none">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="mast-grid-syllabus-hero" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="red" strokeWidth="1" />
-                <circle cx="0" cy="0" r="1.5" fill="red" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#mast-grid-syllabus-hero)" />
-          </svg>
-        </div>
-
-        {/* Premium Red Gradient & Ambient Glows */}
-        <div className="absolute inset-0 bg-gradient-to-b from-red-600/10 via-[#050505]/80 to-[#050505]" />
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-red-600/20 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-red-900/10 blur-[120px] rounded-full pointer-events-none" />
-
-        {/* Hero Content */}
-        <div className="relative z-10 text-center px-6 max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-bold mb-6 tracking-wide uppercase">
-              Academic Library
-            </span>
-            <h1 className="text-4xl md:text-7xl font-black text-white mb-6 tracking-tight">
-              Master Your Curriculum
-            </h1>
-            <p className="text-lg md:text-xl text-secondary max-w-2xl mx-auto leading-relaxed">
-              Access verified resources, structured notes, and priority-focused roadmaps for every subject in your engineering journey.
-            </p>
-          </motion.div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-10 pb-24 -mt-10 md:-mt-20 relative z-20">
-        <div className="flex flex-col gap-10">
-          
-          {/* Search & Tool Bar Area */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card/50 backdrop-blur-xl p-6 rounded-[2.5rem] border border-border-soft shadow-2xl">
-            <div className="flex items-center gap-4">
-               <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-white shadow-lg shadow-accent/20">
-                  <Book className="w-6 h-6" />
-               </div>
-               <div>
-                  <h2 className="text-xl font-bold text-primary tracking-tight">Browse Subjects</h2>
-                  <p className="text-xs text-secondary font-medium">Find your course materials</p>
-               </div>
-            </div>
-
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary" />
+    <div className="min-h-screen bg-main relative pb-20">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-main/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 md:px-10 h-20 flex items-center justify-between">
+           <div className="flex items-center gap-4">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-2.5 hover:bg-surface rounded-full transition-all text-secondary hover:text-primary active:scale-90"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
+                <h1 className="text-xl font-bold tracking-tight text-primary">Library</h1>
+           </div>
+           
+           <div className="hidden md:flex relative w-80 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary/60 group-focus-within:text-accent transition-colors" />
               <input 
                 type="text" 
-                placeholder="Search by name or code..." 
+                placeholder="Find a subject..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surface border border-border-soft rounded-2xl pl-12 pr-4 py-4 text-primary focus:outline-none focus:border-accent transition-all shadow-inner"
+                className="w-full bg-surface border border-transparent rounded-[1.25rem] pl-11 pr-4 py-2.5 text-sm text-primary placeholder:text-secondary/40 focus:outline-none focus:ring-4 focus:ring-accent/5 transition-all shadow-inner"
               />
-            </div>
-          </div>
-
-          {/* Subjects Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-[320px] bg-card/50 rounded-[2.5rem] animate-pulse border border-border-soft" />
-              ))}
-            </div>
-          ) : filteredSubjects.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center bg-card/30 rounded-[3rem] border border-dashed border-border-soft">
-               <div className="w-24 h-24 bg-surface rounded-full flex items-center justify-center mb-6 border border-border-soft shadow-xl">
-                  <Search className="w-10 h-10 text-secondary/30" />
-               </div>
-               <h3 className="text-2xl font-bold text-primary">No subjects found</h3>
-               <p className="text-secondary mt-2 max-w-xs mx-auto">We couldn't find any subjects matching your search. Try different keywords.</p>
-            </div>
-          ) : (
-            <motion.div 
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {filteredSubjects.map((subject) => (
-                <motion.div key={subject._id} variants={itemVariants} className="group h-full">
-                  <Link 
-                    to={`/syllabus/${subject._id}`}
-                    className="flex flex-col h-full bg-card rounded-[2.5rem] p-8 border border-border-soft transition-all duration-500 hover:border-accent/50 hover:shadow-[0_20px_50px_rgba(0,122,255,0.15)] hover:-translate-y-2 relative overflow-hidden active:scale-[0.98]"
-                  >
-                    {/* Glossy Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    {/* Card Header */}
-                    <div className="relative z-10 flex items-start justify-between mb-8">
-                       <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-[1.5rem] bg-surface border border-border-soft flex items-center justify-center text-primary group-hover:bg-accent group-hover:text-white transition-all duration-500 shadow-xl group-hover:shadow-accent/40">
-                             <BookOpen className="w-8 h-8" />
-                          </div>
-                          <div>
-                             <span className="block text-xs font-black text-accent uppercase tracking-widest mb-1">{subject.code}</span>
-                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20 uppercase">Year {subject.year}</span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/5 text-secondary border border-white/5 uppercase">Eng.</span>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="relative z-10 flex-1 mb-10">
-                      <h3 className="text-2xl font-bold text-white leading-tight mb-4 group-hover:text-accent transition-colors line-clamp-1">
-                        {subject.name}
-                      </h3>
-                      <div className="flex items-center gap-3 text-secondary group-hover:text-primary transition-colors">
-                        <div className="p-1.5 rounded-lg bg-surface border border-border-soft">
-                          <Layers className="w-4 h-4" />
-                        </div>
-                        <span className="text-sm font-semibold">{subject.units ? subject.units.length : 0} Comprehensive Units</span>
-                      </div>
-                    </div>
-
-                    {/* Footer / Progress */}
-                    <div className="relative z-10 mt-auto pt-6 border-t border-white/5">
-                      <div className="flex items-center justify-between text-xs font-bold mb-3 uppercase tracking-wider">
-                         <span className="text-secondary">Course Progress</span>
-                         <span className="text-accent">{subject.progress || 0}%</span>
-                      </div>
-                      <div className="w-full h-2.5 bg-surface rounded-full overflow-hidden border border-white/5 shadow-inner p-0.5">
-                         <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${subject.progress || 0}%` }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className="h-full bg-gradient-to-r from-accent to-accent/60 rounded-full shadow-[0_0_10px_rgba(0,122,255,0.5)]"
-                         />
-                      </div>
-                      
-                      <div className="mt-6 flex items-center justify-center gap-2 text-xs font-bold text-accent opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                        <span>START LEARNING</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
+           </div>
         </div>
+        
+        {/* Mobile Search - Visible only on small screens */}
+        <div className="md:hidden px-4 pb-4">
+            <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary/60 group-focus-within:text-accent transition-colors" />
+                <input 
+                    type="text" 
+                    placeholder="Search subjects..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-surface border border-transparent rounded-[1.25rem] pl-11 pr-4 py-3 text-sm text-primary placeholder:text-secondary/40 focus:outline-none focus:ring-4 focus:ring-accent/5 transition-all"
+                />
+            </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-10">
+        {loading ? (
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+             {[1, 2, 3, 4, 5, 6].map(i => (
+               <div key={i} className="h-64 bg-surface rounded-[2.5rem] animate-pulse" />
+             ))}
+           </div>
+        ) : filteredSubjects.length === 0 ? (
+           <div className="flex flex-col items-center justify-center py-32 text-center">
+               <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mb-6 shadow-inner">
+                  <BookOpen className="w-8 h-8 text-secondary/20" />
+               </div>
+               <h3 className="text-xl font-bold text-primary mb-2 tracking-tight">No Results Found</h3>
+               <p className="text-secondary/60 text-sm max-w-xs mx-auto leading-relaxed">Try adjusting your search query or check back later for new additions.</p>
+           </div>
+        ) : (
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10"
+          >
+            {filteredSubjects.map((subject) => {
+              const added = isAdded(subject._id);
+              const isAdding = addingId === subject._id;
+
+              return (
+                <motion.div key={subject._id} variants={itemVariants} className="group">
+                  <div 
+                    onClick={() => navigate(`/syllabus/${subject._id}`)}
+                    className="block bg-card rounded-[2.5rem] p-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] md:hover:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group/card cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                  >
+                     <div className="flex items-start justify-between mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-surface flex items-center justify-center text-primary group-hover/card:scale-105 transition-all duration-500 shadow-sm">
+                                <BookOpen className="w-7 h-7" />
+                            </div>
+                            <div>
+                                <span className="text-[11px] font-bold text-accent uppercase tracking-widest bg-accent/5 px-2.5 py-1 rounded-lg">{subject.code}</span>
+                            </div>
+                        </div>
+                        
+                        {/* Apple-style Add Button */}
+                        <div className="relative z-10">
+                            <button
+                                onClick={(e) => handleAddSubject(e, subject._id)}
+                                disabled={added || isAdding}
+                                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm active:scale-90 ${
+                                    added 
+                                    ? 'bg-green-500 text-white shadow-green-500/20' 
+                                    : 'bg-surface text-secondary hover:bg-primary hover:text-white hover:shadow-primary/20'
+                                }`}
+                                title={added ? "Already in your library" : "Add to library"}
+                            >
+                                {isAdding ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : added ? (
+                                    <Check className="w-5 h-5" />
+                                ) : (
+                                    <Plus className="w-5 h-5" />
+                                )}
+                            </button>
+                        </div>
+                     </div>
+
+                     <h3 className="text-2xl font-bold text-primary mb-3 tracking-tight group-hover/card:text-accent transition-colors duration-300">{subject.name}</h3>
+                     <p className="text-sm text-secondary/60 leading-relaxed mb-8 line-clamp-2">{subject.description || `Comprehensive guide to ${subject.name}, covering fundamental concepts and advanced applications.`}</p>
+
+                     <div className="flex items-center justify-between pt-6">
+                        <div className="flex items-center gap-2.5 text-xs font-bold text-secondary uppercase tracking-wider">
+                            <Layers className="w-4 h-4 text-accent/50" />
+                            <span>{subject.units?.length || 5} Units</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-accent font-bold text-sm opacity-0 group-hover/card:opacity-100 group-hover/card:translate-x-0 -translate-x-3 transition-all duration-500">
+                            Explore <ArrowRight className="w-4 h-4" />
+                        </div>
+                     </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
       </div>
     </div>
   );

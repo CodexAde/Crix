@@ -38,6 +38,7 @@ import AddChapters from './pages/AddChapters';
 import UserProfile from './pages/UserProfile';
 import DemoShowcase from './pages/DemoShowcase';
 import CommunityDeploy from './pages/CommunityDeploy';
+import MySubjects from './pages/MySubjects';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -69,8 +70,10 @@ function AppRoutes() {
           
            <Route path="/syllabus" element={<Syllabus />} />
            <Route path="/tests" element={<Syllabus />} />
+           <Route path="/my-subjects" element={<MySubjects />} />
 
           <Route path="/syllabus/:id" element={<SubjectView />} />
+
 
           <Route path="/chapter/:subjectId/:unitId/:chapterId" element={<ChapterView />} />
           
@@ -116,39 +119,43 @@ function ScrollToTop() {
   return null;
 }
 
+import SubjectStates from './context/Subject/SubjectStates';
+
 export default function App() {
   return (
     <Router>
       <ScrollToTop />
       <ThemeProvider>
         <AuthProvider>
-          <Toaster 
-            position="top-center"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: '#1e1e2e',
-                color: '#fff',
-                borderRadius: '1rem',
-                padding: '12px 20px',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '14px',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#10B981',
-                  secondary: '#fff',
+          <SubjectStates>
+            <Toaster 
+              position="top-center"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: '#1e1e2e',
+                  color: '#fff',
+                  borderRadius: '1rem',
+                  padding: '12px 20px',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '14px',
                 },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#EF4444',
-                  secondary: '#fff',
+                success: {
+                  iconTheme: {
+                    primary: '#10B981',
+                    secondary: '#fff',
+                  },
                 },
-              },
-            }}
-          />
-          <AppRoutes />
+                error: {
+                  iconTheme: {
+                    primary: '#EF4444',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
+            <AppRoutes />
+          </SubjectStates>
         </AuthProvider>
       </ThemeProvider>
     </Router>

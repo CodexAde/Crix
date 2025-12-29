@@ -47,7 +47,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             unique: true,
             sparse: true
-        }
+        },
+        subjects: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Subject'
+        }]
     },
     {
         timestamps: true
