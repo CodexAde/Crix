@@ -8,7 +8,7 @@ import { useAuth } from "../AuthContext";
 const SubjectStates = ({ children }) => {
     const { user } = useAuth();
     const [userSubjects, setUserSubjects] = useState([]);
-    const [loadingSubjects, setLoadingSubjects] = useState(true);
+    const [loadingSubjects, setLoadingSubjects] = useState(false);
 
     const fetchUserSubjects = useCallback(async () => {
         if (!user) return;
@@ -51,18 +51,11 @@ const SubjectStates = ({ children }) => {
     };
 
     useEffect(() => {
-        if (user) {
-            if (Array.isArray(user.subjects)) {
-                setUserSubjects(user.subjects);
-                setLoadingSubjects(false);
-            } else {
-                fetchUserSubjects();
-            }
-        } else {
+        if (!user) {
              setUserSubjects([]);
              setLoadingSubjects(false);
         }
-    }, [user, fetchUserSubjects]);
+    }, [user]);
 
     return (
         <SubjectContext.Provider value={{ userSubjects, loadingSubjects, fetchUserSubjects, addUserSubject, reorderSubjects }}>

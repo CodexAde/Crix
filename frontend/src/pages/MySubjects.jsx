@@ -5,8 +5,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export default function MySubjects() {
-  const { userSubjects, loadingSubjects } = useContext(SubjectContext);
+  const { userSubjects, loadingSubjects, fetchUserSubjects } = useContext(SubjectContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchUserSubjects();
+  }, [fetchUserSubjects]);
 
   return (
     <div className="min-h-screen bg-main p-4 md:p-10 pb-20">

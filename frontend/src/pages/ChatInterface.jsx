@@ -14,6 +14,7 @@ import 'katex/dist/katex.min.css';
 
 import UserContext from '../context/User/UserContext';
 import SyllabusContext from '../context/Syllabus/SyllabusContext';
+import SubjectContext from '../context/Subject/SubjectContext';
 
 // Syntax highlighting for code blocks
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -212,215 +213,111 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
 });
 
 // Sidebar Component with Accordion
-const ChapterSidebar = memo(({ 
-    units = [], 
-    roadmapChapters = [],
-    isRoadmap = false,
-    activeChapterId, 
-    activeTopicId, 
-    isLoading, 
-    onTopicSelect,
-    onUnitClick,
-    activeUnitContent,
-    loadingUnit
-}) => {
-    const [expandedUnitId, setExpandedUnitId] = useState(null);
-    const [expandedRoadmapId, setExpandedRoadmapId] = useState(activeChapterId);
+const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoading, onTopicSelect }) => {
+    const [expandedChId, setExpandedChId] = useState(activeChapterId);
 
-    // Auto-expand active chapter's unit
+    // Keep expansion in sync with active chapter on load/change
     useEffect(() => {
-        if (!isRoadmap && activeUnitContent?._id) {
-            setExpandedUnitId(activeUnitContent._id);
+        if (activeChapterId) {
+            setExpandedChId(activeChapterId);
         }
-    }, [activeUnitContent, isRoadmap]);
+    }, [activeChapterId]);
 
-    useEffect(() => {
-        if (isRoadmap && activeChapterId) {
-            setExpandedRoadmapId(activeChapterId);
-        }
-    }, [activeChapterId, isRoadmap]);
-
-    const handleUnitClick = (unitId) => {
-        setExpandedUnitId(prev => prev === unitId ? null : unitId);
-        onUnitClick(unitId);
-    };
-
-    const handleRoadmapClick = (chId) => {
-        setExpandedRoadmapId(prev => prev === chId ? null : chId);
+    const handleChapterClick = (chId) => {
+        setExpandedChId(prev => prev === chId ? null : chId);
     };
 
     return (
-        <div className="flex flex-col h-full bg-card border-r border-border-soft relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1/2 bg-red-500/5 blur-[100px] pointer-events-none" />
-            
-            <Link className="flex items-center gap-3 p-6 border-b border-border-soft/50 hover:bg-white/5 transition-all duration-300 relative z-10">
-                <div className="w-9 h-9 rounded-xl bg-red-500 flex items-center justify-center shadow-lg shadow-red-500/20 border border-white/10">
-                    <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                    <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
-                    <p className="text-[8px] text-red-500 font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
-                </div>
+        <div className="flex flex-col h-full bg-card/50 backdrop-blur-3xl bg-card border-r border-border-soft">
+            {/* Branding */}
+            <Link to="/dashboard" className="flex items-center gap-3 p-6 border-border-soft/50 hover:bg-white/5 transition-colors cursor-pointer block">
+                <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+                <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
+                <p className="text-[8px] text-accent font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
+            </div>
             </Link>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar relative z-10">
+            {/* Chapters List */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
                 {isLoading ? (
                     [1,2,3,4].map(i => (
-                        <div key={i} className="h-16 bg-white/5 rounded-2xl animate-pulse border border-white/5" />
+                        <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />
                     ))
-                ) : isRoadmap ? (
-                    roadmapChapters.map((ch) => {
-                        const isExpanded = expandedRoadmapId === ch._id;
-                        const isChapterActive = activeChapterId === ch._id;
+                ) : (
+                    chapters.map((ch) => {
+                        const isExpanded = expandedChId === ch._id;
+                        const isActiveChapter = activeChapterId === ch._id;
 
                         return (
-                            <div 
-                                key={ch._id}
-                                className="flex flex-col relative"
-                            >
+                            <div key={ch._id} className="flex flex-col space-y-1">
                                 <button
-                                    onClick={() => handleRoadmapClick(ch._id)}
+                                    onClick={() => handleChapterClick(ch._id)}
                                     className={clsx(
-                                        "w-full text-left p-7 group relative rounded-[1.8rem] transition-all duration-500 border",
-                                        isChapterActive
-                                          ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
-                                          : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
+                                        "w-full text-left p-3.5 rounded-xl transition-all duration-300 group relative border",
+                                        isActiveChapter
+                                          ? "bg-accent/5 border-accent/10 mx-2 my-5 rounded-[2.5rem] hover:bg-accent/10"
+                                          : "bg-transparent border border-border-soft mx-2 my-1 rounded-2xl hover:bg-white/5 hover:border-white/10"
                                     )}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <div className="flex flex-col gap-1.5">
+                                        <div className="flex flex-col gap-1">
                                             <span className={clsx(
-                                                "text-sm font-bold line-clamp-1 leading-tight transition-colors",
-                                                isChapterActive ? "text-white" : "text-secondary group-hover:text-primary"
+                                                "text-[10px] uppercase tracking-wider font-semibold transition-colors",
+                                                isActiveChapter ? "text-accent" : "text-secondary/70 group-hover:text-secondary"
+                                            )}>
+                                                {ch.unitTitle || 'Chapter'}
+                                            </span>
+                                            <span className={clsx(
+                                                "text-sm font-semibold truncate leading-tight transition-colors",
+                                                isActiveChapter ? "text-primary" : "text-secondary group-hover:text-primary"
                                             )}>
                                                 {ch.title}
                                             </span>
                                         </div>
                                     </div>
-                                    {isChapterActive && (
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-accent rounded-r-full shadow-[0_0_15px_rgba(0,122,255,0.8)]" />
+                                    {isActiveChapter && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-accent rounded-r-full" />
                                     )}
                                 </button>
 
+                                {/* Topics Accordion Body */}
                                 <AnimatePresence initial={false}>
                                     {isExpanded && (
                                         <motion.div
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: "auto", opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                                            className="overflow-hidden"
                                         >
-                                            <div className="px-5 pb-5 pt-0 space-y-2">
-                                                <div className="h-px bg-white/10 mb-4 mx-2" />
-                                                {ch.topics.map(topic => {
-                                                    const isTopicActive = topic._id === activeTopicId;
-                                                    return (
-                                                        <button
-                                                            key={topic._id}
-                                                            onClick={() => onTopicSelect(ch._id, topic._id)}
-                                                            className={clsx(
-                                                                "w-full text-left py-3 px-4 rounded-2xl text-xs transition-all flex items-center gap-3 group/topic",
-                                                                isTopicActive
-                                                                    ? "bg-accent text-white font-bold shadow-lg shadow-accent/20"
-                                                                    : "text-secondary hover:text-primary hover:bg-white/5"
-                                                            )}
-                                                        >
-                                                            <span className={clsx(
-                                                                "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors shadow-sm",
-                                                                isTopicActive ? "bg-white scale-125" : "bg-white/20 group-hover/topic:bg-white/40"
-                                                            )} />
-                                                            <span className="line-clamp-1">{topic.title}</span>
-                                                        </button>
-                                                    )
-                                                })}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        )
-                    })
-                ) : (
-                    units.map((unit) => {
-                        const isExpanded = expandedUnitId === unit._id;
-                        const isUnitLoading = loadingUnit && isExpanded && !activeUnitContent?.chapters;
-
-                        return (
-                            <div 
-                                key={unit._id}
-                                className="flex flex-col relative"
-                            >
-                                <button
-                                    onClick={() => handleUnitClick(unit._id)}
-                                    className={clsx(
-                                        "w-full text-left p-7 group relative rounded-[1.8rem] transition-all duration-500 border",
-                                        isExpanded
-                                          ? "bg-accent/10 border-accent/30 shadow-[0_5px_15px_rgba(0,122,255,0.1)]"
-                                          : "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
-                                    )}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex flex-col gap-1.5">
-                                            <span className={clsx(
-                                                "text-sm font-bold line-clamp-1 leading-tight transition-colors",
-                                                isExpanded ? "text-white" : "text-secondary group-hover:text-primary"
-                                            )}>
-                                                {unit.title}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    {isExpanded && (
-                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 bg-accent rounded-r-full shadow-[0_0_15px_rgba(0,122,255,0.8)]" />
-                                    )}
-                                </button>
-
-                                <AnimatePresence initial={false}>
-                                    {isExpanded && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                                        >
-                                            <div className="px-5 pb-5 pt-0 space-y-4">
-                                                <div className="h-px bg-white/10 mx-2" />
-                                                {isUnitLoading ? (
-                                                    [1, 2].map(i => (
-                                                        <div key={i} className="h-10 w-full bg-white/5 rounded-xl animate-pulse" />
-                                                    ))
-                                                ) : activeUnitContent?.chapters ? (
-                                                    activeUnitContent.chapters.map((ch) => {
-                                                        const isChapterActive = ch._id === activeChapterId;
+                                            <div className="pl-4 pr-1 py-1 space-y-1 border-l-2 border-border-soft ml-4 my-1">
+                                                {ch.topics && ch.topics.length > 0 ? (
+                                                    ch.topics.map((topic) => {
+                                                        const isTopicActive = topic._id === activeTopicId;
                                                         return (
-                                                            <div key={ch._id} className="space-y-2">
-                                                                <div className="space-y-1 ml-2 border-l border-white/5 pl-4">
-                                                                    {ch.topics.map(topic => {
-                                                                        const isTopicActive = topic._id === activeTopicId;
-                                                                        return (
-                                                                            <button
-                                                                                key={topic._id}
-                                                                                onClick={() => onTopicSelect(ch._id, topic._id)}
-                                                                                className={clsx(
-                                                                                    "w-full text-left py-2.5 px-4 rounded-xl text-xs transition-all flex items-center gap-3 group/topic",
-                                                                                    isTopicActive
-                                                                                        ? "bg-accent/20 text-white font-bold"
-                                                                                        : "text-secondary hover:text-primary hover:bg-white/5"
-                                                                                )}
-                                                                            >
-                                                                                <span className={clsx(
-                                                                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors shadow-sm",
-                                                                                    isTopicActive ? "bg-accent shadow-[0_0_8px_rgba(0,122,255,0.6)]" : "bg-white/20 group-hover/topic:bg-white/40"
-                                                                                )} />
-                                                                                <span className="line-clamp-1">{topic.title}</span>
-                                                                            </button>
-                                                                        )
-                                                                    })}
-                                                                </div>
-                                                            </div>
+                                                            <button
+                                                                key={topic._id}
+                                                                onClick={() => onTopicSelect(ch._id, topic._id)}
+                                                                className={clsx(
+                                                                    "w-full text-left py-2 px-3 rounded-lg text-sm transition-all flex items-center gap-2 group/topic",
+                                                                    isTopicActive
+                                                                        ? "bg-accent/10 text-accent font-medium shadow-sm"
+                                                                        : "text-secondary hover:text-primary hover:bg-white/5"
+                                                                )}
+                                                            >
+                                                                <span className={clsx(
+                                                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors",
+                                                                    isTopicActive ? "bg-accent" : "bg-border-soft group-hover/topic:bg-secondary"
+                                                                )} />
+                                                                <span className="truncate">{topic.title}</span>
+                                                            </button>
                                                         )
                                                     })
                                                 ) : (
-                                                    <div className="text-[10px] text-secondary/30 uppercase tracking-widest italic px-4 py-3 text-center">Empty</div>
+                                                    <div className="text-xs text-secondary/50 italic px-3 py-2">No topics available</div>
                                                 )}
                                             </div>
                                         </motion.div>
@@ -435,15 +332,18 @@ const ChapterSidebar = memo(({
     );
 });
 
+
 export default function ChatInterface({ isRoadmap = false }) {
   const { subjectId, chapterId, topicId, roadmapId, dayId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userProfile, loading: loadingProfile } = useContext(UserContext);
-  const { activeUnitData, loadingUnit, fetchUnitContent } = useContext(SyllabusContext);
+  const { userSubjects } = useContext(SubjectContext);
+  const { activeUnitData, activeSubjectData, loadingUnit, loadingSubject, fetchUnitContent, fetchSubjectData } = useContext(SyllabusContext);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -465,43 +365,42 @@ export default function ChatInterface({ isRoadmap = false }) {
   const activeSubjectId = isRoadmap ? roadmapId : subjectId;
 
   // Find subject and units from context
-  const subject = useMemo(() => userProfile?.subjects?.find(s => s._id === activeSubjectId), [userProfile, activeSubjectId]);
+  const subject = useMemo(() => userSubjects?.find(s => s._id === activeSubjectId), [userSubjects, activeSubjectId]);
   const units = useMemo(() => subject?.units || [], [subject]);
   const subjectName = useMemo(() => isRoadmap ? subjectNameState : (subject?.name || ""), [isRoadmap, subjectNameState, subject]);
 
-  // Derive unitId from activeChapterId by searching in units
-  // Note: units in UserContext only have IDs and Names, so we might need activeUnitData
-  // but we usually know which unit a chapter belongs to if we are coming from SubjectView.
-  // For ChatInterface, we can find which unit contains the activeChapterId once activeUnitData is loaded
-  // or by searching in the subject.units if they had chapter IDs (they don't in the optimized profile).
-  // Strategy: Try to find unitId in activeUnitData first.
-  const unitId = useMemo(() => {
-    if (activeUnitData?.chapters?.some(c => c._id === activeChapterId)) {
-        return activeUnitData._id;
-    }
-    // If not in current activeUnitData, we might need to find it from the subject's units
-    // but optimized units don't have chapters. 
-    // However, the SubjectView usually navigates here.
-    return activeUnitData?._id; 
-  }, [activeUnitData, activeChapterId]);
+  // Flattened chapters across ALL units for the sidebar
+  const allChapters = useMemo(() => {
+    if (isRoadmap) return roadmapChapters;
+    
+    if (!activeSubjectData?.units) return [];
+    
+    return activeSubjectData.units.flatMap(unit => 
+        (unit.chapters || []).map(chapter => ({
+            ...chapter,
+            unitTitle: `Unit ${unit.unitNumber}`
+        }))
+    );
+  }, [isRoadmap, roadmapChapters, activeSubjectData]);
 
   // Find current topic
   const activeTopic = useMemo(() => {
-      const currentChapters = isRoadmap ? roadmapChapters : activeUnitData?.chapters;
+      const currentChapters = isRoadmap ? roadmapChapters : allChapters;
       if (!currentChapters || !topicId) return null;
       for (const ch of currentChapters) {
           const found = ch.topics?.find(t => t._id === topicId);
           if (found) return found;
       }
       return null;
-  }, [isRoadmap, roadmapChapters, activeUnitData, topicId]);
+  }, [isRoadmap, roadmapChapters, allChapters, topicId]);
 
   const activeUnitTitle = useMemo(() => {
     if (isRoadmap) {
         return roadmapChapters.find(c => c._id === activeChapterId)?.unitTitle || "";
     }
-    return activeUnitData?.title || "";
-  }, [isRoadmap, roadmapChapters, activeChapterId, activeUnitData]);
+    // Find unit title from allChapters
+    return allChapters.find(c => c._id === activeChapterId)?.unitTitle || "";
+  }, [isRoadmap, roadmapChapters, activeChapterId, allChapters]);
 
   useEffect(() => {
     if (activeTopic && activeSubjectId && activeChapterId && topicId && subjectName && !isRoadmap) {
@@ -511,12 +410,12 @@ export default function ChatInterface({ isRoadmap = false }) {
             topicId,
             topicTitle: activeTopic.title,
             subjectName: subjectName,
-            unitTitle: activeUnitData?.title || "Unit",
+            unitTitle: activeUnitTitle || "Unit",
             timestamp: Date.now()
         };
         localStorage.setItem('crix_last_session', JSON.stringify(session));
     }
-  }, [activeTopic, activeSubjectId, activeChapterId, topicId, subjectName, activeUnitData, isRoadmap]);
+  }, [activeTopic, activeSubjectId, activeChapterId, topicId, subjectName, activeUnitTitle, isRoadmap]);
 
   const handleShare = (content) => {
     setShareModal({ open: true, content });
@@ -671,20 +570,20 @@ export default function ChatInterface({ isRoadmap = false }) {
           setRoadmapChapters(allDays);
         }
       } catch (error) {
-        console.error("Failed to fetch roadmap:", error);
+          console.error("Failed to fetch roadmap:", error);
       } finally {
-        setIsLoadingRoadmap(false);
+          setIsLoadingRoadmap(false);
       }
     };
     fetchRoadmap();
   }, [isRoadmap, roadmapId]);
 
-  // Fetch missing unit content if needed
+  // Fetch full subject data for sidebar if needed
   useEffect(() => {
-    if (!isRoadmap && activeSubjectId && !activeUnitData && units.length > 0) {
-        fetchUnitContent(activeSubjectId, units[0]._id);
+    if (!isRoadmap && activeSubjectId && (!activeSubjectData || activeSubjectData._id !== activeSubjectId)) {
+        fetchSubjectData(activeSubjectId);
     }
-  }, [activeSubjectId, isRoadmap, fetchUnitContent, activeUnitData, units]);
+  }, [activeSubjectId, isRoadmap, fetchSubjectData, activeSubjectData]);
 
   // Fetch chat history with caching
   useEffect(() => {
@@ -841,16 +740,11 @@ export default function ChatInterface({ isRoadmap = false }) {
         {/* Desktop Sidebar */}
         <div className="hidden md:block w-64 h-full flex-shrink-0 z-30">
             <ChapterSidebar
-                units={isRoadmap ? [] : units}
-                roadmapChapters={roadmapChapters}
-                isRoadmap={isRoadmap}
+                chapters={allChapters}
                 activeChapterId={activeChapterId}
                 activeTopicId={topicId}
-                isLoading={isRoadmap ? isLoadingRoadmap : loadingProfile}
+                isLoading={isRoadmap ? isLoadingRoadmap : (loadingProfile || loadingSubject)}
                 onTopicSelect={handleTopicClick}
-                onUnitClick={(unitId) => !isRoadmap && fetchUnitContent(activeSubjectId, unitId)}
-                activeUnitContent={activeUnitData}
-                loadingUnit={loadingUnit}
             />
         </div>
 
@@ -877,16 +771,11 @@ export default function ChatInterface({ isRoadmap = false }) {
                         style={{ willChange: 'transform' }}
                     >
                         <ChapterSidebar
-                            units={isRoadmap ? [] : units}
-                            roadmapChapters={roadmapChapters}
-                            isRoadmap={isRoadmap}
+                            chapters={allChapters}
                             activeChapterId={activeChapterId}
                             activeTopicId={topicId}
-                            isLoading={isRoadmap ? isLoadingRoadmap : loadingProfile}
+                            isLoading={isRoadmap ? isLoadingRoadmap : (loadingProfile || loadingSubject)}
                             onTopicSelect={handleTopicClick}
-                            onUnitClick={(unitId) => !isRoadmap && fetchUnitContent(activeSubjectId, unitId)}
-                            activeUnitContent={activeUnitData}
-                            loadingUnit={loadingUnit}
                         />
                         <button
                             onClick={() => setSidebarOpen(false)}
@@ -902,7 +791,7 @@ export default function ChatInterface({ isRoadmap = false }) {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col h-full relative w-full">
             {/* Header */}
-            <header className="flex items-center justify-between gap-4 px-6 py-4 bg-card/80 backdrop-blur-md sticky top-0 border-b border-border-soft">
+            <header className="flex items-center justify-between gap-4 px-6 py-4 bg-card/80 backdrop-blur-md sticky top-0  border-border-soft">
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                     <button 
                         onClick={() => isRoadmap ? navigate(`/roadmap/${roadmapId}`) : navigate(`/syllabus/${subjectId}`)} 

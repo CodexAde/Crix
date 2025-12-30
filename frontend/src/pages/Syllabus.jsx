@@ -6,36 +6,26 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import SubjectContext from '../context/Subject/SubjectContext';
 import UserContext from '../context/User/UserContext';
+import SyllabusContext from '../context/Syllabus/SyllabusContext';
 
 
 export default function Syllabus() {
   const navigate = useNavigate();
   const { userSubjects, addUserSubject } = useContext(SubjectContext);
-  const { fetchProfile } = useContext(UserContext);
-  const [subjects, setSubjects] = useState([]);
+  const { userProfile, fetchProfile } = useContext(UserContext);
+  const { allSubjects, loadingAllSubjects: loading, fetchAllSubjects } = useContext(SyllabusContext);
   const [filteredSubjects, setFilteredSubjects] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [addingId, setAddingId] = useState(null);
 
   useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const response = await axios.get('/syllabus');
-        const subjectsData = response.data.subjects || [];
-        setSubjects(subjectsData);
-        setFilteredSubjects(subjectsData);
-      } catch (error) {
-        console.error('Failed to fetch subjects:', error);
-      } finally { 
-        setLoading(false);
-      }
-    };
-    fetchSubjects();
-  }, []);
+    fetchAllSubjects();
+  }, [fetchAllSubjects]);
+
+
 
   useEffect(() => {
-    let filtered = subjects;
+    let filtered = allSubjects;
     if (searchQuery.trim()) {
       filtered = filtered.filter(s => 
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -43,7 +33,7 @@ export default function Syllabus() {
       );
     }
     setFilteredSubjects(filtered);
-  }, [searchQuery, subjects]);
+  }, [searchQuery, allSubjects]);
 
   const handleAddSubject = async (e, subjectId) => {
     e.preventDefault();
@@ -57,7 +47,7 @@ export default function Syllabus() {
     navigate('/dashboard');
   };
 
-  const isAdded = (id) => userSubjects.some(s => s._id === id);
+  const isAdded = (id) => userProfile?.subjects?.includes(id);
 
   const handleCardClick = (subject) => {
     if (isAdded(subject._id)) {
@@ -193,7 +183,7 @@ export default function Syllabus() {
                      <div className="flex items-center justify-between pt-6">
                         <div className="flex items-center gap-2.5 text-xs font-bold text-secondary uppercase tracking-wider">
                             <Layers className="w-4 h-4 text-accent/50" />
-                            <span>{subject.units?.length || 5} Units</span>
+                            <span>{subject.unitCount || 0} Units</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-accent font-bold text-sm opacity-0 group-hover/card:opacity-100 group-hover/card:translate-x-0 -translate-x-3 transition-all duration-500">
                             Explore <ArrowRight className="w-4 h-4" />

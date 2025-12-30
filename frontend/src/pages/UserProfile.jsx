@@ -43,17 +43,29 @@ export default function UserProfile() {
 
     // Initialize data
     useEffect(() => {
-        if (user) {
-            setFormData({
-                name: user.name || '',
-                college: user.academicInfo?.college || '',
-                branch: user.academicInfo?.branch || '',
-                year: user.academicInfo?.year || 1,
-                targetExamDate: user.academicInfo?.targetExamDate ? new Date(user.academicInfo.targetExamDate).toISOString().split('T')[0] : ''
-            });
-            setPersona(user.personaProfile || null);
-        }
-    }, [user]);
+        const fetchFullProfile = async () => {
+            setLoading(true);
+            try {
+                const { data } = await axios.get('/users/profile/full');
+                const fullUser = data.data;
+                setFormData({
+                    name: fullUser.name || '',
+                    college: fullUser.academicInfo?.college || '',
+                    branch: fullUser.academicInfo?.branch || '',
+                    year: fullUser.academicInfo?.year || 1,
+                    targetExamDate: fullUser.academicInfo?.targetExamDate ? new Date(fullUser.academicInfo.targetExamDate).toISOString().split('T')[0] : ''
+                });
+                setPersona(fullUser.personaProfile || null);
+            } catch (error) {
+                console.error("Failed to fetch full profile", error);
+                toast.error("Failed to load profile details");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFullProfile();
+    }, []);
 
     const handleSave = async () => {
         setLoading(true);

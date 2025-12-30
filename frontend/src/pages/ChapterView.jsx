@@ -5,18 +5,21 @@ import TopicGraph from '../components/TopicGraph';
 import { ArrowLeft, ClipboardCheck } from 'lucide-react';
 import UserContext from '../context/User/UserContext';
 import SyllabusContext from '../context/Syllabus/SyllabusContext';
+import SubjectContext from '../context/Subject/SubjectContext';
 import { PageLoader } from '../components/Spinner';
 
 export default function ChapterView() {
   const { subjectId, unitId, chapterId } = useParams();
   const { userProfile, loading: loadingProfile } = useContext(UserContext);
+  const { userSubjects } = useContext(SubjectContext);
   const { activeUnitData, loadingUnit, fetchUnitContent } = useContext(SyllabusContext);
+
   const [progressMap, setProgressMap] = useState({});
   const [loadingProgress, setLoadingProgress] = useState(true);
   const navigate = useNavigate();
 
   // Find subject and unit in context
-  const subject = useMemo(() => userProfile?.subjects?.find(s => s._id === subjectId), [userProfile, subjectId]);
+  const subject = useMemo(() => userSubjects?.find(s => s._id === subjectId), [userSubjects, subjectId]);
   const unitHeader = useMemo(() => subject?.units?.find(u => u._id === unitId), [subject, unitId]);
 
   // Use activeUnitData as source for chapters
@@ -28,9 +31,8 @@ export default function ChapterView() {
   useEffect(() => {
     const fetchMissingData = async () => {
         try {
-            const fetchers = [];
-            // 1. Fetch unit content if not available
-            if (!chapter || activeUnitData?._id !== unitId) {
+            // 1. Fetch unit content if not available and not loading
+            if (!activeUnitData || activeUnitData._id !== unitId) {
                 fetchUnitContent(subjectId, unitId);
             }
             // 2. Fetch progress
@@ -43,7 +45,7 @@ export default function ChapterView() {
         }
     };
     fetchMissingData();
-  }, [subjectId, unitId, chapterId, chapter, activeUnitData?._id, fetchUnitContent]);
+  }, [subjectId, unitId, fetchUnitContent]);
 
   if (loadingProfile || (loadingUnit && !chapter) || loadingProgress) return <PageLoader text="Loading chapter..." />;
   if (!chapter) return <div className="p-10 text-center text-secondary">Chapter not found</div>;

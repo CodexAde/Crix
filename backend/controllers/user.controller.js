@@ -276,66 +276,19 @@ export {
     addUserSubject,
     getUserSubjects,
     reorderSubjects,
-    getUserProfile
+    getUserProfile,
+    getFullUserProfile
 };
 
 const getUserProfile = asyncHandler(async (req, res) => {
-    const userProfile = await User.aggregate([
-        {
-            $match: {
-                _id: new mongoose.Types.ObjectId(req.user._id)
-            }
-        },
-        {
-            $lookup: {
-                from: "subjects",
-                localField: "subjects",
-                foreignField: "_id",
-                as: "subjectDetails"
-            }
-        },
-        {
-            $project: {
-                _id: 1,
-                name: 1,
-                email: 1,
-                avatar: 1,
-                academicInfo: 1,
-                subjects: {
-                    $map: {
-                        input: "$subjectDetails",
-                        as: "subject",
-                        in: {
-                            _id: "$$subject._id",
-                            name: "$$subject.name",
-                            code: "$$subject.code",
-                            image: "$$subject.image",
-                            year: "$$subject.year",
-                            branch: "$$subject.branch",
-                            units: {
-                                $map: {
-                                    input: "$$subject.units",
-                                    as: "unit",
-                                    in: {
-                                        _id: "$$unit._id",
-                                        unitNumber: "$$unit.unitNumber",
-                                        title: "$$unit.title"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    ]);
+    const user = await User.findById(req.user._id).select("_id name email avatar academicInfo.isOnboarded subjects");
 
-    if (!userProfile?.length) {
+    if (!user) {
         throw new ApiError(404, "User profile not found");
     }
 
     return res.status(200).json(
-        new ApiResponse(200, userProfile[0], "User profile fetched successfully")
+        new ApiResponse(200, user, "User profile fetched successfully")
     );
 });
 
@@ -401,3 +354,15 @@ const reorderSubjects = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+const getFullUserProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).select("-password -refreshToken").lean();
+
+    if (!user) {
+        throw new ApiError(404, "User profile not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, user, "Full user profile fetched successfully")
+    );
+});

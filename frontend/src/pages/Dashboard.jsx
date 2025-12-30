@@ -52,7 +52,7 @@ export default function Dashboard() {
   };
 
   const loading = loadingProfile || loadingStats;
-  const userSubjects = userProfile?.subjects || [];
+
 
   // Premium Dummy Data for Stats
   const displayStats = {
@@ -114,25 +114,19 @@ export default function Dashboard() {
             {!lastSession ? (
               <>
                 <h2 className="text-4xl md:text-6xl font-extrabold text-primary leading-[1.1] mb-6 tracking-tighter">
-                  {userSubjects.length > 0 
-                    ? <>Dive into <span className="text-accent">{userSubjects[0].name.split(' ')[0]}</span></>
-                    : <>Build your <span className="text-accent">Global Library</span></>
-                  }
+                   Build your <span className="text-accent">Global Library</span>
                 </h2>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-10">
                   <p className="text-secondary text-base md:text-xl font-medium max-w-xl leading-relaxed opacity-80">
-                    {userSubjects.length > 0 
-                      ? "You have subjects ready. Pick a topic and start your AI-powered interactive learning session now."
-                      : "Your library is empty. Discover subjects from the global database and start generating your neural paths."
-                    }
+                    Discover subjects from the global database and start generating your neural paths.
                   </p>
                 </div>
                 
                 <Link 
-                  to={userSubjects.length > 0 ? `/syllabus/${userSubjects[0]._id}` : '/syllabus'} 
+                  to='/syllabus' 
                   className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-main rounded-[1.5rem] font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-xl shadow-primary/10 group/btn"
                 >
-                  {userSubjects.length > 0 ? 'Start Learning' : 'Explore Library'} 
+                  Explore Library
                   <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                 </Link>
               </>
@@ -265,7 +259,7 @@ export default function Dashboard() {
         </div>
 
         {/* Weekly Activity Visualizer */}
-        <div className="bg-card rounded-[2.5rem] p-6 md:p-8 border border-border-soft relative overflow-hidden group">
+        {/* <div className="bg-card rounded-[2.5rem] p-6 md:p-8 border border-border-soft relative overflow-hidden group">
            <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:scale-110 transition-transform duration-700">
               <TrendingUp className="w-32 h-32 text-primary" />
            </div>
@@ -293,8 +287,7 @@ export default function Dashboard() {
               </div>
 
               <div className="flex-1 h-32 relative group/graph max-w-sm px-2">
-                {/* SVG Area Graph */}
-                <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                 <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="graphGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.6" />
@@ -302,8 +295,7 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                   
-                  {/* Area Path */}
-                  <motion.path
+                   <motion.path
                     initial={{ pathLength: 0, opacity: 0
                       
                      }}
@@ -314,7 +306,6 @@ export default function Dashboard() {
                     className="transition-all duration-700"
                   />
 
-                  {/* Line Path */}
                   <motion.path
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}
@@ -328,10 +319,8 @@ export default function Dashboard() {
                     className="drop-shadow-[0_4px_12px_rgba(239,68,68,0.3)]"
                   />
 
-                  {/* Interaction Nodes */}
                   {weeklyActivity.map((item, i) => (
                     <g key={i} className="group/node pointer-events-auto">
-                       {/* Data Point Label (Always Visible) */}
                        <foreignObject
                           x={`calc(${(i / (weeklyActivity.length - 1)) * 100}% - 15px)`}
                           y={`${100 - item.height - 30}%`}
@@ -356,7 +345,6 @@ export default function Dashboard() {
                   ))}
                 </svg>
 
-                {/* Day Labels Overlay */}
                 <div className="absolute -bottom-6 left-0 right-0 flex justify-between px-1">
                    {weeklyActivity.map((item, i) => (
                      <span key={i} className="text-[10px] font-black text-secondary tracking-tighter opacity-40 uppercase">
@@ -366,7 +354,8 @@ export default function Dashboard() {
                 </div>
               </div>
            </div>
-        </div>
-      </motion.section>    </motion.div>
+        </div> */}
+      </motion.section>    
+      </motion.div>
   );
 }

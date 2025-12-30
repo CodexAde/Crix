@@ -16,7 +16,17 @@ const getSubjects = async (req, res) => {
             ];
         }
 
-        const subjects = await Subject.find(filter).select("-units.chapters"); // Exclude heavy chapters content for list view
+        const subjects = await Subject.aggregate([
+            { $match: filter },
+            {
+                $project: {
+                    name: 1,
+                    code: 1,
+                    image: 1,
+                    unitCount: { $size: { $ifNull: ["$units", []] } }
+                }
+            }
+        ]);
         
         return res.status(200).json({ subjects });
     } catch (error) {
@@ -27,7 +37,9 @@ const getSubjects = async (req, res) => {
 const getSubjectById = async (req, res) => {
     try {
         const { id } = req.params;
-        const subject = await Subject.findById(id);
+        const subject = await Subject.findById(id)
+            .select("name code image units")
+            .select("-units.chapters.description -units.chapters.topics.content -units.chapters.topics.description");
         
         if (!subject) {
             return res.status(404).json({ message: "Subject not found" });

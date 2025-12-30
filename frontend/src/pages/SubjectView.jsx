@@ -13,37 +13,22 @@ export default function SubjectView() {
     const navigate = useNavigate();
     const { userProfile, loading: loadingProfile } = useContext(UserContext);
     const { userSubjects, addUserSubject } = useContext(SubjectContext);
-    const { activeUnitData, loadingUnit, fetchUnitContent, clearActiveUnit } = useContext(SyllabusContext);
+    const { activeUnitData, activeSubjectData, loadingUnit, loadingSubject, fetchUnitContent, fetchSubjectData, clearActiveUnit } = useContext(SyllabusContext);
     
-    const [fetchedSubject, setFetchedSubject] = useState(null);
-    const [loadingSubject, setLoadingSubject] = useState(false);
-    const [addingSubject, setAddingSubject] = useState(false);
     const [activeUnitIndex, setActiveUnitIndex] = useState(0);
+    const [addingSubject, setAddingSubject] = useState(false); // State for loading when adding subject
 
-    // Get subject from user profile OR fetched state
-    const subjectInLibrary = useMemo(() => {
-        return userProfile?.subjects?.find(s => s._id === id);
-    }, [userProfile, id]);
+    const subject = activeSubjectData;
 
-    const subject = subjectInLibrary || fetchedSubject;
-
-    // Fetch subject if not in library
+    // Fetch subject data using centralized context
     useEffect(() => {
-        if (!subjectInLibrary) {
-            const fetchGeneralSubject = async () => {
-                try {
-                    setLoadingSubject(true);
-                    const { data } = await axios.get(`/syllabus/${id}`);
-                    setFetchedSubject(data.subject);
-                } catch (error) {
-                    console.error("Failed to fetch subject details:", error);
-                } finally {
-                    setLoadingSubject(false);
-                }
-            };
-            fetchGeneralSubject();
+        if (!activeSubjectData || activeSubjectData._id !== id) {
+            fetchSubjectData(id);
         }
-    }, [id, subjectInLibrary]);
+    }, [id, activeSubjectData, fetchSubjectData]);
+
+    // Local isAdded helper
+    const isAdded = userProfile?.subjects?.includes(id);
 
     useEffect(() => {
         if (subject && subject.units?.length > 0) {
@@ -122,7 +107,7 @@ export default function SubjectView() {
             <main className="max-w-3xl mx-auto px-6 py-8">
                 {/* Add to Library Prompt */}
 <AnimatePresence>
-  {!subjectInLibrary && (
+  {!isAdded && (
     <motion.div
       initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -172,7 +157,7 @@ export default function SubjectView() {
 
                  <div className="my-6">
                     <div className="flex gap-2.5 mb-2 overflow-x-auto pb-4 no-scrollbar snap-x px-4 md:justify-center">
-                        {subject.units.map((unit, index) => (
+                        {subject?.units?.map((unit, index) => (
                             <button
                                 key={unit._id}
                                 onClick={() => handleUnitChange(index)}
@@ -189,7 +174,7 @@ export default function SubjectView() {
 
                 <div className="mb-12 text-center">
                     <h2 className="text-2xl md:text-3xl font-black text-primary mb-2 tracking-tight">
-                        {subject.units[activeUnitIndex].title}
+                        {subject?.units?.[activeUnitIndex]?.title || 'Loading...'}
                     </h2>
                     <div className="flex items-center justify-center gap-2 text-secondary/60">
                         <span className="w-8 h-[1px] bg-border-soft" />
@@ -210,10 +195,10 @@ export default function SubjectView() {
                     ) : activeUnitData?.chapters?.length > 0 ? (
                         activeUnitData.chapters.map((chapter) => (
                             <Link
-                                to={subjectInLibrary ? `/chapter/${subject._id}/${activeUnitData._id}/${chapter._id}` : '#'}
-                                onClick={(e) => !subjectInLibrary && (e.preventDefault(), handleAddSubject())}
+                                to={isAdded ? `/chapter/${subject._id}/${activeUnitData._id}/${chapter._id}` : '#'}
+                                onClick={(e) => !isAdded && (e.preventDefault(), handleAddSubject())}
                                 key={chapter._id}
-                                className={`group block bg-card rounded-[2rem] border border-border-soft hover:border-accent/40 hover:shadow-2xl hover:shadow-black/5 transition-all overflow-hidden ${!subjectInLibrary ? 'opacity-80' : ''}`}
+                                className={`group block bg-card rounded-[2rem] border border-border-soft hover:border-accent/40 hover:shadow-2xl hover:shadow-black/5 transition-all overflow-hidden ${!isAdded ? 'opacity-80' : ''}`}
                             >
                                 <div className="p-6 flex items-center gap-6">
                                     <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center shrink-0 shadow-lg shadow-accent/20 group-hover:scale-110 transition-all duration-500">
