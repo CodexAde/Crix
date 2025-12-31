@@ -35,7 +35,7 @@ export default function Login() {
     try {
       await login(email, password);
       toast.success('Welcome back!');
-      navigate('/dashboard'); 
+      navigate('/install-app'); 
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || 'Login failed. Please try again.');

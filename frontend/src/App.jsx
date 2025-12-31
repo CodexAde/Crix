@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
 // import { FastPageSpinner, LandingLoader } from './components/Spinner';
+import InstallApp from './pages/InstallApp';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -11,8 +12,22 @@ import Register from './pages/Register';
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return null; // Let the page handle or wait for redirect
+  // console.log('ProtectedRoute: loading', loading, 'user', !!user);
+  
+  if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
+
+  // Check if PWA or explicitly skipped
+  const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const skippedInstall = sessionStorage.getItem('skipInstall');
+  
+  // console.log('ProtectedRoute: isPWA', isPWA, 'skippedInstall', skippedInstall);
+
+  if (!isPWA && !skippedInstall) {
+      // console.log('ProtectedRoute: Redirecting to /install-app');
+      return <Navigate to="/install-app" replace />;
+  }
+
   return children;
 };
 
@@ -40,15 +55,16 @@ import DemoShowcase from './pages/DemoShowcase';
 import CommunityDeploy from './pages/CommunityDeploy';
 import MySubjects from './pages/MySubjects';
 
-function AppRoutes() {
+function AppRoutes({ deferredPrompt, installApp }) {
   const { user, loading } = useAuth();
 
   // if(loading) return <LandingLoader />
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Landing />} />
-      <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+      <Route path="/" element={user ? <Navigate to="/install-app" replace /> : <Landing />} />
+      <Route path="/install-app" element={user ? <InstallApp deferredPrompt={deferredPrompt} installApp={installApp} /> : <Navigate to="/login" />} />
+      <Route path="/login" element={user ? <Navigate to="/install-app" replace /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/onboarding" /> : <Register />} />
       <Route path="/demo" element={<DemoShowcase />} />
       
@@ -126,6 +142,33 @@ import SyllabusStates from './context/Syllabus/SyllabusStates';
 import TestPage from './pages/Test';
 
 export default function App() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    // Check for existing prompt
+    if (window.deferredPrompt) {
+        console.log('Found existing deferredPrompt');
+        setDeferredPrompt(window.deferredPrompt);
+    }
+
+    const handler = (e) => {
+      e.preventDefault();
+      console.log('beforeinstallprompt captured in App.jsx');
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const installApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
+
   return (
     <Router>
       <ScrollToTop />
@@ -159,7 +202,7 @@ export default function App() {
                     },
                   }}
                 />
-                <AppRoutes />
+                <AppRoutes deferredPrompt={deferredPrompt} installApp={installApp} />
               </SyllabusStates>
             </SubjectStates>
           </UserStates>

@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await axios.post('/users/logout');
+    sessionStorage.removeItem('skipInstall');
     setUser(null);
   };
 
