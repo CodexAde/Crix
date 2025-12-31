@@ -92,7 +92,7 @@ export default function ChapterView() {
     <div className="relative h-full flex flex-col bg-main">
        <header className="bg-card/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 border-b border-border-soft flex items-center justify-between gap-4">
             <button
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/syllabus/' + subjectId)}
                 className="p-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/20 transition-all active:scale-95 group shrink-0"
             >
                 <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />

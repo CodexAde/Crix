@@ -78,7 +78,7 @@ export default function Syllabus() {
         <div className="max-w-7xl mx-auto px-4 md:px-10 h-16 md:h-20 flex items-center justify-between">
            <div className="flex items-center gap-3">
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate('/dashboard')}
                     className="p-2 hover:bg-surface rounded-full transition-all text-secondary hover:text-primary active:scale-90"
                 >
                     <ArrowLeft className="w-5 h-5" />

@@ -86,7 +86,7 @@ export default function SubjectView() {
             <header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50">
                 <div className="mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={() => navigate('/syllabus')}
                         className="absolute left-6 p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 group"
                     >
                         <ArrowLeft className="w-5 h-5 text-primary group-hover:-translate-x-1 transition-transform" />
