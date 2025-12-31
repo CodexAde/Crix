@@ -54,6 +54,7 @@ import UserProfile from './pages/UserProfile';
 import DemoShowcase from './pages/DemoShowcase';
 import CommunityDeploy from './pages/CommunityDeploy';
 import MySubjects from './pages/MySubjects';
+import SaveNavigate from './pages/SaveNavigate';
 
 function AppRoutes({ deferredPrompt, installApp }) {
   const { user, loading } = useAuth();
@@ -102,6 +103,7 @@ function AppRoutes({ deferredPrompt, installApp }) {
           <Route path="/community-deploy" element={<CommunityDeploy />} />
           <Route path="/add-chapters" element={<AddChapters />} />
           <Route path="/user-profile" element={<UserProfile />} />
+          <Route path="/navigate" element={<SaveNavigate />} />
       </Route>
       
       {/* Chat Routes - Full Screen (Outside Layout) */}

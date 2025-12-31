@@ -152,10 +152,21 @@ export default function Dashboard() {
                       </p>
                       </>
                   )}
+                  {lastSession.chapterTitle && (
+                      <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-border-soft hidden md:block" />
+                      <p className="text-secondary text-lg md:text-xl font-medium tracking-tight opacity-70">
+                        {lastSession.chapterTitle}
+                      </p>
+                      </>
+                  )}
                 </div>
 
                 <Link 
-                  to={`/chat/${lastSession.subjectId}/${lastSession.chapterId}/${lastSession.topicId}`} 
+                  to={lastSession.isRoadmap 
+                      ? `/roadmap/${lastSession.subjectId}/${lastSession.chapterId}/${lastSession.topicId}`
+                      : `/chat/${lastSession.subjectId}/${lastSession.chapterId}/${lastSession.topicId}`
+                  }
                   className="inline-flex items-center gap-3 px-10 py-5 bg-primary text-main rounded-[1.5rem] font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-xl shadow-primary/10 group/btn"
                 >
                   Resume Chat <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />

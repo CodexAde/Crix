@@ -124,7 +124,10 @@ export default function ChapterView() {
        </header>
        
        <div className="flex-1 pb-24 md:pb-4">
-           <TopicGraph topics={topicsWithStatus} onSelectTopic={(topic) => navigate(`/chat/${subjectId}/${chapterId}/${topic._id}`)} />
+           <TopicGraph 
+               topics={topicsWithStatus} 
+               onSelectTopic={(topic) => navigate(`/navigate?subjectId=${subjectId}&chapterId=${chapterId}&topicId=${topic._id}&topicTitle=${encodeURIComponent(topic.title)}&subjectName=${encodeURIComponent(subject?.name || '')}&unitTitle=${encodeURIComponent(unitHeader?.title || '')}&chapterTitle=${encodeURIComponent(chapter?.title || '')}`)} 
+           />
        </div>
     </div>
   );
