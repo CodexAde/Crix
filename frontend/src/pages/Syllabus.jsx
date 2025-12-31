@@ -25,6 +25,7 @@ export default function Syllabus() {
 
 
   useEffect(() => {
+    console.log("[Syllabus] All Subjects:", allSubjects);
     let filtered = allSubjects;
     if (searchQuery.trim()) {
       filtered = filtered.filter(s => 
@@ -120,29 +121,40 @@ export default function Syllabus() {
              ))}
            </div>
         ) : filteredSubjects.length === 0 ? (
-           <div className="flex flex-col items-center justify-center py-32 text-center">
-               <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mb-6 shadow-inner">
-                  <BookOpen className="w-8 h-8 text-secondary/20" />
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="flex flex-col items-center justify-center py-32 text-center"
+           >
+               <div className="w-24 h-24 bg-card rounded-[2.5rem] flex items-center justify-center mb-8 shadow-soft relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <BookOpen className="w-10 h-10 text-accent transition-transform duration-500 group-hover:scale-110" />
                </div>
-               <h3 className="text-xl font-bold text-primary mb-2 tracking-tight">No Results Found</h3>
-               <p className="text-secondary/60 text-sm max-w-xs mx-auto leading-relaxed">Try adjusting your search query or check back later for new additions.</p>
-           </div>
+               
+               <h3 className="text-2xl md:text-3xl font-bold text-primary mb-4 tracking-tight">Curating your curriculum</h3>
+               <p className="text-secondary/60 text-base max-w-md mx-auto leading-relaxed mb-8">
+                  Bhai, we are working hard to bring a plethora of subjects for your specific year. If there's something specific you need, hit us up!
+               </p>
+               
+               <a 
+                href="mailto:support@crix.codevern.com"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-black text-sm font-bold shadow-soft hover:shadow-strong active:scale-95 transition-all duration-300"
+               >
+                  Contact Us
+                  <ArrowRight className="w-4 h-4" />
+               </a>
+           </motion.div>
         ) : (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
             {filteredSubjects.map((subject) => {
               const added = isAdded(subject._id);
               const isAdding = addingId === subject._id;
 
               return (
-                <motion.div key={subject._id} variants={itemVariants} className="group">
+                <div key={subject._id} className="group">
                   <div 
                     onClick={() => handleCardClick(subject)}
-                    className="block bg-card rounded-[2rem] p-6 md:p-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] md:hover:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group/card cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                    className="block bg-card rounded-[2rem] p-6 md:p-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] md:hover:shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] transition-all duration-500 relative overflow-hidden group/card cursor-pointer shadow-soft"
                   >
                      <div className="flex items-start justify-between mb-6 md:mb-8">
                         <div className="flex items-center gap-3 md:gap-4">
@@ -190,10 +202,10 @@ export default function Syllabus() {
                         </div>
                      </div>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

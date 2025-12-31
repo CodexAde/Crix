@@ -281,7 +281,7 @@ export {
 };
 
 const getUserProfile = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id).select("_id name email avatar academicInfo.isOnboarded subjects");
+    const user = await User.findById(req.user._id).select("_id name email avatar academicInfo.isOnboarded academicInfo.year academicInfo.branch subjects");
 
     if (!user) {
         throw new ApiError(404, "User profile not found");

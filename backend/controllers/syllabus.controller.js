@@ -3,18 +3,29 @@ import mongoose from "mongoose";
 
 const getSubjects = async (req, res) => {
     try {
-        const { year, branch } = req.query;
-        // For now, if no query params, we fetch everything or filter by default
-        // In real app, we use user's profile to filter
+        const userYear = req.user?.academicInfo?.year;
+        const userBranch = req.user?.academicInfo?.branch;
+
+        const totalCount = await Subject.countDocuments();
         
         const filter = {};
-        if (year) filter.year = year;
-        if (branch) {
-            filter.$or = [
-                { branch: branch },
-                { branch: "All" }
-            ];
+        
+        // Year filtering - try to be robust
+        if (userYear !== undefined && userYear !== null && userYear !== 0) {
+            filter.year = Number(userYear);
+        } else if (req.query.year) {
+            filter.year = Number(req.query.year);
         }
+
+        // Branch filtering
+        // if (userBranch) {
+        //     filter.$or = [
+        //         // { branch: userBranch }, 
+        //         { branch: "All" }
+        //     ];
+        // } else if (req.query.branch) {
+        //     filter.branch = req.query.branch;
+        // }
 
         const subjects = await Subject.aggregate([
             { $match: filter },
@@ -23,13 +34,19 @@ const getSubjects = async (req, res) => {
                     name: 1,
                     code: 1,
                     image: 1,
+                    branch: 1,
+                    year: 1,
+                    description: 1,
                     unitCount: { $size: { $ifNull: ["$units", []] } }
                 }
             }
         ]);
         
+        // console.log(`[Syllabus] DB Total: ${totalCount}, Filtered: ${subjects.length} for Year: ${filter.year}, Branch: ${userBranch || 'Any'}`);
+
         return res.status(200).json({ subjects });
     } catch (error) {
+        console.error("[Syllabus Error]", error);
         return res.status(500).json({ message: error.message });
     }
 };
@@ -63,19 +80,6 @@ const getUnitDetails = async (req, res) => {
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(id)
-                }
-            },
-            {
-                $project: {
-                    name: 1,
-                    code: 1,
-                    unit: {
-                        $filter: {
-                            input: "$units",
-                            as: "unit",
-                            cond: { $eq: ["$$unit._id", new mongoose.Types.ObjectId(unitId)] }
-                        }
-                    }
                 }
             }
         ]);
