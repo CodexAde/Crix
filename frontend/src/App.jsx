@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
-import { PageLoader } from './components/Spinner';
+import { PageLoader, LandingLoader } from './components/Spinner';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -43,7 +43,7 @@ import MySubjects from './pages/MySubjects';
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if(loading) return <PageLoader />
+  if(loading) return <LandingLoader />
 
   return (
     <Routes>
@@ -69,7 +69,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           
            <Route path="/syllabus" element={<Syllabus />} />
-           <Route path="/tests" element={<Syllabus />} />
+           <Route path="/tests" element={<TestPage />} />
            <Route path="/my-subjects" element={<MySubjects />} />
 
           <Route path="/syllabus/:id" element={<SubjectView />} />
@@ -123,6 +123,7 @@ function ScrollToTop() {
 import SubjectStates from './context/Subject/SubjectStates';
 import UserStates from './context/User/UserStates';
 import SyllabusStates from './context/Syllabus/SyllabusStates';
+import TestPage from './pages/Test';
 
 export default function App() {
   return (

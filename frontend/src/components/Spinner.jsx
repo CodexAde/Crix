@@ -170,9 +170,9 @@ export function LandingLoader() {
        <div className="relative flex flex-col items-center justify-center mb-12">
           {/* Bouncing CRIX Text */}
           <motion.h1 
-            className="text-8xl md:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-primary to-primary/60 select-none"
+            className="text-6xl md:text-7xl font-black tracking-tighter text-primary select-none"
             animate={{ 
-                y: [0, -20, 0],
+                y: [0, -15, 0],
                 scale: [1, 1.02, 1],
             }}
             transition={{
