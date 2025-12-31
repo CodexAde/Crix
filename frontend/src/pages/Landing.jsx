@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 import { Sparkles, ArrowRight, CheckCircle2, Zap, Brain, Shield, ChevronDown, Rocket, X, Check, GraduationCap } from 'lucide-react';
 import Lenis from 'lenis';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -184,6 +185,7 @@ function FaqItem({ question, answer, i }) {
 // --- Main Component ---
 export default function Landing() {
   const containerRef = useRef(null);
+  const { loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -208,7 +210,7 @@ export default function Landing() {
     return () => lenis.destroy();
   }, []);
 
-  if (loading) return <LandingLoader />;
+  if (loading || authLoading) return <LandingLoader />;
 
   return (
     <div ref={containerRef} className="dark bg-[#000000] min-h-screen relative overflow-hidden text-white selection:bg-accent selection:text-white pb-20">

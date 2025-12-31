@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
-import { PageLoader, LandingLoader } from './components/Spinner';
+// import { FastPageSpinner, LandingLoader } from './components/Spinner';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -11,7 +11,7 @@ import Register from './pages/Register';
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <PageLoader />;
+  if (loading) return null; // Let the page handle or wait for redirect
   if (!user) return <Navigate to="/login" replace />;
   return children;
 };
@@ -19,7 +19,7 @@ const ProtectedRoute = ({ children }) => {
 // Onboarding Guard
 const RequireOnboarding = ({ children }) => {
     const { user, loading } = useAuth();
-    if (loading) return <PageLoader />;
+    if (loading) return null;
     if (user && !user.academicInfo?.isOnboarded) {
         return <Navigate to="/onboarding" replace />;
     }
@@ -43,7 +43,7 @@ import MySubjects from './pages/MySubjects';
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if(loading) return <LandingLoader />
+  // if(loading) return <LandingLoader />
 
   return (
     <Routes>

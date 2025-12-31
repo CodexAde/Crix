@@ -6,7 +6,7 @@ import { Clock, ChevronRight, ArrowLeft, BookOpen, Play, ClipboardCheck, Sparkle
 import SyllabusContext from '../context/Syllabus/SyllabusContext';
 import UserContext from '../context/User/UserContext';
 import SubjectContext from '../context/Subject/SubjectContext';
-import { PageLoader } from '../components/Spinner';
+import { FastPageSpinner } from '../components/Spinner';
 
 export default function SubjectView() {
     const { id } = useParams();
@@ -60,7 +60,7 @@ export default function SubjectView() {
     };
 
     if ((loadingProfile || loadingSubject) && !subject) {
-        return <PageLoader text="Loading subject details..." />;
+        return <FastPageSpinner />;
     }
 
     if (!subject) return (

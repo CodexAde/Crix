@@ -6,7 +6,7 @@ import { ArrowLeft, ClipboardCheck } from 'lucide-react';
 import UserContext from '../context/User/UserContext';
 import SyllabusContext from '../context/Syllabus/SyllabusContext';
 import SubjectContext from '../context/Subject/SubjectContext';
-import { PageLoader } from '../components/Spinner';
+import { FastPageSpinner } from '../components/Spinner';
 
 export default function ChapterView() {
   const { subjectId, unitId, chapterId } = useParams();
@@ -56,12 +56,12 @@ export default function ChapterView() {
     return null;
   }, [activeUnitData, unitId, chapterId]);
 
-  if (loadingProfile || loadingUnit || loadingProgress) return <PageLoader text="Loading chapter details..." />;
+  if (loadingProfile || loadingUnit || loadingProgress) return <FastPageSpinner />;
   
   // Show loader if we have a unitId but context hasn't loaded/matched it yet
   // This prevents the "Not Found" flash while the effect is kicking in
   if (unitId && activeUnitData?._id !== unitId) {
-      return <PageLoader text="Loading..." />;
+      return <FastPageSpinner />;
   }
   
   if (!chapter) {
