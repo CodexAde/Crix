@@ -44,12 +44,12 @@ const SyllabusStates = ({ children }) => {
             unitCache.current[cacheKey] = unitContent;
         } catch (error) {
             console.error("Error fetching unit content:", error);
-            if (activeUnitData?._id === unitId) setActiveUnitData(null);
+            setActiveUnitData(prev => prev?._id === unitId ? null : prev);
         } finally {
             delete pendingRequests.current[cacheKey];
             setLoadingUnit(false);
         }
-    }, [activeUnitData]);
+    }, []);
 
     const fetchSubjectData = useCallback(async (subjectId) => {
         // 1. Check persistent cache
@@ -77,12 +77,12 @@ const SyllabusStates = ({ children }) => {
             subjectCache.current[subjectId] = subject;
         } catch (error) {
             console.error("Error fetching subject data:", error);
-            if (activeSubjectData?._id === subjectId) setActiveSubjectData(null);
+            setActiveSubjectData(prev => prev?._id === subjectId ? null : prev);
         } finally {
             delete pendingRequests.current[subjectId];
             setLoadingSubject(false);
         }
-    }, [activeSubjectData]);
+    }, []);
 
     const fetchAllSubjects = useCallback(async (force = false) => {
         if (!force && allSubjects.length > 0) return;

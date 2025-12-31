@@ -45,7 +45,7 @@ export default function Syllabus() {
     await addUserSubject(subjectId);
     setAddingId(null);
     fetchProfile();
-    navigate('/dashboard');
+    // navigate('/dashboard');
   };
 
   const isAdded = (id) => userProfile?.subjects?.includes(id);
@@ -133,14 +133,14 @@ export default function Syllabus() {
                
                <h3 className="text-2xl md:text-3xl font-bold text-primary mb-4 tracking-tight">Curating your curriculum</h3>
                <p className="text-secondary/60 text-base max-w-md mx-auto leading-relaxed mb-8">
-                  Bhai, we are working hard to bring a plethora of subjects for your specific year. If there's something specific you need, hit us up!
+                  Dude, we are working hard to bring a plethora of subjects for your specific year. If there's something specific you need, hit us up!
                </p>
                
                <a 
                 href="mailto:support@crix.codevern.com"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-black text-sm font-bold shadow-soft hover:shadow-strong active:scale-95 transition-all duration-300"
                >
-                  Contact Us
+                  Reach Us
                   <ArrowRight className="w-4 h-4" />
                </a>
            </motion.div>

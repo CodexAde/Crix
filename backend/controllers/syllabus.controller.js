@@ -81,6 +81,19 @@ const getUnitDetails = async (req, res) => {
                 $match: {
                     _id: new mongoose.Types.ObjectId(id)
                 }
+            },
+            {
+                $project: {
+                    name: 1,
+                    code: 1,
+                    unit: {
+                        $filter: {
+                            input: "$units",
+                            as: "unit",
+                            cond: { $eq: ["$$unit._id", new mongoose.Types.ObjectId(unitId)] }
+                        }
+                    }
+                }
             }
         ]);
 

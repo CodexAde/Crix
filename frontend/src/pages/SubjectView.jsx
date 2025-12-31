@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -30,11 +30,20 @@ export default function SubjectView() {
     // Local isAdded helper
     const isAdded = userProfile?.subjects?.includes(id);
 
+    // Initialize with first unit only when subject is first loaded
+    const initialLoadDone = useRef(false);
     useEffect(() => {
-        if (subject && subject.units?.length > 0) {
+        if (subject && subject.units?.length > 0 && !initialLoadDone.current) {
             fetchUnitContent(id, subject.units[0]._id);
+            initialLoadDone.current = true;
         }
-        return () => clearActiveUnit();
+        
+        return () => {
+            if (initialLoadDone.current) {
+                clearActiveUnit();
+                initialLoadDone.current = false;
+            }
+        };
     }, [id, subject, fetchUnitContent, clearActiveUnit]);
 
     const handleUnitChange = (index) => {
