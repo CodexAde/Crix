@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
+import { PageLoader } from '../components/Spinner';
 import SubjectContext from '../context/Subject/SubjectContext';
 import UserContext from '../context/User/UserContext';
 import { Flame, Brain, BookMarked, ArrowRight, Sparkles, Clock, Target, TrendingUp, BookOpen, GraduationCap, Zap, ChevronRight, Lightbulb, Plus, GripVertical } from 'lucide-react';
@@ -51,7 +52,12 @@ export default function Dashboard() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   };
 
-  const loading = loadingProfile || loadingStats;
+  // const loading = loadingProfile || loadingStats;
+  const loading = true; // Inverted for testing
+
+  if (!loading) {
+    return <PageLoader />
+  }
 
 
   // Premium Dummy Data for Stats

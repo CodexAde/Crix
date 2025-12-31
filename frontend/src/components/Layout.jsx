@@ -1,12 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import SyllabusContext from '../context/Syllabus/SyllabusContext';
+import UserContext from '../context/User/UserContext';
 import { Home, BookOpen, MessageCircle, Calendar, LogOut, User, Moon, Sun, Sparkles, PlusCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { loading: userLoading, userProfile } = useContext(UserContext);
+  const { loadingSubject, activeSubjectData } = useContext(SyllabusContext);
   const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -45,6 +49,9 @@ export default function Layout() {
     { icon: Calendar, label: 'Roadmap', path: '/roadmap' },
     { icon: User, label: 'Profile', path: '/user-profile' }
   ];
+
+
+  const isFullPageLoading = (loadingSubject && !activeSubjectData) || (userLoading && !userProfile);
 
   return (
     <div className="min-h-screen bg-main flex flex-col md:flex-row">
@@ -146,7 +153,9 @@ export default function Layout() {
       </main>
 
       {/* Mobile Bottom Taskbar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out">
+      {!isFullPageLoading && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out">
+
         {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.path);
@@ -165,6 +174,7 @@ export default function Layout() {
             )
         })}
       </nav>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Spinner sizes
 const sizes = {
@@ -26,42 +27,83 @@ export function Spinner({ size = 'md', className = '' }) {
 }
 
 // Full page loading spinner
-export function PageLoader({ text = 'Loading...' }) {
+export function PageLoader() {
+  const [index, setIndex] = useState(0);
+  
+  const messages = [
+    "Syncing Neural Pathways...",
+    "Calibrating Learning Engine...",
+    "Fetching Global Wisdom...",
+    "Optimizing Study Patterns...",
+    "Connecting to Crix Core...",
+    "Preparing Your Workspace...",
+    "Synthesizing Knowledge...",
+    "Loading Smart Insights..."
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % messages.length);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-main gap-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-main relative overflow-hidden">
+        {/* Ambient Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
+
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center gap-4"
+        className="flex flex-col items-center relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
       >
-        {/* Animated rings spinner */}
-        <div className="relative w-16 h-16">
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-accent/30"
-            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute inset-2 rounded-full border-2 border-accent/50"
-            animate={{ scale: [1, 1.1, 1], opacity: [0.7, 0.3, 0.7] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
-          />
-          <motion.div
-            className="absolute inset-4 rounded-full border-2 border-accent"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          />
+        {/* Breathing/Floating Crix Logo */}
+        <motion.h1 
+            className="text-7xl md:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-primary to-primary/60 mb-8 select-none"
+            animate={{ 
+                y: [0, -20, 0],
+                scale: [1, 1.02, 1],
+            }}
+            transition={{
+                duration: 1,
+                ease: "easeInOut",
+                repeat: Infinity,
+            }}
+        >
+            CRIX
+        </motion.h1>
+
+        {/* Loading Bar */}
+        <div className="w-48 h-1 bg-border-soft rounded-full overflow-hidden mb-8">
+            <motion.div 
+               className="h-full bg-accent"
+               initial={{ x: '-100%' }}
+               animate={{ x: '100%' }}
+               transition={{ 
+                   repeat: Infinity, 
+                   duration: 1.5, 
+                   ease: "easeInOut" 
+               }}
+            />
         </div>
-        {text && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-secondary text-sm font-medium"
-          >
-            {text}
-          </motion.p>
-        )}
+
+        {/* Rotating Text Messages */}
+        <div className="h-8 relative w-full flex justify-center items-center">
+            <AnimatePresence mode="wait">
+                <motion.p
+                    key={index}
+                    initial={{ opacity: 0, y: 10, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, y: -10, filter: 'blur(10px)' }}
+                    transition={{ duration: 0.4 }}
+                    className="text-secondary font-medium tracking-widest text-sm uppercase absolute whitespace-nowrap"
+                >
+                    {messages[index]}
+                </motion.p>
+            </AnimatePresence>
+        </div>
       </motion.div>
     </div>
   );
