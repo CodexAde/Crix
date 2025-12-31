@@ -32,6 +32,9 @@ const SyllabusStates = ({ children }) => {
             return;
         }
 
+        // Pre-emptively clear or set to loading to avoid stale data from previous unit
+        setActiveUnitData(null);
+
         try {
             setLoadingUnit(true);
             const requestPromise = axios.get(`/syllabus/${subjectId}/unit/${unitId}`);
@@ -44,7 +47,6 @@ const SyllabusStates = ({ children }) => {
             unitCache.current[cacheKey] = unitContent;
         } catch (error) {
             console.error("Error fetching unit content:", error);
-            setActiveUnitData(prev => prev?._id === unitId ? null : prev);
         } finally {
             delete pendingRequests.current[cacheKey];
             setLoadingUnit(false);

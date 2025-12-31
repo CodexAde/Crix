@@ -37,14 +37,7 @@ export default function SubjectView() {
             fetchUnitContent(id, subject.units[0]._id);
             initialLoadDone.current = true;
         }
-        
-        return () => {
-            if (initialLoadDone.current) {
-                clearActiveUnit();
-                initialLoadDone.current = false;
-            }
-        };
-    }, [id, subject, fetchUnitContent, clearActiveUnit]);
+    }, [id, subject, fetchUnitContent]);
 
     const handleUnitChange = (index) => {
         if (activeUnitIndex === index) return;

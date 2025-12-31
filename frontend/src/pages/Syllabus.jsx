@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { BookOpen, Search, ArrowRight, Book, Layers, ArrowLeft, MoreHorizontal, Plus, Check, Loader2 } from 'lucide-react';
+import { BookOpen, Search, ArrowRight, Book, Layers, ArrowLeft, MoreHorizontal, Plus, MailCheck, Loader2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -181,7 +181,7 @@ export default function Syllabus() {
                                 {isAdding ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />
                                 ) : added ? (
-                                    <Check className="w-5 h-5" />
+                                    <MailCheck className="w-5 h-5 text-green-500" />
                                 ) : (
                                     <Plus disabled={added || isAdding} className="w-5 h-5 text-secondary" />
                                 )}

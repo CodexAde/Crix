@@ -22,33 +22,66 @@ export default function ChapterView() {
   const subject = useMemo(() => userSubjects?.find(s => s._id === subjectId), [userSubjects, subjectId]);
   const unitHeader = useMemo(() => subject?.units?.find(u => u._id === unitId), [subject, unitId]);
 
-  // Use activeUnitData as source for chapters
-  const chapter = useMemo(() => {
-    return activeUnitData?.chapters?.find(c => c._id === chapterId);
-  }, [activeUnitData, chapterId]);
-
   // Fetch missing data
   useEffect(() => {
+    let isMounted = true;
     const fetchMissingData = async () => {
         try {
-            // 1. Fetch unit content if not available and not loading
+            // Parallel fetch for progress and unit content for better performance
+            const fetchPromises = [axios.get(`/progress/${subjectId}`)];
+            
             if (!activeUnitData || activeUnitData._id !== unitId) {
-                fetchUnitContent(subjectId, unitId);
+                fetchPromises.push(fetchUnitContent(subjectId, unitId));
             }
-            // 2. Fetch progress
-            const progressRes = await axios.get(`/progress/${subjectId}`);
-            setProgressMap(progressRes.data.progressMap);
+
+            const [progressRes] = await Promise.all(fetchPromises);
+            if (isMounted) {
+                setProgressMap(progressRes.data.progressMap);
+                setLoadingProgress(false);
+            }
         } catch (error) {
             console.error(error);
-        } finally {
-            setLoadingProgress(false);
+            if (isMounted) setLoadingProgress(false);
         }
     };
     fetchMissingData();
+    return () => { isMounted = false; };
   }, [subjectId, unitId, fetchUnitContent]);
 
-  if (loadingProfile || (loadingUnit && !chapter) || loadingProgress) return <PageLoader text="Loading chapter..." />;
-  if (!chapter) return <div className="p-10 text-center text-secondary">Chapter not found</div>;
+  // Derived chapter state - very careful about ID matching to prevent showing stale/wrong unit data
+  const chapter = useMemo(() => {
+    if (activeUnitData?._id === unitId) {
+        return activeUnitData.chapters?.find(c => c._id === chapterId);
+    }
+    return null;
+  }, [activeUnitData, unitId, chapterId]);
+
+  if (loadingProfile || loadingUnit || loadingProgress) return <PageLoader text="Loading chapter details..." />;
+  
+  // Show loader if we have a unitId but context hasn't loaded/matched it yet
+  // This prevents the "Not Found" flash while the effect is kicking in
+  if (unitId && activeUnitData?._id !== unitId) {
+      return <PageLoader text="Loading..." />;
+  }
+  
+  if (!chapter) {
+    return (
+        <div className="min-h-screen bg-main flex items-center justify-center p-10">
+            <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center mx-auto shadow-inner">
+                    <ClipboardCheck className="w-8 h-8 text-secondary/30" />
+                </div>
+                <p className="text-secondary font-medium">Chapter content not found.</p>
+                <button 
+                  onClick={() => navigate(-1)}
+                  className="text-accent font-bold hover:underline"
+                >
+                  Go Back
+                </button>
+            </div>
+        </div>
+    );
+  }
 
   const topicsWithStatus = chapter.topics.map(t => ({
       ...t,
