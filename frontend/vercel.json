@@ -5,7 +5,10 @@
       "destination": "https://crix-or5y.onrender.com/api/:path*"
     },
     { 
-      "source": "/((?!assets/|favicon.png|manifest.json|sw.js).*)", 
+      "handle": "filesystem" 
+    },
+    { 
+      "source": "/(.*)", 
       "destination": "/index.html" 
     }
   ]
