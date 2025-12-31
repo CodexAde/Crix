@@ -266,9 +266,9 @@ export default function Landing() {
             
             {/* Left: Content */}
             <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+                // initial={{ opacity: 0, x: -50 }}
+                // animate={{ opacity: 1, x: 0 }}
+                // transition={{ duration: 0.8, ease: "easeOut" }}
                 className="text-left"
             >
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white text-sm font-medium mb-6">
