@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight, CheckCircle2, Zap, Brain, Shield, ChevronDown, Rocket, X, Check, GraduationCap } from 'lucide-react';
 import Lenis from 'lenis';
 import { Canvas, useFrame } from '@react-three/fiber';
+import { LandingLoader } from '../components/Spinner';
 import { Stars, Float, PerspectiveCamera, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -183,6 +184,15 @@ function FaqItem({ question, answer, i }) {
 // --- Main Component ---
 export default function Landing() {
   const containerRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading for the "premium" feel
+    const timer = setTimeout(() => {
+        setLoading(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
   
   useEffect(() => {
     const lenis = new Lenis({
@@ -197,6 +207,8 @@ export default function Landing() {
     requestAnimationFrame(raf);
     return () => lenis.destroy();
   }, []);
+
+  if (loading) return <LandingLoader />;
 
   return (
     <div ref={containerRef} className="dark bg-[#000000] min-h-screen relative overflow-hidden text-white selection:bg-accent selection:text-white pb-20">

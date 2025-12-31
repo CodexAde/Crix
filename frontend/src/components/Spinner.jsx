@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+
 // Spinner sizes
 const sizes = {
   sm: 'w-4 h-4',
@@ -160,3 +161,57 @@ export function CardSkeleton() {
     </div>
   );
 }
+
+// New Landing Page Loader
+export function LandingLoader() {
+  return (
+    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[9999] p-4">
+       
+       <div className="relative flex flex-col items-center justify-center mb-12">
+          {/* Bouncing CRIX Text */}
+          <motion.h1 
+            className="text-8xl md:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-primary to-primary/60 select-none"
+            animate={{ 
+                y: [0, -20, 0],
+                scale: [1, 1.02, 1],
+            }}
+            transition={{
+                duration: 2,
+                ease: "easeInOut",
+                repeat: Infinity,
+            }}
+          >
+            CRIX
+          </motion.h1>
+          
+          {/* Shadow underneath */}
+          <motion.div 
+            className="h-4 w-40 bg-accent/20 rounded-[100%] blur-xl mt-2"
+            animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3] 
+            }}
+            transition={{
+                duration: 2,
+                ease: "easeInOut",
+                repeat: Infinity,
+            }}
+          />
+       </div>
+       
+       <div className="flex flex-col items-center gap-2 text-center relative z-10">
+            <p className="text-white/40 text-sm font-medium tracking-[0.2em] uppercase">
+                Redefining the way you learn
+            </p>
+            <div className="flex items-center gap-2">
+                <div className="h-px w-8 bg-white/10"></div>
+                <p className="text-white/20 text-xs font-mono tracking-widest uppercase">
+                    Powered by Codevern LLP Ltd
+                </p>
+                <div className="h-px w-8 bg-white/10"></div>
+            </div>
+       </div>
+    </div>
+  );
+}
+
