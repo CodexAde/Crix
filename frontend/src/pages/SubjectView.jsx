@@ -30,22 +30,27 @@ export default function SubjectView() {
     // Local isAdded helper
     const isAdded = userProfile?.subjects?.includes(id);
 
-    // Initialize with first unit only when subject is first loaded
-    const initialLoadDone = useRef(false);
+    // Robust data fetching: Ensure we always have data for the active unit
     useEffect(() => {
-        if (subject && subject.units?.length > 0 && !initialLoadDone.current) {
-            fetchUnitContent(id, subject.units[0]._id);
-            initialLoadDone.current = true;
+        if (!subject?.units?.length) return;
+        
+        const targetUnit = subject.units[activeUnitIndex];
+        const targetUnitId = targetUnit._id;
+        
+        // If no data loaded OR loaded data is for different unit, fetch it!
+        // We also check !loadingUnit to prevent spamming if it's already in flight (though context dedups too)
+        if (targetUnitId && (!activeUnitData || activeUnitData._id !== targetUnitId)) {
+            if (!loadingUnit) {
+                console.log(`[SubjectView] Auto-fetching unit: ${targetUnitId} (Current: ${activeUnitData?._id})`);
+                fetchUnitContent(id, targetUnitId);
+            }
         }
-    }, [id, subject, fetchUnitContent]);
+    }, [activeUnitIndex, subject, activeUnitData, loadingUnit, id, fetchUnitContent]);
 
     const handleUnitChange = (index) => {
         if (activeUnitIndex === index) return;
         setActiveUnitIndex(index);
-        clearActiveUnit();
-        if (subject?.units?.[index]) {
-            fetchUnitContent(id, subject.units[index]._id);
-        }
+        // No manual fetch needed - useEffect will handle it safely
     };
 
     const handleAddSubject = async () => {
@@ -98,9 +103,9 @@ export default function SubjectView() {
 
                     <button
                         onClick={() => navigate('/tests')}
-                        className="absolute right-6 flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all active:scale-95 group text-white shadow-xl shadow-black/5"
+                        className="absolute right-6 flex items-center gap-2 px-4 py-2.5 bg-white/5  hover:text-accent border border-white/10 rounded-xl hover:bg-accent/10 transition-all active:scale-95 group text-primary shadow-xl shadow-primary/5"
                     >
-                        <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Tests</span>
+                        <span className="text-[10px] text-secondary/80 font-black uppercase tracking-widest hidden sm:inline  hover:bg-accent/10 hover:transition-colors hover:text-accent">Tests</span>
                         <ClipboardCheck className="w-4 h-4 transition-colors group-hover:text-accent" />
                     </button>
                 </div>

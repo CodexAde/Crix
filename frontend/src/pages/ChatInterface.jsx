@@ -835,7 +835,7 @@ export default function ChatInterface({ isRoadmap = false }) {
                                     </>
                                 )}
                             </div>
-                            <h2 className="text-lg font-bold text-white tracking-tight line-clamp-1">
+                            <h2 className="text-lg font-bold text-secondary/80 tracking-tight line-clamp-1">
                                 {activeTopic?.title || 'Chat'}
                             </h2>
                         </div>
