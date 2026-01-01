@@ -89,59 +89,54 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                     }
                     
                     return (
-                      <div className="relative my-8 rounded-2xl overflow-hidden bg-[#0a0a0a] border border-white/[0.05] shadow-2xl group/code -mx-2 md:mx-0">
-                        {/* Ultra Minimal Header */}
-                        <div className="flex items-center justify-between px-5 py-3 bg-white/[0.02] border-b border-white/[0.05]">
-                          <span className="text-[10px] text-secondary/40 font-mono font-medium lowercase tracking-wider">
-                            {language || 'code'}
-                          </span>
-                          
-                          <button 
-                            onClick={() => {
-                              navigator.clipboard.writeText(codeString);
-                              setLocalCopied(true);
-                              setTimeout(() => setLocalCopied(false), 2000);
-                            }}
-                            className={clsx(
-                              "flex items-center gap-2 px-2 py-1 rounded-md transition-all duration-200 group/copy",
-                              localCopied 
-                                ? "text-green-400" 
-                                : "text-secondary/40 hover:text-secondary/80"
-                            )}
-                          >
-                            <div className="relative w-3.5 h-3.5 flex items-center justify-center">
-                              {localCopied ? (
-                                <Check className="w-3.5 h-3.5" />
-                              ) : (
-                                <Copy className="w-3.5 h-3.5" />
-                              )}
-                            </div>
-                            <span className="text-[10px] font-medium tracking-tight">
-                              {localCopied ? "Copied" : "Copy code"}
+                      <>
+                        <div className="relative mb-8 rounded-2xl overflow-hidden bg-[#0a0a0a] border border-white/[0.05] shadow-2xl group/code -mx-2 md:mx-0">
+                          {/* Ultra Minimal Header */}
+                          <div className="flex items-center justify-between px-5 py-3 bg-white/[0.02] border-b border-white/[0.05]">
+                            <span className="text-[10px] text-accent/40 font-mono font-medium lowercase tracking-wider">
+                              {language || 'code'}
                             </span>
-                          </button>
-                        </div>
-                        <SyntaxHighlighter
-                          style={oneDark}
-                          language={language || 'text'}
-                          PreTag="div"
-                          customStyle={{
-                            margin: 0,
-                            borderRadius: 0,
-                            padding: '1.5rem',
-                            fontSize: '0.85rem',
-                            lineHeight: '1.7',
-                            background: 'transparent',
-                          }}
-                          codeTagProps={{
-                            style: {
-                              fontFamily: '"JetBrains Mono", "SF Mono", "Fira Code", monospace',
-                            }
-                          }}
-                        >
-                          {codeString}
+                            
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(codeString);
+                                setLocalCopied(true);
+                                setTimeout(() => setLocalCopied(false), 2000);
+                              }}
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-secondary hover:text-primary transition-all active:scale-95 group/copy"
+                            >
+                              {localCopied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 group-hover/copy:scale-110 transition-transform" />}
+                              <span className="text-[10px] font-medium tracking-tight">
+                                {localCopied ? "Copied" : "Copy code"}
+                              </span>
+                            </button>
+                          </div>
+                          <SyntaxHighlighter
+                            style={oneDark}
+                            language={language || 'text'}
+                            PreTag="div"
+                            customStyle={{
+                              margin: 0,
+                              borderRadius: 0,
+                              padding: '1.5rem',
+                              fontSize: '0.85rem',
+                              lineHeight: '1.7',
+                              background: 'transparent',
+                            }}
+                            codeTagProps={{
+                              style: {
+                                fontFamily: '"JetBrains Mono", "SF Mono", "Fira Code", monospace',
+                              }
+                            }}
+                          >
+                            {codeString}
                         </SyntaxHighlighter>
-                      </div>
+                        </div>
+                        {/* Smooth & Balanced Decorative Separator */}
+                        <div className="my-6 px-4">
+                            <div className="h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                        </div>
+                      </>
                     );
                   },
                   table: ({node, ...props}) => (

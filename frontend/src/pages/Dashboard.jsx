@@ -28,8 +28,8 @@ export default function Dashboard() {
 
     const fetchStats = async () => {
         try {
-            const statsRes = await axios.get('/progress/stats');
-            setStats(statsRes.data);
+            // const statsRes = await axios.get('/progress/stats');
+            // setStats(statsRes.data);
         } catch (error) {
             console.error("Failed to fetch dashboard data", error);
         } finally {
@@ -112,7 +112,7 @@ export default function Dashboard() {
                   {lastSession ? "Today's Focus" : "Start Your Journey"}
                </span>
                <span className="text-xs text-secondary font-medium tracking-tight opacity-70">
-                 {lastSession ? "• 25 min remaining" : "• Instant Learning Available"}
+                 {lastSession ? "• 25 min remaining" : "• Instant Learning"}
                </span>
             </div>
 
@@ -141,7 +141,7 @@ export default function Dashboard() {
                   {lastSession.topicTitle}
                 </h2>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-10">
-                  <p className="text-accent font-bold text-lg md:text-2xl tracking-tight">
+                  <p className="text-primary font-bold text-lg md:text-2xl tracking-tight">
                     {lastSession.subjectName}
                   </p>
                   {lastSession.unitTitle && (
@@ -155,7 +155,7 @@ export default function Dashboard() {
                   {lastSession.chapterTitle && (
                       <>
                       <span className="w-1.5 h-1.5 rounded-full bg-border-soft hidden md:block" />
-                      <p className="text-secondary text-lg md:text-xl font-medium tracking-tight opacity-70">
+                      <p className="text-accent text-lg md:text-xl font-medium tracking-tight opacity-70">
                         {lastSession.chapterTitle}
                       </p>
                       </>
