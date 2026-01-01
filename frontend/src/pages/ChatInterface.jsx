@@ -49,7 +49,7 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
         </div>
       ) : (
         <div className="w-full group/msg">
-          <div className="relative p-6 md:p-8 rounded-[2.5rem] bg-white/[0.03] backdrop-blur-md border border-white/5 shadow-2xl overflow-hidden transition-all duration-500 hover:bg-white/[0.05] hover:border-white/10">
+          <div className="relative overflow-hidden transition-all duration-500 ">
             {/* Subtle Gradient Glow */}
             <div className="absolute -top-24 -left-24 w-48 h-48 bg-accent/10 blur-[100px] rounded-full pointer-events-none" />
             
@@ -62,7 +62,7 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                   h2: ({node, ...props}) => <h2 className="text-lg md:text-xl font-bold mb-6 mt-8 text-accent tracking-tight" {...props} />,
                   h3: ({node, ...props}) => <h3 className="text-base font-bold mb-4 mt-6 text-primary tracking-tight" {...props} />,
                   p: ({node, ...props}) => <p className="mb-6 last:mb-0 text-sm md:text-base leading-[1.8] text-secondary/90 font-medium" {...props} />,
-                  ul: ({node, ...props}) => <ul className="list-disc list-outside ml-6 mb-6 space-y-4 text-sm md:text-base text-secondary/90" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-none space-y-4 text-sm md:text-base text-secondary/90 mb-6" {...props} />,
                   ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-6 mb-6 space-y-4 text-sm md:text-base text-secondary/90" {...props} />,
                   li: ({node, ...props}) => <li className="leading-relaxed pl-2 hover:text-primary transition-colors" {...props} />,
                   hr: ({node, ...props}) => (
@@ -89,51 +89,37 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                     }
                     
                     return (
-                      <div className="relative my-8 rounded-2xl overflow-hidden bg-[#0d1117] border border-white/5 shadow-2xl group/code scale-[1.02] -mx-2 md:mx-0">
-                        {/* Apple Style Window Header */}
-                        <div className="flex items-center justify-between px-5 py-4 bg-[#161b22] border-b border-white/5">
-                          <div className="flex items-center gap-3">
-                            <div className="flex gap-2">
-                              <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-black/10 shadow-inner" />
-                              <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-black/10 shadow-inner" />
-                              <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-black/10 shadow-inner" />
-                            </div>
-                            <span className="ml-3 text-[10px] text-secondary/50 font-mono uppercase tracking-[0.2em] font-black">
-                              {language || 'code'}
-                            </span>
-                          </div>
+                      <div className="relative my-8 rounded-2xl overflow-hidden bg-[#0a0a0a] border border-white/[0.05] shadow-2xl group/code -mx-2 md:mx-0">
+                        {/* Ultra Minimal Header */}
+                        <div className="flex items-center justify-between px-5 py-3 bg-white/[0.02] border-b border-white/[0.05]">
+                          <span className="text-[10px] text-secondary/40 font-mono font-medium lowercase tracking-wider">
+                            {language || 'code'}
+                          </span>
                           
-                          <div className="relative">
-                            <button 
-                              onClick={() => {
-                                navigator.clipboard.writeText(codeString);
-                                setLocalCopied(true);
-                                setTimeout(() => setLocalCopied(false), 2000);
-                              }}
-                              className={clsx(
-                                "p-2 rounded-lg border transition-all duration-300 group/copy",
-                                localCopied 
-                                  ? "text-red-500 bg-red-500/10 border-red-500/20 scale-110" 
-                                  : "text-secondary/60 hover:text-white bg-white/5 border-white/5 hover:border-white/10"
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(codeString);
+                              setLocalCopied(true);
+                              setTimeout(() => setLocalCopied(false), 2000);
+                            }}
+                            className={clsx(
+                              "flex items-center gap-2 px-2 py-1 rounded-md transition-all duration-200 group/copy",
+                              localCopied 
+                                ? "text-green-400" 
+                                : "text-secondary/40 hover:text-secondary/80"
+                            )}
+                          >
+                            <div className="relative w-3.5 h-3.5 flex items-center justify-center">
+                              {localCopied ? (
+                                <Check className="w-3.5 h-3.5" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
                               )}
-                              title="Copy Code"
-                            >
-                              <div className="relative w-4 h-4 flex items-center justify-center">
-                                {localCopied ? (
-                                  <motion.div
-                                    initial={{ scale: 0.5, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className="flex items-center justify-center"
-                                  >
-                                    <Check className="w-4 h-4 text-red-500" />
-                                    <Sparkles className="w-3 h-3 text-red-500 absolute -top-1 -right-1" />
-                                  </motion.div>
-                                ) : (
-                                  <Copy className="w-4 h-4 transition-transform group-hover/copy:scale-110" />
-                                )}
-                              </div>
-                            </button>
-                          </div>
+                            </div>
+                            <span className="text-[10px] font-medium tracking-tight">
+                              {localCopied ? "Copied" : "Copy code"}
+                            </span>
+                          </button>
                         </div>
                         <SyntaxHighlighter
                           style={oneDark}
@@ -143,13 +129,13 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                             margin: 0,
                             borderRadius: 0,
                             padding: '1.5rem',
-                            fontSize: '0.9rem',
-                            lineHeight: '1.8',
+                            fontSize: '0.85rem',
+                            lineHeight: '1.7',
                             background: 'transparent',
                           }}
                           codeTagProps={{
                             style: {
-                              fontFamily: '"JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace',
+                              fontFamily: '"JetBrains Mono", "SF Mono", "Fira Code", monospace',
                             }
                           }}
                         >
@@ -158,6 +144,16 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                       </div>
                     );
                   },
+                  table: ({node, ...props}) => (
+                    <div className="my-8 overflow-x-auto rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-sm shadow-xl">
+                      <table className="w-full border-collapse text-sm text-left" {...props} />
+                    </div>
+                  ),
+                  thead: ({node, ...props}) => <thead className="bg-white/[0.05] border-b border-white/10" {...props} />,
+                  tbody: ({node, ...props}) => <tbody className="divide-y divide-white/5" {...props} />,
+                  tr: ({node, ...props}) => <tr className="hover:bg-white/[0.02] transition-colors group/tr" {...props} />,
+                  th: ({node, ...props}) => <th className="px-6 py-4 font-bold text-accent uppercase tracking-wider text-[10px]" {...props} />,
+                  td: ({node, ...props}) => <td className="px-6 py-4 text-secondary group-hover/tr:text-primary transition-colors leading-relaxed" {...props} />,
                 }}
               >
                 {msg.content}
@@ -167,7 +163,7 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
           
           {/* CTA Buttons - Only show when NOT typing */}
           {!isTyping && (
-            <div className="flex items-center gap-2 mt-3 ml-4 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-300">
+            <div className="flex items-center gap-2 mt-3 opacity-1 group-hover/msg:opacity-100 transition-opacity duration-300">
               {[
                 { icon: Copy, onClick: handleCopy, active: copied, title: "Copy Answer" },
                 { 
@@ -262,10 +258,10 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                                           : "bg-transparent border border-border-soft mx-2 my-1 rounded-2xl hover:bg-white/5 hover:border-white/10"
                                     )}
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex flex-col gap-1">
+                                    <div className="flex items-center justify-between overflow-hidden">
+                                        <div className="flex flex-col gap-1 min-w-0">
                                             <span className={clsx(
-                                                "text-[10px] uppercase tracking-wider font-semibold transition-colors",
+                                                "text-[10px] uppercase tracking-wider font-semibold transition-colors truncate",
                                                 isActiveChapter ? "text-accent" : "text-secondary/70 group-hover:text-secondary"
                                             )}>
                                                 {ch.unitTitle || 'Chapter'}
@@ -308,10 +304,6 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                                                                         : "text-secondary hover:text-primary hover:bg-white/5"
                                                                 )}
                                                             >
-                                                                <span className={clsx(
-                                                                    "w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors",
-                                                                    isTopicActive ? "bg-accent" : "bg-border-soft group-hover/topic:bg-secondary"
-                                                                )} />
                                                                 <span className="truncate">{topic.title}</span>
                                                             </button>
                                                         )
