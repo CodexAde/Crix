@@ -172,8 +172,8 @@ export default function RoadmapGenerator({ onGenerate, loading }) {
             <div className="flex items-center gap-6">
               <input
                 type="range"
-                min="4"
-                max="30"
+                min="1"
+                max="7"
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 className="flex-1 h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-accent"
@@ -190,7 +190,7 @@ export default function RoadmapGenerator({ onGenerate, loading }) {
           <button
             type="submit"
             disabled={loading || !selectedSubjectId}
-            className="w-full flex items-center justify-center gap-3 py-5 bg-accent text-white rounded-2xl font-bold shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+            className="w-full flex items-center justify-center gap-3 py-5 bg-accent text-white rounded-2xl font-bold shadow-xl shadow-accent/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
           >
             {loading ? (
               <Loader2 className="w-6 h-6 animate-spin" />
@@ -354,7 +354,7 @@ export default function RoadmapGenerator({ onGenerate, loading }) {
                 </div>
                 <button
                   onClick={() => setShowSelector(false)}
-                  className="px-10 py-4 bg-accent text-white rounded-2xl font-bold shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all text-sm"
+                  className="px-10 py-4 bg-accent text-white rounded-2xl font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all text-sm"
                 >
                   Confirm Selection
                 </button>

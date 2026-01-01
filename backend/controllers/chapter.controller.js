@@ -63,14 +63,19 @@ OUTPUT FORMAT - Return ONLY valid JSON, no markdown, no code blocks:
   ]
 }
 
-RULES:
-1. Extract ALL chapters visible in the image
-2. For each chapter, extract ALL topics/subtopics listed
-3. Keep titles concise but meaningful
-4. Keep descriptions short (1 line max)
-5. Maintain the order as shown in the syllabus
-6. If topics aren't clearly listed, create logical subtopics based on chapter title
-7. Return ONLY the JSON object, nothing else
+CRITICAL RULES:
+1. If the image does NOT contain a syllabus, curriculum, or educational content, or if it is too blurry/vague to extract meaningful chapters/topics, return EXACTLY this JSON:
+{
+  "error": "insufficient_info",
+  "message": "not enough information to proceed making syllabus please give more depth of it"
+}
+2. Otherwise, extract ALL chapters visible in the image
+3. For each chapter, extract ALL topics/subtopics listed
+4. Keep titles concise but meaningful
+5. Keep descriptions short (1 line max)
+6. Maintain the order as shown in the syllabus
+7. If topics aren't clearly listed, create logical subtopics based on chapter title
+8. Return ONLY the JSON object, nothing else
 8. Do not include any conversational text, strictly JSON.
 
 Analyze the image now:`;
@@ -117,15 +122,20 @@ OUTPUT FORMAT - Return ONLY valid JSON, no markdown, no code blocks:
   ]
 }
 
-RULES:
-1. Extract ALL chapters from the text
-2. For each chapter, extract ALL topics/subtopics listed
-3. Keep titles concise but meaningful
-4. Keep descriptions short (1 line max)
-5. Maintain the order as shown in the syllabus
-6. If topics aren't clearly listed, create logical subtopics based on chapter title
-7. Return ONLY the JSON object, nothing else
-8. Do not include any conversational text, strictly JSON.`;
+CRITICAL RULES:
+1. If the text does NOT contain syllabus-like data, or is too vague/short to extract chapters and topics, return EXACTLY this JSON:
+{
+  "error": "insufficient_info",
+  "message": "not enough information to proceed making syllabus please give more depth of it"
+}
+2. Otherwise, extract ALL chapters from the text
+3. For each chapter, extract ALL topics/subtopics listed
+4. Keep titles concise but meaningful
+5. Keep descriptions short (1 line max)
+6. Maintain the order as shown in the syllabus
+7. If topics aren't clearly listed, create logical subtopics based on chapter title
+8. Return ONLY the JSON object, nothing else
+9. Do not include any conversational text, strictly JSON.`;
 
             // Use requested DeepSeek Chimera model
             const response = await getOpenAI().chat.completions.create({
@@ -157,6 +167,15 @@ RULES:
                 success: false, 
                 message: "AI returned invalid format. Please try again.",
                 rawResponse: text 
+            });
+        }
+        
+        // Handle Insufficient Information Error
+        if (generatedData.error === "insufficient_info") {
+            return res.status(200).json({
+                success: false,
+                isInsufficient: true,
+                message: generatedData.message || "not enough information to proceed making syllabus please give more depth of it"
             });
         }
         

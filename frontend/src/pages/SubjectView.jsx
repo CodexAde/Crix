@@ -56,6 +56,7 @@ export default function SubjectView() {
     const handleAddSubject = async () => {
         setAddingSubject(true);
         await addUserSubject(id);
+        navigate('/syllabus');
         setAddingSubject(false);
     };
 
