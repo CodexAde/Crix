@@ -6,7 +6,7 @@ import * as roadmapService from "../services/roadmap.service.js";
 import { Subject } from "../models/syllabus.model.js";
 
 const generateRoadmapAI = asyncHandler(async (req, res) => {
-  let { subject, duration } = req.body;
+  let { subject, duration, selectedChapters, selectedTopics } = req.body;
 
   if (!subject) {
     throw new ApiError(400, "Subject is required");
@@ -25,12 +25,35 @@ const generateRoadmapAI = asyncHandler(async (req, res) => {
     throw new ApiError(404, `Syllabus for "${subject}" not found.`);
   }
 
+  // Filter syllabus context if specific chapters or topics are selected
+  let filteredUnits = existingSubject.units;
+  if (selectedChapters?.length > 0 || selectedTopics?.length > 0) {
+    filteredUnits = existingSubject.units.map(unit => {
+      const filteredChapters = unit.chapters.filter(chapter => {
+        // If chapter itself is selected, keep it
+        if (selectedChapters?.includes(chapter._id.toString())) return true;
+        // If any of its topics are selected, keep the chapter
+        return chapter.topics.some(topic => selectedTopics?.includes(topic._id.toString()));
+      }).map(chapter => {
+        // If chapter is selected but topics aren't specifically filtered, keep all topics
+        // If topics are specifically selected, filter them within the chapter
+        if (selectedTopics?.length > 0) {
+          const filteredTopics = chapter.topics.filter(topic => selectedTopics.includes(topic._id.toString()));
+          return { ...chapter, topics: filteredTopics };
+        }
+        return chapter;
+      });
+      return { ...unit, chapters: filteredChapters };
+    }).filter(unit => unit.chapters.length > 0);
+  }
+
   const prompt = `
     You are an Elite Academic Strategist. Generate a SOPHISTICATED study roadmap for: "${existingSubject.name}".
     Duration: ${actualDuration} days.
     
-    FULL SYLLABUS CONTEXT:
-    ${existingSubject.units.map(u => `
+    ${selectedChapters?.length > 0 || selectedTopics?.length > 0 ? "IMPORTANT: The student has selected SPECIFIC chapters/topics. ONLY include these in the roadmap." : "FULL SYLLABUS CONTEXT:"}
+    
+    ${filteredUnits.map(u => `
     UNIT ${u.unitNumber}: ${u.title}
     Chapters:
     ${u.chapters.map(c => `

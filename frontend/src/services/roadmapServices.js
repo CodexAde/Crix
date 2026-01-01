@@ -1,9 +1,11 @@
 import axios from 'axios';
 
-export const generateRoadmapAI = async (subject, duration) => {
+export const generateRoadmapAI = async (subject, duration, selectedChapters, selectedTopics) => {
   const { data } = await axios.post('/roadmaps/generate-ai', {
     subject,
     duration,
+    selectedChapters,
+    selectedTopics,
   });
   return data.data;
 };

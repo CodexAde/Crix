@@ -340,6 +340,7 @@ export default function ChatInterface({ isRoadmap = false }) {
   const [roadmapChapters, setRoadmapChapters] = useState([]);
   const [subjectNameState, setSubjectNameState] = useState("");
   const [isLoadingRoadmap, setIsLoadingRoadmap] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const messagesEndRef = useRef(null);
   const latestUserMsgRef = useRef(null);
@@ -416,6 +417,8 @@ export default function ChatInterface({ isRoadmap = false }) {
 
   const copyLink = () => {
     navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const shareToWhatsApp = () => {
@@ -970,41 +973,93 @@ export default function ChatInterface({ isRoadmap = false }) {
             </div>
 
             {/* Share Modal */}
-            {shareModal.open && (
-                <div className="fixed inset-0 flex items-center justify-center">
-                    <div 
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        onClick={closeShareModal}
-                    />
-                    <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="relative bg-card rounded-2xl p-6 w-[90%] max-w-md shadow-2xl border border-border-soft"
-                    >
-                        <button 
+            <AnimatePresence>
+                {shareModal.open && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             onClick={closeShareModal}
-                            className="absolute top-4 right-4 p-2 rounded-full hover:bg-border-soft transition-colors"
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative bg-card/90 backdrop-blur-2xl rounded-3xl p-8 w-full max-w-sm shadow-2xl border border-white/10 overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            <X className="w-5 h-5 text-secondary" />
-                        </button>
-                        <h3 className="text-lg font-semibold text-primary mb-4">Share</h3>
-                        {/* ... Share content logic ... */}
-                        <div className="mb-6">
-                            <p className="text-xs text-secondary mb-2">Copy link</p>
-                            <div className="flex items-center gap-2 bg-main rounded-xl p-3 border border-border-soft">
-                                <Link2 className="w-4 h-4 text-secondary flex-shrink-0" />
-                                <span className="text-sm text-primary truncate flex-1">{shareUrl}</span>
-                                <button 
-                                    onClick={copyLink}
-                                    className="px-3 py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:opacity-90 transition-all"
-                                >
-                                    Copy
-                                </button>
+                            {/* Decorative Background Elements */}
+                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent/20 blur-[80px] rounded-full pointer-events-none" />
+                            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-accent/10 blur-[80px] rounded-full pointer-events-none" />
+
+                            <button 
+                                onClick={closeShareModal}
+                                className="absolute top-5 right-5 p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-secondary hover:text-primary transition-all active:scale-90"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 rounded-2xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                                        <Share className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-primary tracking-tight">Share</h3>
+                                        <p className="text-xs text-secondary font-medium">Spread the knowledge</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {/* Link Copy Section */}
+                                    <div>
+                                        <p className="text-[10px] font-bold text-accent uppercase tracking-widest mb-3 px-1">Quick Link</p>
+                                        <div className="flex items-center gap-2 bg-white/5 rounded-2xl p-2 border border-white/10 group focus-within:border-accent/40 transition-all">
+                                            <div className="pl-2">
+                                                <Link2 className="w-4 h-4 text-secondary group-focus-within:text-accent transition-colors" />
+                                            </div>
+                                            <span className="text-xs text-secondary/80 truncate flex-1 font-medium">{shareUrl}</span>
+                                            <button 
+                                                onClick={copyLink}
+                                                className="px-4 py-2 bg-accent text-white text-xs font-bold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-accent/10"
+                                            >
+                                                {copied ? "Copied!" : "Copy"}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Social Share Section */}
+                                    <div>
+                                        <p className="text-[10px] font-bold text-accent uppercase tracking-widest mb-3 px-1">Share To</p>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {[
+                                                { icon: MessageCircle, label: 'WhatsApp', onClick: shareToWhatsApp, color: 'hover:bg-green-500/10 hover:text-green-500 hover:border-green-500/20' },
+                                                { icon: Send, label: 'Telegram', onClick: shareToTelegram, color: 'hover:bg-blue-500/10 hover:text-blue-500 hover:border-blue-500/20' },
+                                                { icon: X, label: 'Twitter', onClick: shareToTwitter, color: 'hover:bg-white/10 hover:text-primary hover:border-white/20' }
+                                            ].map((social, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={social.onClick}
+                                                    className={clsx(
+                                                        "flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/5 transition-all active:scale-95 group",
+                                                        social.color
+                                                    )}
+                                                >
+                                                    <social.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+                                                    <span className="text-[10px] font-bold">{social.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     </div>
   );

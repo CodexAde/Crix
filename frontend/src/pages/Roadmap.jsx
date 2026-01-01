@@ -80,10 +80,10 @@ export default function Roadmap() {
     }
   };
 
-  const handleGenerate = async (subject, duration) => {
+  const handleGenerate = async (subject, duration, selectedChapters, selectedTopics) => {
     setLoading(true);
     try {
-      const data = await generateRoadmapAI(subject, duration);
+      const data = await generateRoadmapAI(subject, duration, selectedChapters, selectedTopics);
       setGeneratedRoadmap({ ...data, subject, duration });
       setView('editor');
       toast.success('Neural path generated!');
