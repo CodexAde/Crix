@@ -53,9 +53,8 @@ export default function Layout() {
 
   const isFullPageLoading = (loadingSubject && !activeSubjectData) || (userLoading && !userProfile);
   
-  // Hide UI during test taking but show it for results/analysis
-  const isTakingTest = location.pathname.includes('/test/take/') && 
-                       !location.pathname.includes('/result');
+  // Hide UI during test taking, results, and analysis
+  const isTakingTest = location.pathname.includes('/test/take/');
 
   if (isTakingTest) {
       return (

@@ -83,19 +83,14 @@ export default function TestResult() {
 
             <div className="relative z-10 flex-1 flex flex-col items-center">
                 {/* Minimal Top Header */}
-                <header className="w-full max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
+                <header className="w-full max-w-4xl mx-auto px-6 pt-10 flex items-center justify-between">
+                    <h1 className="text-2xl md:text-3xl font-bold text-primary">Test Summary</h1>
                     <button
                         onClick={() => navigate(-1)}
-                        className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 text-secondary"
+                        className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10 active:scale-95 transition-all flex items-center gap-2"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-4 h-4" /> Back
                     </button>
-                    
-                    <div className="flex items-center gap-3">
-                        <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 backdrop-blur-md">
-                            <span className="text-[10px] font-black text-accent uppercase tracking-widest">Test ID: {testId.slice(-6)}</span>
-                        </div>
-                    </div>
                 </header>
 
                 <motion.div 

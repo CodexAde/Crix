@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, XCircle, Info } from 'lucide-react';
+import { 
+    ArrowLeft, 
+    CheckCircle2, 
+    XCircle, 
+    Info, 
+    ChevronRight,
+    HelpCircle,
+    Lightbulb
+} from 'lucide-react';
 import { getTestById, getLatestAttempt } from '../services/testServices';
 import { clsx } from 'clsx';
 import toast from 'react-hot-toast';
@@ -34,35 +42,64 @@ export default function TestAnalysis() {
 
     if (loading) return (
         <div className="min-h-screen bg-main flex items-center justify-center">
-            <div className="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+            <div className="relative">
+                <div className="w-12 h-12 border-4 border-accent/10 rounded-full" />
+                <div className="absolute top-0 left-0 w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+            </div>
         </div>
     );
 
     if (!test || !lastAttempt) return null;
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.15
+            }
+        }
+    };
+
+    const cardVariants = {
+        hidden: { opacity: 0, y: 40 },
+        visible: { 
+            opacity: 1, 
+            y: 0,
+            transition: {
+                type: "spring",
+                damping: 20,
+                stiffness: 100
+            }
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-main flex flex-col items-center overflow-x-hidden">
-            <header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50 w-full">
-                <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="absolute left-6 p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 group text-secondary hover:text-primary"
+        <div className="min-h-screen bg-main relative overflow-x-hidden flex flex-col items-center">
+            {/* Minimal Background Elements (No harsh gradients) */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full" />
+                <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/5 blur-[150px] rounded-full" />
+            </div>
+
+            <div className="max-w-4xl w-full px-4 md:px-6 pt-10">
+                <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 flex items-center justify-between">
+                    <h1 className="text-2xl md:text-3xl font-bold text-primary">Detailed Analysis</h1>
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10 active:scale-95 transition-all flex items-center gap-2"
                     >
-                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft className="w-4 h-4" /> Back
                     </button>
+                </motion.header>
+            </div>
 
-                    <div className="text-center max-w-[60%]">
-                        <p className="text-[10px] font-black text-accent mb-0.5 uppercase tracking-[0.2em] opacity-80">
-                            Detailed Analysis
-                        </p>
-                        <h1 className="text-base md:text-xl font-bold text-primary truncate">
-                            {test.title}
-                        </h1>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-3xl w-full px-4 md:px-6 py-12 space-y-10 pb-32">
+            <motion.main 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="max-w-4xl w-full mx-auto px-4 md:px-6 py-10 space-y-10 pb-32 relative z-10"
+            >
                 {test.questions.map((q, qIdx) => {
                     const userAnsObj = lastAttempt.answers.find(a => a.questionId === q._id);
                     const userAns = userAnsObj?.answer;
@@ -71,99 +108,97 @@ export default function TestAnalysis() {
                     return (
                         <motion.div 
                             key={q._id}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-50px" }}
-                            className="group relative"
+                            variants={cardVariants}
+                            className="relative flex flex-col gap-4"
                         >
-                            {/* Question Card */}
-                            <div className="bg-card/40 backdrop-blur-xl rounded-[2.5rem] border border-white/5 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:border-white/10 transition-all duration-500">
-                                {/* Glossy Header Section */}
-                                <div className="p-8 md:p-10 border-b border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent">
-                                    <div className="flex items-start gap-5">
-                                        <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent text-lg font-black shrink-0 shadow-inner">
-                                            {qIdx + 1}
-                                        </div>
-                                        <h2 className="text-xl md:text-2xl font-bold text-primary leading-snug tracking-tight pt-1">
-                                            {q.question}
-                                        </h2>
-                                    </div>
+                            {/* Question Header */}
+                            <div className="flex items-center gap-3 px-2">
+                                <div className={clsx(
+                                    "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest",
+                                    isCorrect ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                                )}>
+                                    {isCorrect ? 'Correct Path' : 'Correction Needed'}
                                 </div>
+                                <div className="h-[1px] flex-1 bg-white/[0.03]" />
+                                <div className="text-[10px] font-bold text-secondary/30 uppercase tracking-tighter">
+                                    Q {qIdx + 1}
+                                </div>
+                            </div>
 
-                                {/* Options Section */}
-                                <div className="p-6 md:p-10 bg-black/20">
-                                    <div className="grid gap-3.5">
+                            {/* Main Question Card */}
+                            <div className="bg-card/20 backdrop-blur-3xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative overflow-hidden">
+                                <div className="relative z-10">
+                                    <h2 className="text-lg md:text-xl font-bold text-white leading-relaxed tracking-tight mb-8">
+                                        {q.question}
+                                    </h2>
+
+                                    {/* Options Section */}
+                                    <div className="grid gap-3">
                                         {q.options.map((opt, optIdx) => {
                                             const isSelected = userAns === opt;
                                             const isCorrectOpt = q.correctAnswer === opt;
                                             
-                                            let stateStyles = "border-white/5 bg-white/[0.02] text-secondary/60";
-                                            let icon = null;
-
-                                            if (isCorrectOpt) {
-                                                stateStyles = "border-green-500/40 bg-green-500/10 text-green-400 ring-1 ring-green-500/20";
-                                                icon = <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />;
-                                            } else if (isSelected && !isCorrect) {
-                                                stateStyles = "border-red-500/40 bg-red-500/10 text-red-400 ring-1 ring-red-500/20";
-                                                icon = <XCircle className="w-5 h-5 text-red-400 shrink-0" />;
-                                            }
-
                                             return (
                                                 <div 
                                                     key={optIdx}
                                                     className={clsx(
-                                                        "p-5 rounded-2xl border transition-all flex items-center justify-between gap-4 group/opt shadow-sm",
-                                                        stateStyles
+                                                        "relative p-4 rounded-2xl transition-all duration-300 flex items-center justify-between gap-4 overflow-hidden",
+                                                        isCorrectOpt 
+                                                            ? "bg-green-500/20 text-green-400" 
+                                                            : isSelected && !isCorrect 
+                                                                ? "bg-red-500/20 text-red-400"
+                                                                : "bg-white/[0.02] text-secondary/50"
                                                     )}
                                                 >
                                                     <div className="flex items-center gap-4 flex-1 min-w-0">
                                                         <div className={clsx(
-                                                            "w-7 h-7 rounded-lg border flex items-center justify-center text-[11px] font-black shrink-0 transition-transform group-hover/opt:scale-105",
-                                                            isCorrectOpt ? "border-green-500 bg-green-500 text-white" : isSelected ? "border-red-500 bg-red-500 text-white" : "border-white/10 text-secondary/30 bg-white/5"
+                                                            "w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black shrink-0",
+                                                            isCorrectOpt ? "bg-green-500 text-white" : isSelected ? "bg-red-500 text-white" : "bg-white/5 text-secondary/40"
                                                         )}>
                                                             {String.fromCharCode(65 + optIdx)}
                                                         </div>
-                                                        <span className="text-base md:text-lg font-medium leading-relaxed break-words">
+                                                        <span className="text-sm md:text-base font-medium leading-relaxed">
                                                             {opt}
                                                         </span>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        {isSelected && !isCorrectOpt && (
-                                                            <span className="text-[10px] font-black uppercase tracking-tighter opacity-60 px-2 py-0.5 rounded-md bg-red-500/20 text-red-400 border border-red-500/20">
-                                                                Your Choice
-                                                            </span>
-                                                        )}
- 
-                                                     </div>
+                                                    
+                                                    <div className="shrink-0">
+                                                        {isCorrectOpt && <CheckCircle2 className="w-5 h-5" />}
+                                                        {isSelected && !isCorrectOpt && <XCircle className="w-5 h-5" />}
+                                                    </div>
                                                 </div>
                                             );
                                         })}
                                     </div>
-
-                                    {/* Smart Insight (Explanation) */}
-                                    {q.explanation && (
-                                        <div className="mt-8 relative pt-8 border-t border-white/5">
-                                            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-accent text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-lg shadow-accent/20">
-                                                Smart Insight
-                                            </div>
-                                            <div className="p-6 rounded-[2rem] bg-accent/5 border border-accent/10 flex gap-5 group/insight hover:bg-accent/10 transition-colors duration-500">
-                                                <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center shrink-0 shadow-inner">
-                                                    <Info className="w-5 h-5 text-accent group-hover/insight:rotate-12 transition-transform" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm md:text-base text-primary/80 leading-relaxed font-medium italic">
-                                                        "{q.explanation}"
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
+
+                            {/* Integrated Smart Insight */}
+                            {q.explanation && (
+                                <motion.div 
+                                    initial={{ opacity: 0, x: -10 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    className="mx-4 md:mx-8 p-6 md:p-8 rounded-b-[2.5rem] bg-accent/5 backdrop-blur-xl -mt-8 pt-12 border-t border-white/[0.02] relative"
+                                >
+                                    <div className="flex gap-4 items-start">
+                                        <div className="p-2.5 rounded-xl bg-accent text-white shadow-lg shadow-accent/20 shrink-0">
+                                            <Lightbulb className="w-4 h-4" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-[9px] font-black text-accent uppercase tracking-[0.2em] mb-2">
+                                                Deep Insight
+                                            </p>
+                                            <p className="text-sm text-primary/70 leading-relaxed font-medium">
+                                                {q.explanation}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
                         </motion.div>
                     );
                 })}
-            </main>
+            </motion.main>
         </div>
     );
 }
