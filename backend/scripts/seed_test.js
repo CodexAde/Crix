@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { Test } from './models/test.model.js';
+import { Test } from '../models/test.model.js';
 
-dotenv.config();
+dotenv.config({ path: "./backend/.env" });
 
 async function seedTest() {
   try {

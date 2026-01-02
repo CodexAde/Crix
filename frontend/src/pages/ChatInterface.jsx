@@ -456,9 +456,19 @@ export default function ChatInterface({ isRoadmap = false }) {
     }
   };
 
+  const scrollToTop = (behavior = "smooth") => {
+    const scrollBehavior = typeof behavior === 'string' ? behavior : "smooth";
+    if (chatAreaRef.current) {
+      chatAreaRef.current.scrollTo({
+        top: 0,
+        behavior: scrollBehavior
+      });
+    }
+  };
+
   useEffect(() => {
     if (!isLoading) {
-      scrollToBottom();
+      scrollToTop("instant");
     }
   }, [isLoading]);
 
@@ -471,11 +481,14 @@ export default function ChatInterface({ isRoadmap = false }) {
     }
   }, [messages, isLoading]);
 
+  // Removed auto-scroll on typing completion to prevent jarring jumps
+  /*
   useEffect(() => {
     if (!isTyping && messages.length > 0) {
       scrollToBottom();
     }
   }, [isTyping, messages.length]);
+  */
 
   useEffect(() => {
     const chatArea = chatAreaRef.current;
@@ -730,7 +743,7 @@ export default function ChatInterface({ isRoadmap = false }) {
       setSidebarOpen(false);
 
       setTimeout(() => {
-          scrollToBottom("smooth");
+          scrollToTop("instant");
       }, 100);
   }, [subjectId, roadmapId, navigate, isRoadmap]);
 

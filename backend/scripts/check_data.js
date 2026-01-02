@@ -7,9 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Import Subject model - adjust path if needed
-import { Subject } from './models/syllabus.model.js';
+import { Subject } from '../models/syllabus.model.js';
 
-dotenv.config();
+dotenv.config({ path: "./backend/.env" });
 
 async function checkSubjects() {
   try {

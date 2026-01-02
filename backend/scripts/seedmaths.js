@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { Subject } from "./models/syllabus.model.js";
-import { Reply } from "./models/reply.model.js";
+import { Subject } from "../models/syllabus.model.js";
+import { Reply } from "../models/reply.model.js";
 
-dotenv.config();
+dotenv.config({ path: "./backend/.env" });
 
 const seedMechanicsFull = async () => {
   try {

@@ -67,8 +67,6 @@ const streamChat = async (req, res) => {
         });
 
         if (preDefinedReply) {
-            console.log(`Serving pre-defined reply for topic ${topicId}, action: ${message}`);
-            
             // Stream the cached content
             await streamTextWordByWord(res, preDefinedReply.content);
 
