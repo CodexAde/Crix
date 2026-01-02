@@ -124,8 +124,9 @@ function DayCard({ day, dayIndex, onUpdateDay, onRemoveDay, onAddTopic, onUpdate
                     <textarea
                       value={topic.description || ''}
                       onChange={(e) => onUpdateTopic(dayIndex, topicIndex, 'description', e.target.value)}
-                      className="w-full bg-transparent text-xs text-secondary resize-none focus:outline-none h-12"
+                      className="w-full bg-transparent text-xs text-secondary resize-none focus:outline-none min-h-[3rem] h-auto"
                       placeholder="Description..."
+                      rows={2}
                     />
                   </div>
                   <button
@@ -263,14 +264,14 @@ export default function RoadmapEditor({ initialData, onSave, onCancel }) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h3 className="text-xl md:text-2xl font-bold text-primary truncate">{roadmap.name}</h3>
-                <button onClick={() => setEditingTitle(true)} className="text-secondary hover:text-accent p-1">
-                  <Edit2 className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-            <p className="text-secondary mt-1 text-sm line-clamp-1">{roadmap.description}</p>
-          </div>
+              <h3 className="text-xl md:text-2xl font-bold text-primary line-clamp-2 mb-1">{roadmap.name}</h3>
+              <button onClick={() => setEditingTitle(true)} className="text-secondary hover:text-accent p-1 shrink-0">
+                <Edit2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          <p className="text-secondary mt-1 text-sm line-clamp-2 opacity-80">{roadmap.description}</p>
+        </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleBack}

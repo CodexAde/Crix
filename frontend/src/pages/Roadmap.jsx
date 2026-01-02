@@ -180,7 +180,7 @@ export default function Roadmap() {
                 onClick={() => navigate(`/roadmap/${rm._id}`)}
                 className="p-6 rounded-3xl bg-card border border-white/10 cursor-pointer hover:border-accent/30 hover:bg-accent/5 transition-all"
               >
-                <h3 className="text-lg font-bold text-primary line-clamp-1">{rm.name || rm.title}</h3>
+                <h3 className="text-lg font-bold text-primary line-clamp-2">{rm.name || rm.title}</h3>
                 <p className="text-secondary text-sm line-clamp-2 mt-1">{rm.description}</p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="text-xs text-secondary">{rm.days?.length || rm.steps?.length || 0} Days</span>

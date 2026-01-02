@@ -1821,14 +1821,353 @@ const seedMechanicsFull = async () => {
     explanation: "It is a quantum bound-state problem.",
     type: "mcq"
   }
-]
+],
 
 
 
 
 
-      // Add more topic tests here...
-      // "Galilean Transformations": [ ... ],
+"Postulates of STR": [
+  {
+    question: "Einstein's first postulate of STR states that physics laws are same in all:",
+    options: ["Inertial frames", "Non-inertial frames", "Accelerated frames", "Rotating frames"],
+    correctAnswer: "Inertial frames",
+    explanation: "The laws of physics are invariant in all inertial reference frames.",
+    type: "mcq"
+  },
+  {
+    question: "The second postulate states that the speed of light in vacuum is:",
+    options: ["Dependent on source speed", "Dependent on observer speed", "Constant for all observers", "Infinite"],
+    correctAnswer: "Constant for all observers",
+    explanation: "Light speed is absolute and independent of source or observer motion.",
+    type: "mcq"
+  },
+  {
+    question: "Which of these is a direct consequence of Einstein's postulates?",
+    options: ["Length contraction", "Time dilation", "Mass-energy equivalence", "All of the above"],
+    correctAnswer: "All of the above",
+    explanation: "Postulates form the basis for all relativistic effects.",
+    type: "mcq"
+  },
+  {
+    question: "According to STR, absolute rest is:",
+    options: ["Always detectable", "Impossible to define", "A physical reality", "Only for light"],
+    correctAnswer: "Impossible to define",
+    explanation: "There is no preferred inertial frame of reference.",
+    type: "mcq"
+  },
+  {
+    question: "Postulates of STR were proposed in the year:",
+    options: ["1900", "1905", "1915", "1921"],
+    correctAnswer: "1905",
+    explanation: "Einstein published his STR paper in 1905.",
+    type: "mcq"
+  }
+],
+
+"Black Body Spectrum": [
+  {
+    question: "An ideal black body is one which:",
+    options: ["Reflects all radiation", "Absorbs all radiation", "Transmits all radiation", "Emits only black light"],
+    correctAnswer: "Absorbs all radiation",
+    explanation: "A perfect black body absorbs all incident electromagnetic radiation.",
+    type: "mcq"
+  },
+  {
+    question: "As the temperature of a black body increases, its total emitted power:",
+    options: ["Decreases", "Remains same", "Increases", "Becomes zero"],
+    correctAnswer: "Increases",
+    explanation: "Radiated power is proportional to T^4.",
+    type: "mcq"
+  },
+  {
+    question: "The shape of the black body spectrum depends ONLY on:",
+    options: ["Material", "Shape", "Size", "Temperature"],
+    correctAnswer: "Temperature",
+    explanation: "Black body radiation is characteristic of temperature only.",
+    type: "mcq"
+  },
+  {
+    question: "As temperature increases, the peak of the spectrum shifts towards:",
+    options: ["Longer wavelengths", "Shorter wavelengths", "The center", "It does not shift"],
+    correctAnswer: "Shorter wavelengths",
+    explanation: "According to Wien's displacement law.",
+    type: "mcq"
+  },
+  {
+    question: "Black body radiation failure in classical physics led to:",
+    options: ["Relativity", "Quantum mechanics", "Thermodynamics", "Optics"],
+    correctAnswer: "Quantum mechanics",
+    explanation: "Planck's solution started the quantum revolution.",
+    type: "mcq"
+  }
+],
+
+"Classical Laws": [
+  {
+    question: "Stefan-Boltzmann law states that E is proportional to:",
+    options: ["T", "T^2", "T^3", "T^4"],
+    correctAnswer: "T^4",
+    explanation: "Total energy radiated per unit area per unit time is ∝ T^4.",
+    type: "mcq"
+  },
+  {
+    question: "Wien's displacement law is expressed as:",
+    options: ["λm T = constant", "λm / T = constant", "T / λm = constant", "λm + T = constant"],
+    correctAnswer: "λm T = constant",
+    explanation: "Peak wavelength is inversely proportional to temperature.",
+    type: "mcq"
+  },
+  {
+    question: "Rayleigh-Jeans law fails primarily at:",
+    options: ["Low frequencies", "High frequencies", "Absolute zero", "Room temperature"],
+    correctAnswer: "High frequencies",
+    explanation: "This failure is known as the Ultraviolet Catastrophe.",
+    type: "mcq"
+  },
+  {
+    question: "Rayleigh-Jeans law assumes that energy is:",
+    options: ["Quantized", "Continuous", "Zero", "Random"],
+    correctAnswer: "Continuous",
+    explanation: "Classical theory assumes continuous energy distribution.",
+    type: "mcq"
+  },
+  {
+    question: "Ultraviolet catastrophe means infinite energy at:",
+    options: ["Infrared region", "Visible region", "Short wavelength region", "Long wavelength region"],
+    correctAnswer: "Short wavelength region",
+    explanation: "Classical theory predicted infinite intensity for small wavelengths.",
+    type: "mcq"
+  }
+],
+
+"Planck's Law": [
+  {
+    question: "Planck assumed that radiation is emitted in discrete packets called:",
+    options: ["Electrons", "Quanta", "Waves", "Atoms"],
+    correctAnswer: "Quanta",
+    explanation: "He introduced the concept of energy quantization.",
+    type: "mcq"
+  },
+  {
+    question: "The energy of a single quantum (photon) is given by:",
+    options: ["E = mc^2", "E = hν", "E = mv", "E = pλ"],
+    correctAnswer: "E = hν",
+    explanation: "Energy is proportional to frequency.",
+    type: "mcq"
+  },
+  {
+    question: "Planck's constant (h) has dimensions of:",
+    options: ["Force", "Energy", "Power", "Action (Angular Momentum)"],
+    correctAnswer: "Action (Angular Momentum)",
+    explanation: "Units are Joule-seconds.",
+    type: "mcq"
+  },
+  {
+    question: "Planck's law reduces to Rayleigh-Jeans law at:",
+    options: ["High frequencies", "Low frequencies", "High temperatures", "Zero temperature"],
+    correctAnswer: "Low frequencies",
+    explanation: "Classical results are valid for long wavelengths.",
+    type: "mcq"
+  },
+  {
+    question: "Planck's law successfully explained:",
+    options: ["Black body spectrum", "UV catastrophe solution", "Quantization", "All of the above"],
+    correctAnswer: "All of the above",
+    explanation: "It provided the complete correct distribution formula.",
+    type: "mcq"
+  }
+],
+
+"Matter Waves": [
+  {
+    question: "De Broglie hypothesis states that moving particles behave like:",
+    options: ["Static points", "Waves", "Only particles", "None"],
+    correctAnswer: "Waves",
+    explanation: "Dual nature of matter.",
+    type: "mcq"
+  },
+  {
+    question: "The de Broglie wavelength (λ) is given by:",
+    options: ["h/p", "hp", "p/h", "h/m"],
+    correctAnswer: "h/p",
+    explanation: "λ = h/(mv) states the wave-particle relation.",
+    type: "mcq"
+  },
+  {
+    question: "Matter waves are also known as:",
+    options: ["EM waves", "Sound waves", "De Broglie waves", "Transverse waves"],
+    correctAnswer: "De Broglie waves",
+    explanation: "Named after Louis de Broglie.",
+    type: "mcq"
+  },
+  {
+    question: "If momentum increases, the de Broglie wavelength:",
+    options: ["Increases", "Decreases", "Remains same", "Becomes negative"],
+    correctAnswer: "Decreases",
+    explanation: "Wavelength is inversely proportional to momentum.",
+    type: "mcq"
+  },
+  {
+    question: "Matter waves were experimentally confirmed by:",
+    options: ["Einstein", "Newton", "Davisson and Germer", "Faraday"],
+    correctAnswer: "Davisson and Germer",
+    explanation: "Electron diffraction experiment proved matter waves.",
+    type: "mcq"
+  }
+],
+
+"Dual Nature": [
+  {
+    question: "Wave nature of light is demonstrated by:",
+    options: ["Photoelectric effect", "Compton effect", "Interference", "Black body radiation"],
+    correctAnswer: "Interference",
+    explanation: "Interference and diffraction are wave phenomena.",
+    type: "mcq"
+  },
+  {
+    question: "Particle nature of light is demonstrated by:",
+    options: ["Dispersion", "Refraction", "Photoelectric effect", "Polarization"],
+    correctAnswer: "Photoelectric effect",
+    explanation: "Involves photon-electron interaction.",
+    type: "mcq"
+  },
+  {
+    question: "The concept of duality applies to:",
+    options: ["Only light", "Only electrons", "Both light and matter", "None"],
+    correctAnswer: "Both light and matter",
+    explanation: "Everything shows both properties at quantum scale.",
+    type: "mcq"
+  },
+  {
+    question: "Which scientist proposed the dual nature of matter?",
+    options: ["Planck", "Einstein", "De Broglie", "Newton"],
+    correctAnswer: "De Broglie",
+    explanation: "His 1924 thesis proposed matter duality.",
+    type: "mcq"
+  },
+  {
+    question: "In dual nature, wave and particle behaviors are:",
+    options: ["Mutually exclusive in a single measurement", "Always present together", "Classical effects", "Irrelevant"],
+    correctAnswer: "Mutually exclusive in a single measurement",
+    explanation: "Complementarity principle by Bohr.",
+    type: "mcq"
+  }
+],
+
+"Time-Independent Equation": [
+  {
+    question: "Schrödinger's time-independent equation is used when potential is:",
+    options: ["Varying with time", "Constant with time", "Infinite", "Zero"],
+    correctAnswer: "Constant with time",
+    explanation: "Applicable to stationary states.",
+    type: "mcq"
+  },
+  {
+    question: "The solution to the Schrödinger equation is called:",
+    options: ["Force function", "Wave function (ψ)", "Velocity function", "Mass function"],
+    correctAnswer: "Wave function (ψ)",
+    explanation: "ψ contains all information about the system.",
+    type: "mcq"
+  },
+  {
+    question: "Total energy operator in Schrödinger equation is:",
+    options: ["Momentum operator", "Hamiltonian (H)", "Potential operator", "Kinetic operator"],
+    correctAnswer: "Hamiltonian (H)",
+    explanation: "Hψ = Eψ.",
+    type: "mcq"
+  },
+  {
+    question: "Quantization of energy emerges from solving the equation for:",
+    options: ["Free particles", "Bound states", "Uniform motion", "Relativistic motion"],
+    correctAnswer: "Bound states",
+    explanation: "Constraints lead to discrete energy levels.",
+    type: "mcq"
+  },
+  {
+    question: "Schrödinger equation is a:",
+    options: ["Linear algebraic equation", "Differential equation", "Integrable equation", "Vector equation"],
+    correctAnswer: "Differential equation",
+    explanation: "It is a second-order partial differential equation.",
+    type: "mcq"
+  }
+],
+
+"Time-Dependent Equation": [
+  {
+    question: "Time-dependent Schrödinger equation describes system:",
+    options: ["Statics", "Evolution over time", "Geometry", "Mass only"],
+    correctAnswer: "Evolution over time",
+    explanation: "Shows how ψ(x,t) changes with time.",
+    type: "mcq"
+  },
+  {
+    question: "The factor 'i' (imaginary unit) in the equation indicates:",
+    options: ["Error", "Wave-like phase evolution", "Infinite energy", "Negative mass"],
+    correctAnswer: "Wave-like phase evolution",
+    explanation: "Crucial for quantum interference and dynamics.",
+    type: "mcq"
+  },
+  {
+    question: "Linearity of Schrödinger equation allows:",
+    options: ["Superposition of states", "Chaos", "Non-linear waves", "Particle collisions"],
+    correctAnswer: "Superposition of states",
+    explanation: "Sum of solutions is also a solution.",
+    type: "mcq"
+  },
+  {
+    question: "Time-dependent equation is fundamental for studying:",
+    options: ["Stationary states", "Quantum transitions", "Static potential", "Zero energy"],
+    correctAnswer: "Quantum transitions",
+    explanation: "Essential for dynamics and change.",
+    type: "mcq"
+  },
+  {
+    question: "The Hamiltonian in the time-dependent equation represents:",
+    options: ["Total Energy", "Force", "Rate of change", "Position"],
+    correctAnswer: "Total Energy",
+    explanation: "It is the energy operator for the system.",
+    type: "mcq"
+  }
+],
+
+"Wave Function Psi": [
+  {
+    question: "The physical interpretation of |ψ|^2 is:",
+    options: ["Energy density", "Force density", "Probability density", "Charge density"],
+    correctAnswer: "Probability density",
+    explanation: "Probability of finding particle at a point.",
+    type: "mcq"
+  },
+  {
+    question: "Max Born's interpretation established that quantum mechanics is:",
+    options: ["Deterministic", "Probabilistic", "Classical", "Exact"],
+    correctAnswer: "Probabilistic",
+    explanation: "Outcomes are predicted using probabilities.",
+    type: "mcq"
+  },
+  {
+    question: "A valid wave function (ψ) must be:",
+    options: ["Single-valued", "Continuous", "Finite", "All of the above"],
+    correctAnswer: "All of the above",
+    explanation: "Mathematical requirements for physical meaning.",
+    type: "mcq"
+  },
+  {
+    question: "The condition that total probability must be 1 is called:",
+    options: ["Orthogonality", "Normalization", "Quantization", "Linearity"],
+    correctAnswer: "Normalization",
+    explanation: "∫|ψ|^2 dx = 1.",
+    type: "mcq"
+  },
+  {
+    question: "ψ(x,t) itself is generally a:",
+    options: ["Real number", "Complex number", "Integer", "Vector"],
+    correctAnswer: "Complex number",
+    explanation: "It has magnitude and phase.",
+    type: "mcq"
+  }
+],
     };
 
     const replies = [];
