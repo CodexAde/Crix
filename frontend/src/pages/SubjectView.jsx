@@ -82,7 +82,7 @@ export default function SubjectView() {
     );
 
     return (
-        <div className="min-h-screen bg-main pb-24 md:pb-10">
+        <div className="min-h-screen bg-main pb-10">
             {/* Sticky Header */}
             <header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50">
                 <div className="mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">

@@ -55,6 +55,9 @@ export default function Layout() {
   
   // Hide UI during test taking, results, and analysis
   const isTakingTest = location.pathname.includes('/test/take/');
+  const hideMobileNav = location.pathname.startsWith('/chapter') || 
+                         location.pathname.startsWith('/roadmap/my') || 
+                         location.pathname.startsWith('/syllabus/');
 
   if (isTakingTest) {
       return (
@@ -166,7 +169,7 @@ export default function Layout() {
       </main>
 
       {/* Mobile Bottom Taskbar */}
-      {!isFullPageLoading && (
+      {!isFullPageLoading && !hideMobileNav && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out">
 
         {navItems.map((item) => {
