@@ -41,106 +41,129 @@ export default function TestAnalysis() {
     if (!test || !lastAttempt) return null;
 
     return (
-        <div className="min-h-screen bg-main flex flex-col items-center p-4 md:p-12 overflow-x-hidden">
-            <div className="max-w-3xl w-full">
-                <header className="flex items-center gap-4 mb-12">
-                    <button 
-                        onClick={() => navigate(-1)} 
-                        className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-secondary hover:text-primary"
+        <div className="min-h-screen bg-main flex flex-col items-center overflow-x-hidden">
+            <header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50 w-full">
+                <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="absolute left-6 p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 group text-secondary hover:text-primary"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
-                    <div className="text-left">
-                        <h1 className="text-xl font-bold text-primary">Detailed Analysis</h1>
-                        <p className="text-sm text-secondary/50 font-medium">{test.title}</p>
+
+                    <div className="text-center max-w-[60%]">
+                        <p className="text-[10px] font-black text-accent mb-0.5 uppercase tracking-[0.2em] opacity-80">
+                            Detailed Analysis
+                        </p>
+                        <h1 className="text-base md:text-xl font-bold text-primary truncate">
+                            {test.title}
+                        </h1>
                     </div>
-                </header>
+                </div>
+            </header>
 
-                <div className="space-y-12 pb-24">
-                    {test.questions.map((q, qIdx) => {
-                        const userAnsObj = lastAttempt.answers.find(a => a.questionId === q._id);
-                        const userAns = userAnsObj?.answer;
-                        const isCorrect = userAnsObj?.isCorrect;
+            <main className="max-w-3xl w-full px-4 md:px-6 py-12 space-y-10 pb-32">
+                {test.questions.map((q, qIdx) => {
+                    const userAnsObj = lastAttempt.answers.find(a => a.questionId === q._id);
+                    const userAns = userAnsObj?.answer;
+                    const isCorrect = userAnsObj?.isCorrect;
 
-                        return (
-                            <motion.div 
-                                key={q._id}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                className="space-y-6"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <span className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-secondary text-sm font-bold shrink-0 mt-1">
-                                        {qIdx + 1}
-                                    </span>
-                                    <h2 className="text-xl font-bold text-primary leading-tight">
-                                        {q.question}
-                                    </h2>
+                    return (
+                        <motion.div 
+                            key={q._id}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            className="group relative"
+                        >
+                            {/* Question Card */}
+                            <div className="bg-card/40 backdrop-blur-xl rounded-[2.5rem] border border-white/5 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:border-white/10 transition-all duration-500">
+                                {/* Glossy Header Section */}
+                                <div className="p-8 md:p-10 border-b border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent">
+                                    <div className="flex items-start gap-5">
+                                        <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent text-lg font-black shrink-0 shadow-inner">
+                                            {qIdx + 1}
+                                        </div>
+                                        <h2 className="text-xl md:text-2xl font-bold text-primary leading-snug tracking-tight pt-1">
+                                            {q.question}
+                                        </h2>
+                                    </div>
                                 </div>
 
-                                <div className="grid gap-3 pl-12">
-                                    {q.options.map((opt, optIdx) => {
-                                        const isSelected = userAns === opt;
-                                        const isCorrectOpt = q.correctAnswer === opt;
-                                        
-                                        let borderClass = "border-white/5 bg-white/[0.02]";
-                                        let textClass = "text-secondary/60";
-                                        let icon = null;
+                                {/* Options Section */}
+                                <div className="p-6 md:p-10 bg-black/20">
+                                    <div className="grid gap-3.5">
+                                        {q.options.map((opt, optIdx) => {
+                                            const isSelected = userAns === opt;
+                                            const isCorrectOpt = q.correctAnswer === opt;
+                                            
+                                            let stateStyles = "border-white/5 bg-white/[0.02] text-secondary/60";
+                                            let icon = null;
 
-                                        if (isCorrectOpt) {
-                                            borderClass = "border-green-500/30 bg-green-500/10 shadow-[0_0_20px_rgba(34,197,94,0.1)]";
-                                            textClass = "text-green-400 font-bold";
-                                            icon = <CheckCircle2 className="w-5 h-5 text-green-500" />;
-                                        } else if (isSelected && !isCorrect) {
-                                            borderClass = "border-red-500/30 bg-red-500/10";
-                                            textClass = "text-red-400 font-bold";
-                                            icon = <XCircle className="w-5 h-5 text-red-500" />;
-                                        }
+                                            if (isCorrectOpt) {
+                                                stateStyles = "border-green-500/40 bg-green-500/10 text-green-400 ring-1 ring-green-500/20";
+                                                icon = <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />;
+                                            } else if (isSelected && !isCorrect) {
+                                                stateStyles = "border-red-500/40 bg-red-500/10 text-red-400 ring-1 ring-red-500/20";
+                                                icon = <XCircle className="w-5 h-5 text-red-400 shrink-0" />;
+                                            }
 
-                                        return (
-                                            <div 
-                                                key={optIdx}
-                                                className={clsx(
-                                                    "p-5 rounded-2xl border transition-all flex items-center justify-between gap-4",
-                                                    borderClass
-                                                )}
-                                            >
-                                                <div className="flex items-center gap-4">
-                                                    <div className={clsx(
-                                                        "w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-bold",
-                                                        isCorrectOpt ? "border-green-500 bg-green-500 text-white" : isSelected ? "border-red-500 bg-red-500 text-white" : "border-white/10 text-secondary/30"
-                                                    )}>
-                                                        {String.fromCharCode(65 + optIdx)}
+                                            return (
+                                                <div 
+                                                    key={optIdx}
+                                                    className={clsx(
+                                                        "p-5 rounded-2xl border transition-all flex items-center justify-between gap-4 group/opt shadow-sm",
+                                                        stateStyles
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                                                        <div className={clsx(
+                                                            "w-7 h-7 rounded-lg border flex items-center justify-center text-[11px] font-black shrink-0 transition-transform group-hover/opt:scale-105",
+                                                            isCorrectOpt ? "border-green-500 bg-green-500 text-white" : isSelected ? "border-red-500 bg-red-500 text-white" : "border-white/10 text-secondary/30 bg-white/5"
+                                                        )}>
+                                                            {String.fromCharCode(65 + optIdx)}
+                                                        </div>
+                                                        <span className="text-base md:text-lg font-medium leading-relaxed break-words">
+                                                            {opt}
+                                                        </span>
                                                     </div>
-                                                    <span className={clsx("text-base", textClass)}>
-                                                        {opt}
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        {isSelected && !isCorrectOpt && (
+                                                            <span className="text-[10px] font-black uppercase tracking-tighter opacity-60 px-2 py-0.5 rounded-md bg-red-500/20 text-red-400 border border-red-500/20">
+                                                                Your Choice
+                                                            </span>
+                                                        )}
+ 
+                                                     </div>
                                                 </div>
-                                                {icon}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                            );
+                                        })}
+                                    </div>
 
-                                {q.explanation && (
-                                    <div className="pl-12">
-                                        <div className="p-6 rounded-3xl bg-white/5 border border-white/5 flex gap-4">
-                                            <Info className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                                            <div>
-                                                <h4 className="text-xs font-bold text-accent uppercase tracking-widest mb-2">Explanation</h4>
-                                                <p className="text-sm text-secondary/80 leading-relaxed font-medium">
-                                                    {q.explanation}
-                                                </p>
+                                    {/* Smart Insight (Explanation) */}
+                                    {q.explanation && (
+                                        <div className="mt-8 relative pt-8 border-t border-white/5">
+                                            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-accent text-[10px] font-black text-white uppercase tracking-[0.2em] shadow-lg shadow-accent/20">
+                                                Smart Insight
+                                            </div>
+                                            <div className="p-6 rounded-[2rem] bg-accent/5 border border-accent/10 flex gap-5 group/insight hover:bg-accent/10 transition-colors duration-500">
+                                                <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center shrink-0 shadow-inner">
+                                                    <Info className="w-5 h-5 text-accent group-hover/insight:rotate-12 transition-transform" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm md:text-base text-primary/80 leading-relaxed font-medium italic">
+                                                        "{q.explanation}"
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
-                            </motion.div>
-                        );
-                    })}
-                </div>
-            </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    );
+                })}
+            </main>
         </div>
     );
 }

@@ -103,41 +103,46 @@ export default function TakeTest() {
 
 
     return (
-        <div className="min-h-screen bg-main flex flex-col items-center p-4 md:p-12 overflow-x-hidden">
-            <div className="max-w-3xl w-full">
-                {/* Header */}
-                <header className="flex items-center justify-between mb-12">
-                    <div className="flex items-center gap-4">
-                        <button 
-                            onClick={() => navigate(-1)} 
-                            className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-secondary hover:text-primary"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                        </button>
-                        <div className="text-left">
-                            <h1 className="text-sm font-bold text-accent uppercase tracking-widest">{test.title}</h1>
-                            <p className="text-xs text-secondary/50 font-medium">Question {currentQuestionIndex + 1} of {test.questions.length}</p>
-                        </div>
+        <div className="min-h-screen bg-main flex flex-col items-center overflow-x-hidden">
+            <header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50 w-full">
+                <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="absolute left-6 p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 group text-secondary hover:text-primary"
+                    >
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    </button>
+
+                    <div className="text-center max-w-[60%]">
+                        <p className="text-[10px] font-black text-accent mb-0.5 uppercase tracking-[0.2em] opacity-80">
+                            {test.title}
+                        </p>
+                        <h1 className="text-base md:text-xl font-bold text-primary truncate">
+                            Question {currentQuestionIndex + 1} of {test.questions.length}
+                        </h1>
                     </div>
 
                     {timeLeft !== null && (
                         <div className={clsx(
-                            "flex items-center gap-2 px-4 py-2 rounded-2xl border backdrop-blur-md transition-all font-mono text-sm font-bold",
+                            "absolute right-6 flex items-center gap-2 px-3 py-2 rounded-xl border backdrop-blur-md transition-all font-mono text-xs md:text-sm font-bold",
                             timeLeft < 60 ? "bg-red-500/10 border-red-500/20 text-red-400 animate-pulse" : "bg-white/5 border-white/10 text-primary"
                         )}>
                             <Clock className="w-4 h-4" />
-                            {formatTime(timeLeft)}
+                            <span className="hidden sm:inline">{formatTime(timeLeft)}</span>
+                            <span className="sm:hidden">{formatTime(timeLeft)}</span>
                         </div>
                     )}
-                </header>
+                </div>
+            </header>
 
+            <div className="max-w-3xl w-full px-4 md:px-0 py-10">
                 {/* Progress Dots */}
                 <div className="flex gap-1.5 mb-10 overflow-x-auto no-scrollbar pb-2">
                     {test.questions.map((_, idx) => (
                         <div 
                             key={idx}
                             className={clsx(
-                                "h-1.5 min-w-[30px] flex-1 rounded-full transition-all duration-500",
+                                "h-1.5 min-w-[20px] md:min-w-[30px] flex-1 rounded-full transition-all duration-500",
                                 idx === currentQuestionIndex ? "bg-accent" : answers[test.questions[idx]._id] ? "bg-accent/40" : "bg-white/5"
                             )}
                         />

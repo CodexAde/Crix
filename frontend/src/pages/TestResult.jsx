@@ -34,22 +34,32 @@ export default function TestResult() {
     if (!result) return null;
 
     return (
-        <div className="min-h-screen bg-main flex flex-col items-center p-4 md:p-12">
+        <div className="min-h-screen bg-main flex flex-col items-center">
+            <header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50 w-full">
+                <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="absolute left-6 p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 group text-secondary hover:text-primary"
+                    >
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    </button>
+
+                    <div className="text-center max-w-[60%]">
+                        <p className="text-[10px] font-black text-accent mb-0.5 uppercase tracking-[0.2em] opacity-80">
+                            Test Summary
+                        </p>
+                        <h1 className="text-base md:text-xl font-bold text-primary truncate">
+                            Performance Report
+                        </h1>
+                    </div>
+                </div>
+            </header>
+
             <motion.div 
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-2xl w-full space-y-8"
+                className="max-w-2xl w-full px-4 py-12 space-y-8"
             >
-                <header className="flex items-center gap-4 mb-12">
-                    <button 
-                        onClick={() => navigate(-1)} 
-                        className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-secondary hover:text-primary"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <h1 className="text-xl font-bold text-primary">Test Summary</h1>
-                </header>
-
                 <div className="relative p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border border-white/5 shadow-2xl overflow-hidden text-center">
                     <div className="absolute -top-24 -left-24 w-64 h-64 bg-accent/10 blur-[100px] rounded-full" />
                     
