@@ -52,6 +52,20 @@ export default function Layout() {
 
 
   const isFullPageLoading = (loadingSubject && !activeSubjectData) || (userLoading && !userProfile);
+  
+  // Hide UI during test taking but show it for results/analysis
+  const isTakingTest = location.pathname.includes('/test/take/') && 
+                       !location.pathname.includes('/result');
+
+  if (isTakingTest) {
+      return (
+          <div className="min-h-screen bg-main">
+              <main className="w-full" ref={mainRef}>
+                  <Outlet />
+              </main>
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-main flex flex-col md:flex-row">

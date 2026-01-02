@@ -28,11 +28,12 @@ const getLatestAttempt = async (testId) => {
     }
 };
 
-const submitTest = async (testId, answers) => {
+const submitTest = async (testId, answers, timeTaken) => {
     try {
         const response = await axios.post(`/tests/submit`, {
             testId,
-            answers
+            answers,
+            timeTaken
         });
         return response.data;
     } catch (error) {

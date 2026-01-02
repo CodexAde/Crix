@@ -32,7 +32,7 @@ const getTestById = asyncHandler(async (req, res) => {
 });
 
 const submitTest = asyncHandler(async (req, res) => {
-    const { testId, answers } = req.body;
+    const { testId, answers, timeTaken } = req.body;
     const userId = req.user._id;
 
     const test = await Test.findById(testId);
@@ -59,6 +59,7 @@ const submitTest = asyncHandler(async (req, res) => {
         answers: gradedAnswers,
         score,
         totalQuestions: test.questions.length,
+        timeTaken,
         analysis: `You scored ${score}/${test.questions.length}. ${score === test.questions.length ? "Excellent work! You have mastered this topic." : "Good effort! Review the explanations for the ones you missed."}`
     });
 

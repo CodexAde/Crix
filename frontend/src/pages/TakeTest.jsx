@@ -16,22 +16,14 @@ export default function TakeTest() {
     const [answers, setAnswers] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [result, setResult] = useState(null);
+    const [startTime] = useState(Date.now());
     const [timeLeft, setTimeLeft] = useState(null);
 
     useEffect(() => {
         const fetchTest = async () => {
-            const [testRes, attemptRes] = await Promise.all([
-                getTestById(testId),
-                getLatestAttempt(testId)
-            ]);
+            const testRes = await getTestById(testId);
 
             if (testRes.success) {
-                // If already attempted, redirect to result
-                if (attemptRes.success && attemptRes.data) {
-                    navigate(`/test/take/${testId}/result`, { replace: true });
-                    return;
-                }
-
                 setTest(testRes.data);
                 if (testRes.data.duration) {
                     setTimeLeft(testRes.data.duration * 60);
@@ -72,8 +64,10 @@ export default function TakeTest() {
             answer: answers[q._id] || ""
         }));
 
+        const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+
         setSubmitting(true);
-        const res = await submitTest(testId, formattedAnswers);
+        const res = await submitTest(testId, formattedAnswers, timeTaken);
         if (res.success) {
             toast.success("Test submitted!");
             navigate(`/test/take/${testId}/result`, { replace: true });
@@ -104,37 +98,6 @@ export default function TakeTest() {
 
     return (
         <div className="min-h-screen bg-main flex flex-col items-center overflow-x-hidden">
-            <header className="bg-card/90 backdrop-blur-md border-b border-border-soft sticky top-0 z-50 w-full">
-                <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-center relative min-h-[72px]">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="absolute left-6 p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all active:scale-95 group text-secondary hover:text-primary"
-                    >
-                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                    </button>
-
-                    <div className="text-center max-w-[60%]">
-                        <p className="text-[10px] font-black text-accent mb-0.5 uppercase tracking-[0.2em] opacity-80">
-                            {test.title}
-                        </p>
-                        <h1 className="text-base md:text-xl font-bold text-primary truncate">
-                            Question {currentQuestionIndex + 1} of {test.questions.length}
-                        </h1>
-                    </div>
-
-                    {timeLeft !== null && (
-                        <div className={clsx(
-                            "absolute right-6 flex items-center gap-2 px-3 py-2 rounded-xl border backdrop-blur-md transition-all font-mono text-xs md:text-sm font-bold",
-                            timeLeft < 60 ? "bg-red-500/10 border-red-500/20 text-red-400 animate-pulse" : "bg-white/5 border-white/10 text-primary"
-                        )}>
-                            <Clock className="w-4 h-4" />
-                            <span className="hidden sm:inline">{formatTime(timeLeft)}</span>
-                            <span className="sm:hidden">{formatTime(timeLeft)}</span>
-                        </div>
-                    )}
-                </div>
-            </header>
-
             <div className="max-w-3xl w-full px-4 md:px-0 py-10">
                 {/* Progress Dots */}
                 <div className="flex gap-1.5 mb-10 overflow-x-auto no-scrollbar pb-2">

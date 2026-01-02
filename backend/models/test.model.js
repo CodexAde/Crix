@@ -31,6 +31,7 @@ const attemptedTestSchema = new mongoose.Schema({
     }],
     score: { type: Number, default: 0 },
     totalQuestions: { type: Number, required: true },
+    timeTaken: { type: Number }, // in seconds
     analysis: String,
     completedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
