@@ -20,10 +20,15 @@ import SubjectContext from '../context/Subject/SubjectContext';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+import TestBlock from '../components/Chat/TestBlock';
+
 // Memoized Message Component to prevent re-renders
-const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
+const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef, topicId }) => {
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState(null); // 'like' or 'dislike'
+
+  const hasTestBlock = msg.content.includes('[SHOW_TEST_BLOCK]');
+  const cleanContent = msg.content.replace('[SHOW_TEST_BLOCK]', '').trim();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(msg.content);
@@ -151,8 +156,12 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                   td: ({node, ...props}) => <td className="px-6 py-4 text-secondary group-hover/tr:text-primary transition-colors leading-relaxed" {...props} />,
                 }}
               >
-                {msg.content}
+                {cleanContent}
               </ReactMarkdown>
+
+              {hasTestBlock && !isTyping && (
+                <TestBlock referenceId={topicId} type="topic" />
+              )}
             </div>
           </div>
           
@@ -870,9 +879,10 @@ export default function ChatInterface({ isRoadmap = false }) {
                                 key={idx} 
                                 msg={msg} 
                                 idx={idx} 
-                                isTyping={isTyping} 
+                                isTyping={isTyping && idx === messages.length - 1} 
                                 onShare={handleShare} 
                                 messageRef={msg.role === 'user' ? latestUserMsgRef : null}
+                                topicId={topicId}
                             />
                         ))}
                         {isTyping && (

@@ -8,7 +8,6 @@ async function checkSubjects() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to DB');
-    
     const subjects = await Subject.find({}, 'name code branch year');
     console.log('Total Subjects:', subjects.length);
     console.log('Subjects:', JSON.stringify(subjects, null, 2));
