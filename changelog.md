@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.0.0] - Major Update: Neural Evolution 🧠🔥
+> [!IMPORTANT]
+> **V3.0.0 is here!** This update brings massive AI capabilities and roadmap enhancements.
+
+### Neural Engine & Tests 🎯
+- **AI Test Summoning**: AI gets the ability to summon personalized tests for you based on your learning progress. 😎
+- **Real-time Test Analysis**: AI can now directly analyze your test performance within the chat, providing a personalized learning experience and high-quality notes. 🧠✨
+
+### Roadmaps & Learning 🗺️
+- **Cross-Topic Roadmaps**: New feature to generate roadmaps that connect multiple complex topics seamlessly. 🚀
+- **Neural Streaks**: Added streak tracking to keep you motivated and consistent in your learning journey. 🔥
+
+### Core Improvements ⚡
+- **Enhanced UI/UX**: Multiple glassmorphic UI refinements across the dashboard and chat interface.
+
+---
+
 ## [2.2.0] - Upgrade v2.2.0
 ### Upgraded
 - **Premium Syllabus UI**: Overhauled the "Add Syllabus" interface with high-end card-based selection and premium glassmorphic aesthetics.
