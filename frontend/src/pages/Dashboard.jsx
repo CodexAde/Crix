@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { FastPageSpinner, PageLoader } from '../components/Spinner';
 import SubjectContext from '../context/Subject/SubjectContext';
 import UserContext from '../context/User/UserContext';
-import { Flame, Brain, BookMarked, ArrowRight, Sparkles, Clock, Target, TrendingUp, BookOpen, GraduationCap, Zap, ChevronRight, Lightbulb, Plus, GripVertical } from 'lucide-react';
+import { Flame,Calendar, Brain, BookMarked, ArrowRight, Sparkles, Clock, Target, TrendingUp, BookOpen, GraduationCap, Zap, ChevronRight, Lightbulb, Plus, GripVertical } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, Reorder } from 'framer-motion';
@@ -59,10 +59,10 @@ export default function Dashboard() {
   }
 
 
-  // Premium Dummy Data for Stats
+  // Stats from User Profile
   const displayStats = {
-    streak: stats.streak || 12,
-    mastered: stats.topicsMastered || 156,
+    streak: userProfile?.streak || 1, // Default to 1 if new
+    mastered: stats.topicsMastered || 0,
     accuracy: 94.8,
     velocity: 12.4
   };
@@ -179,23 +179,23 @@ export default function Dashboard() {
 
       {/* Action Row */}
       <motion.div variants={itemVariants} className="flex items-center justify-around md:grid md:grid-cols-3 md:gap-6 px-2 md:px-0">
-         <Link to="/add-chapters" className="flex flex-col md:flex-row items-center md:justify-start gap-2 md:gap-4 group md:bg-card md:p-4 md:rounded-2xl md:border md:border-border-soft md:hover:border-accent/40 md:hover:shadow-lg md:hover:shadow-accent/5 md:transition-all">
+         <Link to="/roadmap" className="flex flex-col md:flex-row items-center md:justify-start gap-2 md:gap-4 group md:bg-card md:p-4 md:rounded-2xl md:border md:border-border-soft md:hover:border-accent/40 md:hover:shadow-lg md:hover:shadow-accent/5 md:transition-all">
             <div className="w-16 h-16 md:w-12 md:h-12 rounded-[1.2rem] md:rounded-xl bg-card md:bg-accent/10 border border-border-soft md:border-transparent flex items-center justify-center shadow-sm md:shadow-none transition-all text-accent group-hover:scale-105">
-               <Sparkles className="w-7 h-7 md:w-6 md:h-6" />
+               <Calendar className="w-7 h-7 md:w-6 md:h-6" />
             </div>
             <div className="text-center md:text-left">
-                <span className="text-xs md:text-base font-bold text-secondary md:text-primary group-hover:text-accent transition-colors block leading-none">Generate</span>
-                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Explore new topics</span>
+                <span className="text-xs md:text-base font-bold text-secondary md:text-primary group-hover:text-accent transition-colors block leading-none">Roadmap</span>
+                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Your Path</span>
             </div>
          </Link>
 
          <Link to="/syllabus" className="flex flex-col md:flex-row items-center md:justify-start gap-2 md:gap-4 group md:bg-card md:p-4 md:rounded-2xl md:border md:border-border-soft md:hover:border-blue-500/40 md:hover:shadow-lg md:hover:shadow-blue-500/5 md:transition-all">
             <div className="w-16 h-16 md:w-12 md:h-12 rounded-[1.2rem] md:rounded-xl bg-card md:bg-blue-500/10 border border-border-soft md:border-transparent flex items-center justify-center shadow-sm md:shadow-none transition-all text-blue-500 group-hover:scale-105">
-               <BookOpen className="w-7 h-7 md:w-6 md:h-6" />
+               <BookMarked className="w-7 h-7 md:w-6 md:h-6" />
             </div>
              <div className="text-center md:text-left">
                 <span className="text-xs md:text-base font-bold text-secondary md:text-primary group-hover:text-blue-500 transition-colors block leading-none">Library</span>
-                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Your study materials</span>
+                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Explore Subjects</span>
             </div>
          </Link>
 

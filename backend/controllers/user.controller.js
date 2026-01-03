@@ -155,8 +155,49 @@ const logoutUser = async (req, res) => {
 };
 
 const getCurrentUser = async (req, res) => {
+    // Determine Streak
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    const today = new Date();
+    const lastActivity = user.lastActivity ? new Date(user.lastActivity) : new Date(0);
+    
+    // Normalize dates to midnight to compare days only
+    const todayMidnight = new Date(today);
+    todayMidnight.setHours(0, 0, 0, 0);
+    
+    const lastActivityMidnight = new Date(lastActivity);
+    lastActivityMidnight.setHours(0, 0, 0, 0);
+
+    const diffTime = Math.abs(todayMidnight - lastActivityMidnight);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+    // Streak Logic
+    if (diffDays === 1) {
+        // Logged in yesterday -> Increment
+        user.streak = (user.streak || 0) + 1;
+    } else if (diffDays > 1) {
+        // Missed a day (or more) -> Reset
+        // But if streak is 0 and it's their first time in a while, set to 1
+        user.streak = 1;
+    } else if (diffDays === 0) {
+        // Login same day -> No change, but ensure at least 1 if 0
+        if (!user.streak) user.streak = 1;
+    }
+
+    user.lastActivity = today;
+    await user.save({ validateBeforeSave: false });
+
+    // Update req.user to reflect changes if needed downstream, mostly for response
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
+    delete updatedUser.refreshToken;
+
     return res.status(200).json({
-        user: req.user,
+        user: updatedUser,
         message: "User fetched successfully"
     });
 };
@@ -281,14 +322,55 @@ export {
 };
 
 const getUserProfile = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id).select("_id name email avatar academicInfo.isOnboarded academicInfo.year academicInfo.branch subjects");
+    // Determine Streak (Logic moved here as this is the main entry point)
+    const user = await User.findById(req.user._id);
 
     if (!user) {
         throw new ApiError(404, "User profile not found");
     }
 
+    const today = new Date();
+    const lastActivity = user.lastActivity ? new Date(user.lastActivity) : new Date(0);
+    
+    // Normalize dates to midnight
+    const todayMidnight = new Date(today);
+    todayMidnight.setHours(0, 0, 0, 0);
+    
+    const lastActivityMidnight = new Date(lastActivity);
+    lastActivityMidnight.setHours(0, 0, 0, 0);
+
+    const diffTime = Math.abs(todayMidnight - lastActivityMidnight);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+    // Streak Logic
+    if (diffDays === 1) {
+        user.streak = (user.streak || 0) + 1;
+    } else if (diffDays > 1) {
+        user.streak = 1;
+    } else if (diffDays === 0) {
+        if (!user.streak) user.streak = 1;
+    }
+
+    user.lastActivity = today;
+    await user.save({ validateBeforeSave: false });
+
+    // Construct response object manually or via lean selection
+    const responseUser = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        academicInfo: {
+            isOnboarded: user.academicInfo?.isOnboarded,
+            year: user.academicInfo?.year,
+            branch: user.academicInfo?.branch
+        },
+        subjects: user.subjects,
+        streak: user.streak
+    };
+
     return res.status(200).json(
-        new ApiResponse(200, user, "User profile fetched successfully")
+        new ApiResponse(200, responseUser, "User profile fetched successfully")
     );
 });
 
