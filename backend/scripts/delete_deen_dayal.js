@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ path: "./backend/.env" });
 
 await mongoose.connect(process.env.MONGODB_URI);
 

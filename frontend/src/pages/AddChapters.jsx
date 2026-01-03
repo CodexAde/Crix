@@ -289,9 +289,15 @@ export default function AddChapters() {
             });
             
             if (data.success) {
-                toast.success(`🎉 ${data.data.addedChapters} chapter(s) saved!`);
-                localStorage.removeItem('crix_syllabus_draft');
-                navigate(`/syllabus/${selectedSubject._id}`);
+                if (data.isPending) {
+                    toast.success(data.message || 'Submitted for review! 📝');
+                    localStorage.removeItem('crix_syllabus_draft');
+                    navigate('/dashboard');
+                } else {
+                    toast.success(`🎉 ${data.data.addedChapters} chapter(s) saved!`);
+                    localStorage.removeItem('crix_syllabus_draft');
+                    navigate(`/syllabus/${selectedSubject._id}`);
+                }
             } else {
                 toast.error(data.message);
             }

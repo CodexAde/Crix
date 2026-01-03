@@ -2,16 +2,19 @@ import { useEffect, useState, useContext } from 'react';
 import { FastPageSpinner, PageLoader } from '../components/Spinner';
 import SubjectContext from '../context/Subject/SubjectContext';
 import UserContext from '../context/User/UserContext';
-import { Flame, Brain, BookMarked, ArrowRight, Sparkles, Clock, Target, TrendingUp, BookOpen, GraduationCap, Zap, ChevronRight, Lightbulb, Plus, GripVertical } from 'lucide-react';
+import { Flame,Calendar, Brain, BookMarked, ArrowRight, Sparkles, Clock, Target, TrendingUp, BookOpen, GraduationCap, Zap, ChevronRight, Lightbulb, Plus, GripVertical } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, Reorder } from 'framer-motion';
 
+import { getMyRoadmaps } from '../services/roadmapServices';
+import { getUserTestStatsService } from '../services/testServices';
+
 export default function Dashboard() {
-  const { userProfile, loading: loadingProfile } = useContext(UserContext);
-  const { reorderSubjects } = useContext(SubjectContext);
+  const { userProfile, loading: loadingProfile, stats: userStats, subjCount } = useContext(UserContext);
+  const { reorderSubjects, userSubjects } = useContext(SubjectContext);
   const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1 });
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(false);
   const [lastSession, setLastSession] = useState(null);
   const navigate = useNavigate();
 
@@ -25,18 +28,6 @@ export default function Dashboard() {
             console.error("Failed to parse last session", e);
         }
     }
-
-    const fetchStats = async () => {
-        try {
-            // const statsRes = await axios.get('/progress/stats');
-            // setStats(statsRes.data);
-        } catch (error) {
-            console.error("Failed to fetch dashboard data", error);
-        } finally {
-            setLoadingStats(false);
-        }
-    }
-    fetchStats();
   }, []);
 
   const containerVariants = {
@@ -59,10 +50,10 @@ export default function Dashboard() {
   }
 
 
-  // Premium Dummy Data for Stats
+  // Stats from User Profile
   const displayStats = {
-    streak: stats.streak || 12,
-    mastered: stats.topicsMastered || 156,
+    streak: userProfile?.streak || 1, // Default to 1 if new
+    mastered: stats.topicsMastered || 0,
     accuracy: 94.8,
     velocity: 12.4
   };
@@ -179,23 +170,23 @@ export default function Dashboard() {
 
       {/* Action Row */}
       <motion.div variants={itemVariants} className="flex items-center justify-around md:grid md:grid-cols-3 md:gap-6 px-2 md:px-0">
-         <Link to="/add-chapters" className="flex flex-col md:flex-row items-center md:justify-start gap-2 md:gap-4 group md:bg-card md:p-4 md:rounded-2xl md:border md:border-border-soft md:hover:border-accent/40 md:hover:shadow-lg md:hover:shadow-accent/5 md:transition-all">
+         <Link to="/roadmap" className="flex flex-col md:flex-row items-center md:justify-start gap-2 md:gap-4 group md:bg-card md:p-4 md:rounded-2xl md:border md:border-border-soft md:hover:border-accent/40 md:hover:shadow-lg md:hover:shadow-accent/5 md:transition-all">
             <div className="w-16 h-16 md:w-12 md:h-12 rounded-[1.2rem] md:rounded-xl bg-card md:bg-accent/10 border border-border-soft md:border-transparent flex items-center justify-center shadow-sm md:shadow-none transition-all text-accent group-hover:scale-105">
-               <Sparkles className="w-7 h-7 md:w-6 md:h-6" />
+               <Calendar className="w-7 h-7 md:w-6 md:h-6" />
             </div>
             <div className="text-center md:text-left">
-                <span className="text-xs md:text-base font-bold text-secondary md:text-primary group-hover:text-accent transition-colors block leading-none">Generate</span>
-                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Explore new topics</span>
+                <span className="text-xs md:text-base font-bold text-secondary md:text-primary group-hover:text-accent transition-colors block leading-none">Roadmap</span>
+                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Your Path</span>
             </div>
          </Link>
 
          <Link to="/syllabus" className="flex flex-col md:flex-row items-center md:justify-start gap-2 md:gap-4 group md:bg-card md:p-4 md:rounded-2xl md:border md:border-border-soft md:hover:border-blue-500/40 md:hover:shadow-lg md:hover:shadow-blue-500/5 md:transition-all">
             <div className="w-16 h-16 md:w-12 md:h-12 rounded-[1.2rem] md:rounded-xl bg-card md:bg-blue-500/10 border border-border-soft md:border-transparent flex items-center justify-center shadow-sm md:shadow-none transition-all text-blue-500 group-hover:scale-105">
-               <BookOpen className="w-7 h-7 md:w-6 md:h-6" />
+               <BookMarked className="w-7 h-7 md:w-6 md:h-6" />
             </div>
              <div className="text-center md:text-left">
                 <span className="text-xs md:text-base font-bold text-secondary md:text-primary group-hover:text-blue-500 transition-colors block leading-none">Library</span>
-                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Your study materials</span>
+                <span className="hidden md:block text-[10px] text-secondary mt-0.5">Explore Subjects</span>
             </div>
          </Link>
 
@@ -240,12 +231,12 @@ export default function Dashboard() {
           <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
              <div className="absolute -right-2 -top-2 w-16 h-16 bg-accent/5 rounded-full blur-2xl group-hover:bg-accent/10 transition-colors" />
              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4 group-hover:scale-110 transition-transform relative z-10">
-                <Brain className="w-5 h-5" />
+                <BookOpen className="w-5 h-5" />
              </div>
-             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Knowledge Bank</p>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Subjects</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.mastered}</span>
-                <span className="text-[10px] font-extrabold text-secondary opacity-50">TITLES</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{subjCount}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">SUBJ</span>
              </div>
           </div>
 
@@ -254,22 +245,22 @@ export default function Dashboard() {
              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform relative z-10">
                 <Target className="w-5 h-5" />
              </div>
-             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Accuracy</p>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Tests Attempted</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.accuracy}</span>
-                <span className="text-[10px] font-extrabold text-secondary opacity-50">%</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{userStats.testAttempts}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">TESTS</span>
              </div>
           </div>
 
           <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
              <div className="absolute -right-2 -top-2 w-16 h-16 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors" />
              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform relative z-10">
-                <TrendingUp className="w-5 h-5" />
+                <Calendar className="w-5 h-5" />
              </div>
-             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Growth Velocity</p>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Active Roadmaps</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.velocity}</span>
-                <span className="text-[10px] font-extrabold text-secondary opacity-50">T/WK</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{userStats.activeRoadmaps}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">PLANS</span>
              </div>
           </div>
         </div>

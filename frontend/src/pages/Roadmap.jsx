@@ -153,16 +153,11 @@ export default function Roadmap() {
   if (view === 'my-roadmaps') {
     return (
       <div className="p-4 md:p-10 max-w-7xl mx-auto pb-24 md:pb-10 min-h-screen relative overflow-x-hidden">
-        <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary">My Roadmaps</h1>
-              <p className="text-secondary text-sm">Your saved study plans</p>
-            </div>
-            <button onClick={() => navigate(-1)} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10 active:scale-95 transition-all">
-                <ArrowLeft className="w-4 h-4 inline mr-2" /> Back
-            </button>
-          </div>
+        <motion.header initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 flex items-center justify-between">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary">My Roadmaps</h1>
+          <button onClick={() => navigate('/roadmap')} className="text-secondary hover:text-accent text-sm font-bold px-4 py-2 rounded-xl bg-card border border-white/10 active:scale-95 transition-all">
+            <ArrowLeft className="w-4 h-4 inline mr-2" /> Back
+          </button>
         </motion.header>
 
         {fetchingRoadmaps ? (
@@ -185,7 +180,7 @@ export default function Roadmap() {
                 onClick={() => navigate(`/roadmap/${rm._id}`)}
                 className="p-6 rounded-3xl bg-card border border-white/10 cursor-pointer hover:border-accent/30 hover:bg-accent/5 transition-all"
               >
-                <h3 className="text-lg font-bold text-primary line-clamp-1">{rm.name || rm.title}</h3>
+                <h3 className="text-lg font-bold text-primary line-clamp-2">{rm.name || rm.title}</h3>
                 <p className="text-secondary text-sm line-clamp-2 mt-1">{rm.description}</p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="text-xs text-secondary">{rm.days?.length || rm.steps?.length || 0} Days</span>

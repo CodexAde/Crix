@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { Subject } from "./models/syllabus.model.js";
+import { Subject } from "../models/syllabus.model.js";
 
-dotenv.config();
+dotenv.config({ path: "./backend/.env" });
 
 const checkDB = async () => {
   try {

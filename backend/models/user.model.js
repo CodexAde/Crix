@@ -56,7 +56,15 @@ const userSchema = new mongoose.Schema(
         subjects: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Subject'
-        }]
+        }],
+        streak: {
+            type: Number,
+            default: 0
+        },
+        lastActivity: {
+            type: Date,
+            default: Date.now
+        }
     },
     {
         timestamps: true

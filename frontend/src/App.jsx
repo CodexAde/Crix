@@ -55,6 +55,10 @@ import DemoShowcase from './pages/DemoShowcase';
 import CommunityDeploy from './pages/CommunityDeploy';
 import MySubjects from './pages/MySubjects';
 import SaveNavigate from './pages/SaveNavigate';
+import TakeTest from './pages/TakeTest';
+import TestResult from './pages/TestResult';
+import TestAnalysis from './pages/TestAnalysis';
+import AdminDashboard from './pages/AdminDashboard';
 
 function AppRoutes({ deferredPrompt, installApp }) {
   const { user, loading } = useAuth();
@@ -104,7 +108,17 @@ function AppRoutes({ deferredPrompt, installApp }) {
           <Route path="/add-chapters" element={<AddChapters />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/navigate" element={<SaveNavigate />} />
+          <Route path="/test/take/:testId" element={<TakeTest />} />
+          <Route path="/test/take/:testId/result" element={<TestResult />} />
+          <Route path="/test/take/:testId/result/analyse" element={<TestAnalysis />} />
       </Route>
+
+      {/* Admin Route */}
+      <Route path="/admin" element={
+        <ProtectedRoute>
+            <AdminDashboard />
+        </ProtectedRoute>
+      } />
       
       {/* Chat Routes - Full Screen (Outside Layout) */}
       <Route path="/chat/:subjectId/:chapterId/:topicId" element={

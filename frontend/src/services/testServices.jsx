@@ -1,0 +1,48 @@
+import axios from 'axios';
+
+// Rely on axios.defaults.baseURL set in AuthContext.jsx
+const getTestByReference = async (referenceId) => {
+    try {
+        const response = await axios.get(`/tests/reference/${referenceId}`);
+        return response.data;
+    } catch (error) {
+        return error.response?.data || { success: false, message: "Network error" };
+    }
+};
+
+const getTestById = async (testId) => {
+    try {
+        const response = await axios.get(`/tests/${testId}`);
+        return response.data;
+    } catch (error) {
+        return error.response?.data || { success: false, message: "Network error" };
+    }
+};
+
+const getLatestAttempt = async (testId) => {
+    try {
+        const response = await axios.get(`/tests/${testId}/latest-attempt`);
+        return response.data;
+    } catch (error) {
+        return error.response?.data || { success: false, message: "Network error" };
+    }
+};
+// Get user test stats
+export const getUserTestStatsService = async () => {
+    const { data } = await axios.get(`/tests/stats`);
+    return data.data;
+};
+const submitTest = async (testId, answers, timeTaken) => {
+    try {
+        const response = await axios.post(`/tests/submit`, {
+            testId,
+            answers,
+            timeTaken
+        });
+        return response.data;
+    } catch (error) {
+        return error.response?.data || { success: false, message: "Network error" };
+    }
+};
+
+export { getTestByReference, getTestById, submitTest, getLatestAttempt };

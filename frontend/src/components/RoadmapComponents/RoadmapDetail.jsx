@@ -25,7 +25,7 @@ export default function RoadmapDetail({ roadmap, onBack }) {
              <span className="text-[10px] uppercase font-black tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded-md">Neural Path</span>
              <span className="text-[10px] uppercase font-black tracking-widest text-secondary opacity-50">{roadmap.subject}</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-primary tracking-tight">{roadmap.name}</h1>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-primary tracking-tight line-clamp-2">{roadmap.name}</h1>
           <p className="text-secondary text-sm mt-1 opacity-70">{roadmap.description}</p>
         </div>
       </motion.div>

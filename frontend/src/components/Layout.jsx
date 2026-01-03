@@ -52,17 +52,33 @@ export default function Layout() {
 
 
   const isFullPageLoading = (loadingSubject && !activeSubjectData) || (userLoading && !userProfile);
+  
+  // Hide UI during test taking, results, and analysis
+  const isTakingTest = location.pathname.includes('/test/take/');
+  const hideMobileNav = location.pathname.startsWith('/chapter') || 
+                         location.pathname.startsWith('/roadmap/my') || 
+                         location.pathname.startsWith('/syllabus/');
+
+  if (isTakingTest) {
+      return (
+          <div className="min-h-screen bg-main">
+              <main className="w-full" ref={mainRef}>
+                  <Outlet />
+              </main>
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-main flex flex-col md:flex-row">
       {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-card border-r border-border-soft h-screen sticky top-0 p-6">
-        <div className="flex items-center gap-3 mb-10">
-            <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
-                <Sparkles className="w-5 h-5 text-white" />
+      <aside className="hidden md:flex flex-col w-56 bg-card border-r border-border-soft h-screen sticky top-0 p-5">
+        <div className="flex items-center gap-2.5 mb-10 overflow-hidden">
+            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-lg shadow-accent/20 shrink-0">
+                <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-                <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
+                    <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
                 <p className="text-[8px] text-accent font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
             </div>
         </div>
@@ -153,7 +169,7 @@ export default function Layout() {
       </main>
 
       {/* Mobile Bottom Taskbar */}
-      {!isFullPageLoading && (
+      {!isFullPageLoading && !hideMobileNav && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border-soft px-6 py-3 flex justify-between items-center z-50 transition-transform duration-300 ease-in-out">
 
         {navItems.map((item) => {

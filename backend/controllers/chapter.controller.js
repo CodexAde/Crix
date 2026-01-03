@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { Subject } from "../models/syllabus.model.js";
+import { PendingUpdate } from "../models/pendingUpdate.model.js";
 
 // Initialize OpenAI client for OpenRouter
 let openai = null;
@@ -229,34 +230,26 @@ const confirmChapters = async (req, res) => {
             return res.status(404).json({ success: false, message: "Subject not found" });
         }
         
-        // Find the unit
-        const unitIndex = subject.units.findIndex(u => u.unitNumber === parseInt(unitNumber));
-        if (unitIndex === -1) {
-            return res.status(404).json({ success: false, message: "Unit not found" });
-        }
+        // Create Pending Update Request
+        const userId = req.user?._id; // Assuming user is authenticated and attached to req
         
-        // Add chapters to the unit (append to existing)
-        const existingChaptersCount = subject.units[unitIndex].chapters.length;
-        
-        // Update orderIndex for new chapters
-        const newChapters = chapters.map((chapter, idx) => ({
-            ...chapter,
-            orderIndex: existingChaptersCount + idx + 1,
-            topics: chapter.topics.map((topic, tidx) => ({
-                ...topic,
-                orderIndex: tidx + 1
-            }))
-        }));
-        
-        subject.units[unitIndex].chapters.push(...newChapters);
-        await subject.save();
+        await PendingUpdate.create({
+            type: 'ADD_CHAPTERS',
+            data: {
+                subjectId,
+                unitNumber: parseInt(unitNumber),
+                chapters
+            },
+            status: 'pending',
+            requestedBy: userId
+        });
         
         return res.status(200).json({
             success: true,
-            message: `${chapters.length} chapter(s) added successfully!`,
+            isPending: true,
+            message: "Syllabus submitted for Admin Review! 📝",
             data: {
-                addedChapters: newChapters.length,
-                totalChapters: subject.units[unitIndex].chapters.length
+                chapterCount: chapters.length
             }
         });
         
@@ -264,7 +257,7 @@ const confirmChapters = async (req, res) => {
         console.error("Confirm Chapters Error:", error);
         return res.status(500).json({ 
             success: false, 
-            message: error.message || "Failed to save chapters" 
+            message: error.message || "Failed to submit syllabus" 
         });
     }
 };

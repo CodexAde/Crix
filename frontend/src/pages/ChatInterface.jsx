@@ -20,10 +20,15 @@ import SubjectContext from '../context/Subject/SubjectContext';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+import TestBlock from '../components/Chat/TestBlock';
+
 // Memoized Message Component to prevent re-renders
-const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
+const MessageItem = memo(({ msg, idx, isTyping, onShare, onRegenerate, messageRef, topicId }) => {
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState(null); // 'like' or 'dislike'
+
+  const hasTestBlock = msg.content.includes('[SHOW_TEST_BLOCK]');
+  const cleanContent = msg.content.replace('[SHOW_TEST_BLOCK]', '').trim();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(msg.content);
@@ -151,8 +156,12 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                   td: ({node, ...props}) => <td className="px-6 py-4 text-secondary group-hover/tr:text-primary transition-colors leading-relaxed" {...props} />,
                 }}
               >
-                {msg.content}
+                {cleanContent}
               </ReactMarkdown>
+
+              {hasTestBlock && !isTyping && (
+                <TestBlock referenceId={topicId} type="topic" />
+              )}
             </div>
           </div>
           
@@ -176,7 +185,7 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef }) => {
                   title: "Not Helpful" 
                 },
                 { icon: Share, onClick: () => onShare(msg.content), title: "Share" },
-                { icon: RefreshCw, title: "Regenerate" }
+                { icon: RefreshCw, onClick: () => onRegenerate(idx), title: "Regenerate" }
               ].map((btn, i) => (
                 <button 
                   key={i}
@@ -218,21 +227,33 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
         setExpandedChId(prev => prev === chId ? null : chId);
     };
 
+    // Scroll active item into view
+    const activeItemRef = useRef(null);
+    useEffect(() => {
+        if (activeItemRef.current) {
+            activeItemRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
+        }
+    }, [activeTopicId, activeChapterId]);
+
     return (
         <div className="flex flex-col h-full bg-card/50 backdrop-blur-3xl bg-card border-r border-border-soft">
             {/* Branding */}
-            <Link to="/dashboard" className="flex items-center gap-3 p-6 border-border-soft/50 hover:bg-white/5 transition-colors cursor-pointer block">
-                <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
-                <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <Link to="/dashboard" className="flex items-center gap-2.5 p-5 border-border-soft/50 hover:bg-white/5 transition-colors cursor-pointer block overflow-hidden">
+                <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-lg shadow-accent/20 shrink-0">
+                    <Sparkles className="w-4 h-4 text-white" />
+                </div>
             <div>
-                <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
+                    <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
                 <p className="text-[8px] text-accent font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
-            </div>
+                </div>
             </Link>
 
             {/* Chapters List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar scroll-smooth">
                 {isLoading ? (
                     [1,2,3,4].map(i => (
                         <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />
@@ -241,9 +262,14 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                     chapters.map((ch) => {
                         const isExpanded = expandedChId === ch._id;
                         const isActiveChapter = activeChapterId === ch._id;
+                        const hasActiveTopic = ch.topics?.some(t => t._id === activeTopicId);
 
                         return (
-                            <div key={ch._id} className="flex flex-col space-y-1">
+                            <div 
+                                key={ch._id} 
+                                ref={isActiveChapter ? activeItemRef : null}
+                                className="flex flex-col space-y-1"
+                            >
                                 <button
                                     onClick={() => handleChapterClick(ch._id)}
                                     className={clsx(
@@ -355,7 +381,10 @@ export default function ChatInterface({ isRoadmap = false }) {
   // Find subject and units from context
   const subject = useMemo(() => userSubjects?.find(s => s._id === activeSubjectId), [userSubjects, activeSubjectId]);
   const units = useMemo(() => subject?.units || [], [subject]);
-  const subjectName = useMemo(() => isRoadmap ? subjectNameState : (subject?.name || ""), [isRoadmap, subjectNameState, subject]);
+  const subjectName = useMemo(() => {
+    if (isRoadmap) return subjectNameState;
+    return subject?.name || activeSubjectData?.name || "";
+  }, [isRoadmap, subjectNameState, subject, activeSubjectData]);
 
   // Flattened chapters across ALL units for the sidebar
   const allChapters = useMemo(() => {
@@ -447,9 +476,19 @@ export default function ChatInterface({ isRoadmap = false }) {
     }
   };
 
+  const scrollToTop = (behavior = "smooth") => {
+    const scrollBehavior = typeof behavior === 'string' ? behavior : "smooth";
+    if (chatAreaRef.current) {
+      chatAreaRef.current.scrollTo({
+        top: 0,
+        behavior: scrollBehavior
+      });
+    }
+  };
+
   useEffect(() => {
     if (!isLoading) {
-      scrollToBottom();
+      scrollToTop("instant");
     }
   }, [isLoading]);
 
@@ -462,11 +501,14 @@ export default function ChatInterface({ isRoadmap = false }) {
     }
   }, [messages, isLoading]);
 
+  // Removed auto-scroll on typing completion to prevent jarring jumps
+  /*
   useEffect(() => {
     if (!isTyping && messages.length > 0) {
       scrollToBottom();
     }
   }, [isTyping, messages.length]);
+  */
 
   useEffect(() => {
     const chatArea = chatAreaRef.current;
@@ -709,6 +751,16 @@ export default function ChatInterface({ isRoadmap = false }) {
     sendMessage(action);
   };
 
+  const handleRegenerate = (idx) => {
+    // The message we want to regenerate is the one at idx (AI response)
+    // The original user question is at idx - 1
+    const userMsg = messages[idx - 1];
+    if (userMsg && userMsg.role === 'user') {
+      const newPrompt = `Regenerate ${userMsg.content} in more easy adn detailed way`;
+      sendMessage(newPrompt);
+    }
+  };
+
   const isEmptyState = messages.length === 0 && !isLoading;
 
   // Modified handle function for accordion topic clicks
@@ -721,14 +773,14 @@ export default function ChatInterface({ isRoadmap = false }) {
       setSidebarOpen(false);
 
       setTimeout(() => {
-          scrollToBottom("smooth");
+          scrollToTop("instant");
       }, 100);
   }, [subjectId, roadmapId, navigate, isRoadmap]);
 
   return (
     <div className="fixed inset-0 flex bg-main overflow-hidden">
         {/* Desktop Sidebar */}
-        <div className="hidden md:block w-64 h-full flex-shrink-0 z-30">
+        <div className="hidden md:block w-56 h-full flex-shrink-0 z-30">
             <ChapterSidebar
                 chapters={allChapters}
                 activeChapterId={activeChapterId}
@@ -870,9 +922,11 @@ export default function ChatInterface({ isRoadmap = false }) {
                                 key={idx} 
                                 msg={msg} 
                                 idx={idx} 
-                                isTyping={isTyping} 
+                                isTyping={isTyping && idx === messages.length - 1} 
                                 onShare={handleShare} 
+                                onRegenerate={handleRegenerate}
                                 messageRef={msg.role === 'user' ? latestUserMsgRef : null}
+                                topicId={topicId}
                             />
                         ))}
                         {isTyping && (

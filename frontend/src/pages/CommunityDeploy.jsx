@@ -47,7 +47,7 @@ const CommunityDeploy = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-main text-white relative overflow-hidden pb-32">
+        <div className="min-h-screen bg-main text-primary relative overflow-hidden pb-32">
             {/* Background Neural Grid (The 'Mast' Grid) */}
             <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -103,7 +103,7 @@ const CommunityDeploy = () => {
                         <motion.div
                             key={idx}
                             variants={itemVariants}
-                            className="bg-card/50 backdrop-blur-xl border border-white/5 p-8 rounded-[2rem] hover:border-red-500/30 transition-all duration-500 group"
+                            className="bg-card/50 backdrop-blur-xl border border-border-soft p-8 rounded-[2rem] hover:border-red-500/30 transition-all duration-500 group"
                         >
                             <div className={`w-12 h-12 rounded-xl ${section.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                                 <section.icon className={`w-6 h-6 ${section.color}`} />
@@ -121,7 +121,7 @@ const CommunityDeploy = () => {
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-8 md:p-16 mb-24 relative overflow-hidden"
+                    className="bg-card/30 border border-border-soft rounded-[3rem] p-8 md:p-16 mb-24 relative overflow-hidden"
                 >
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                         <Info className="w-32 h-32" />
@@ -137,7 +137,7 @@ const CommunityDeploy = () => {
                                 "Our Neural Engine will sync and optimize it for everyone."
                             ].map((step, i) => (
                                 <li key={i} className="flex gap-4">
-                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-[10px] font-black">{i+1}</span>
+                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-[10px] font-black">{i+1}</span>
                                     <p className="text-secondary font-medium leading-relaxed">{step}</p>
                                 </li>
                             ))}
