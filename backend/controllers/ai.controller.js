@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { Subject } from "../models/syllabus.model.js";
 import { Chat } from "../models/chat.model.js";
 import { Reply } from "../models/reply.model.js";
+import { Test, AttemptedTest } from "../models/test.model.js";
 
 // Helper for word-by-word streaming
 const streamTextWordByWord = async (res, text, delay = 30) => {
@@ -110,6 +111,45 @@ const streamChat = async (req, res) => {
             }
         }
 
+        // 1.1 Fetch Recent Test Context
+        let testContext = "";
+        try {
+            const topicTest = await Test.findOne({ referenceId: topicId });
+            if (topicTest) {
+                const lastAttempt = await AttemptedTest.findOne({
+                    userId,
+                    testId: topicTest._id
+                }).sort({ createdAt: -1 });
+
+                if (lastAttempt) {
+                    const timeAgo = Math.floor((Date.now() - new Date(lastAttempt.createdAt).getTime()) / (1000 * 60)); // minutes ago
+                    
+                    // Only include if it was recent (e.g., within last 2 hours) or if it's the only attempt
+                    testContext = `
+USER'S RECENT TEST PERFORMANCE:
+- Test Title: ${topicTest.title}
+- Score: ${lastAttempt.score}/${lastAttempt.totalQuestions}
+- Time Taken: ${lastAttempt.timeTaken} seconds
+- Analysis: ${lastAttempt.analysis}
+- Detailed Answers:
+${lastAttempt.answers.map((ans, idx) => {
+    const q = topicTest.questions.id(ans.questionId);
+    return `Q${idx+1}: ${q?.question || 'N/A'}
+User Answer: ${ans.answer}`;
+}).join('\n\n')}
+
+INSTRUCTIONS FOR TEST DATA:
+1. If the user just finished this test (within last 10 mins), congratulate or encourage them based on score.
+2. If they ask about their performance or specific questions, use the above data to explain why they were wrong.
+3. Talk like a friend (Hindi-English mix) about their mistakes. e.g., "Bhai tune Q2 mein thodi galti kardi, tune select kiya A but actually B hona chahiye tha kyunki..."
+4. Be specific! Mention the question content.
+`;
+                }
+            }
+        } catch (testErr) {
+            console.error("Test context fetch error:", testErr);
+        }
+
         // 2. Construct System Prompt
         let systemPrompt = `You are an AI tutor. Your responses are rendered in a markdown chat UI with full code block support.
 
@@ -208,6 +248,7 @@ TESTING & MCQ RULE:
 - MANDATORY: If you suggest a test, you MUST include the string "[SHOW_TEST_BLOCK]" at the end of your message.
 
 - Context: ${topicContext}
+${testContext ? `- Test Context: ${testContext}` : ''}
 - User Persona: ${JSON.stringify(user.personaProfile || {})}
 `;
 

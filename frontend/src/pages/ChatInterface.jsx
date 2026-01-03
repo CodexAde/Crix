@@ -227,6 +227,18 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
         setExpandedChId(prev => prev === chId ? null : chId);
     };
 
+    // Scroll active item into view
+    const activeItemRef = useRef(null);
+    useEffect(() => {
+        if (activeItemRef.current) {
+            activeItemRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
+        }
+    }, [activeTopicId, activeChapterId]);
+
     return (
         <div className="flex flex-col h-full bg-card/50 backdrop-blur-3xl bg-card border-r border-border-soft">
             {/* Branding */}
@@ -241,7 +253,7 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
             </Link>
 
             {/* Chapters List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar scroll-smooth">
                 {isLoading ? (
                     [1,2,3,4].map(i => (
                         <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />
@@ -250,9 +262,14 @@ const ChapterSidebar = memo(({ chapters, activeChapterId, activeTopicId, isLoadi
                     chapters.map((ch) => {
                         const isExpanded = expandedChId === ch._id;
                         const isActiveChapter = activeChapterId === ch._id;
+                        const hasActiveTopic = ch.topics?.some(t => t._id === activeTopicId);
 
                         return (
-                            <div key={ch._id} className="flex flex-col space-y-1">
+                            <div 
+                                key={ch._id} 
+                                ref={isActiveChapter ? activeItemRef : null}
+                                className="flex flex-col space-y-1"
+                            >
                                 <button
                                     onClick={() => handleChapterClick(ch._id)}
                                     className={clsx(
