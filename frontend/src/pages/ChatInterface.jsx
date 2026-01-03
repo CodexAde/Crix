@@ -364,7 +364,10 @@ export default function ChatInterface({ isRoadmap = false }) {
   // Find subject and units from context
   const subject = useMemo(() => userSubjects?.find(s => s._id === activeSubjectId), [userSubjects, activeSubjectId]);
   const units = useMemo(() => subject?.units || [], [subject]);
-  const subjectName = useMemo(() => isRoadmap ? subjectNameState : (subject?.name || ""), [isRoadmap, subjectNameState, subject]);
+  const subjectName = useMemo(() => {
+    if (isRoadmap) return subjectNameState;
+    return subject?.name || activeSubjectData?.name || "";
+  }, [isRoadmap, subjectNameState, subject, activeSubjectData]);
 
   // Flattened chapters across ALL units for the sidebar
   const allChapters = useMemo(() => {
