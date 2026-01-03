@@ -56,6 +56,7 @@ import progressRouter from './routes/progress.routes.js';
 import chapterRouter from './routes/chapter.routes.js';
 import roadmapRouter from './routes/roadmap.routes.js';
 import testRouter from './routes/test.routes.js';
+import adminRouter from './routes/admin.routes.js';
 
 // Routes declaration
 app.use("/api/v1/users", userRouter);
@@ -65,6 +66,7 @@ app.use("/api/v1/progress", progressRouter);
 app.use("/api/v1/chapters", chapterRouter);
 app.use("/api/v1/roadmaps", roadmapRouter);
 app.use("/api/v1/tests", testRouter);
+app.use("/api/v1/admin", adminRouter);
 
 app.get('/', (req, res) => {
     res.send('Cerix Backend is running!');
