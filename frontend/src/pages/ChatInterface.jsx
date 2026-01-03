@@ -23,7 +23,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import TestBlock from '../components/Chat/TestBlock';
 
 // Memoized Message Component to prevent re-renders
-const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef, topicId }) => {
+const MessageItem = memo(({ msg, idx, isTyping, onShare, onRegenerate, messageRef, topicId }) => {
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState(null); // 'like' or 'dislike'
 
@@ -185,7 +185,7 @@ const MessageItem = memo(({ msg, idx, isTyping, onShare, messageRef, topicId }) 
                   title: "Not Helpful" 
                 },
                 { icon: Share, onClick: () => onShare(msg.content), title: "Share" },
-                { icon: RefreshCw, title: "Regenerate" }
+                { icon: RefreshCw, onClick: () => onRegenerate(idx), title: "Regenerate" }
               ].map((btn, i) => (
                 <button 
                   key={i}
@@ -734,6 +734,16 @@ export default function ChatInterface({ isRoadmap = false }) {
     sendMessage(action);
   };
 
+  const handleRegenerate = (idx) => {
+    // The message we want to regenerate is the one at idx (AI response)
+    // The original user question is at idx - 1
+    const userMsg = messages[idx - 1];
+    if (userMsg && userMsg.role === 'user') {
+      const newPrompt = `Regenerate ${userMsg.content} in more easy adn detailed way`;
+      sendMessage(newPrompt);
+    }
+  };
+
   const isEmptyState = messages.length === 0 && !isLoading;
 
   // Modified handle function for accordion topic clicks
@@ -897,6 +907,7 @@ export default function ChatInterface({ isRoadmap = false }) {
                                 idx={idx} 
                                 isTyping={isTyping && idx === messages.length - 1} 
                                 onShare={handleShare} 
+                                onRegenerate={handleRegenerate}
                                 messageRef={msg.role === 'user' ? latestUserMsgRef : null}
                                 topicId={topicId}
                             />
