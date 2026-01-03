@@ -27,7 +27,11 @@ const getLatestAttempt = async (testId) => {
         return error.response?.data || { success: false, message: "Network error" };
     }
 };
-
+// Get user test stats
+export const getUserTestStatsService = async () => {
+    const { data } = await axios.get(`/tests/stats`);
+    return data.data;
+};
 const submitTest = async (testId, answers, timeTaken) => {
     try {
         const response = await axios.post(`/tests/submit`, {

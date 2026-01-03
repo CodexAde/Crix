@@ -7,10 +7,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, Reorder } from 'framer-motion';
 
+import { getMyRoadmaps } from '../services/roadmapServices';
+import { getUserTestStatsService } from '../services/testServices';
+
 export default function Dashboard() {
   const { userProfile, loading: loadingProfile } = useContext(UserContext);
-  const { reorderSubjects } = useContext(SubjectContext);
-  const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1 });
+  const { reorderSubjects, userSubjects } = useContext(SubjectContext);
+  const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1, attempts: 0 });
+  const [activeRoadmapsCount, setActiveRoadmapsCount] = useState(0);
   const [loadingStats, setLoadingStats] = useState(true);
   const [lastSession, setLastSession] = useState(null);
   const navigate = useNavigate();
@@ -30,6 +34,11 @@ export default function Dashboard() {
         try {
             // const statsRes = await axios.get('/progress/stats');
             // setStats(statsRes.data);
+            const roadmaps = await getMyRoadmaps();
+            setActiveRoadmapsCount(roadmaps?.length || 0);
+            
+            const testStats = await getUserTestStatsService();
+            setStats(prev => ({ ...prev, attempts: testStats.count || 0 }));
         } catch (error) {
             console.error("Failed to fetch dashboard data", error);
         } finally {
@@ -240,12 +249,12 @@ export default function Dashboard() {
           <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
              <div className="absolute -right-2 -top-2 w-16 h-16 bg-accent/5 rounded-full blur-2xl group-hover:bg-accent/10 transition-colors" />
              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4 group-hover:scale-110 transition-transform relative z-10">
-                <Brain className="w-5 h-5" />
+                <BookOpen className="w-5 h-5" />
              </div>
-             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Knowledge Bank</p>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Subscribed Subjects</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.mastered}</span>
-                <span className="text-[10px] font-extrabold text-secondary opacity-50">TITLES</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{userSubjects?.length || 0}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">SUBJ</span>
              </div>
           </div>
 
@@ -254,22 +263,22 @@ export default function Dashboard() {
              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform relative z-10">
                 <Target className="w-5 h-5" />
              </div>
-             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Accuracy</p>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Tests Attempted</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.accuracy}</span>
-                <span className="text-[10px] font-extrabold text-secondary opacity-50">%</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{stats.attempts}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">TESTS</span>
              </div>
           </div>
 
           <div className="bg-card rounded-[2rem] p-5 border border-border-soft hover:shadow-xl transition-all group overflow-hidden relative">
              <div className="absolute -right-2 -top-2 w-16 h-16 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors" />
              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform relative z-10">
-                <TrendingUp className="w-5 h-5" />
+                <Calendar className="w-5 h-5" />
              </div>
-             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Growth Velocity</p>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Active Roadmaps</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{displayStats.velocity}</span>
-                <span className="text-[10px] font-extrabold text-secondary opacity-50">T/WK</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{activeRoadmapsCount}</span>
+                <span className="text-[10px] font-extrabold text-secondary opacity-50">PLANS</span>
              </div>
           </div>
         </div>

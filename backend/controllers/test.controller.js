@@ -82,4 +82,10 @@ const getLatestAttempt = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, lastAttempt, "Latest attempt fetched successfully"));
 });
 
-export { getTestByReference, getTestById, submitTest, getLatestAttempt };
+const getUserTestStats = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    const count = await AttemptedTest.countDocuments({ userId });
+    return res.status(200).json(new ApiResponse(200, { count }, "User test stats fetched"));
+});
+
+export { getTestByReference, getTestById, submitTest, getLatestAttempt, getUserTestStats };
