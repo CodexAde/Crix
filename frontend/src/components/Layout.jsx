@@ -72,13 +72,13 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-main flex flex-col md:flex-row">
       {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-card border-r border-border-soft h-screen sticky top-0 p-6">
-        <div className="flex items-center gap-3 mb-10">
-            <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
-                <Sparkles className="w-5 h-5 text-white" />
+      <aside className="hidden md:flex flex-col w-56 bg-card border-r border-border-soft h-screen sticky top-0 p-5">
+        <div className="flex items-center gap-2.5 mb-10 overflow-hidden">
+            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-lg shadow-accent/20 shrink-0">
+                <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-                <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
+                    <h2 className="text-xl font-bold text-primary tracking-tight">Crix</h2>
                 <p className="text-[8px] text-accent font-bold uppercase tracking-widest opacity-70">Neural Engine</p>
             </div>
         </div>
