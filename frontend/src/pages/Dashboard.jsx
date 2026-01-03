@@ -11,11 +11,10 @@ import { getMyRoadmaps } from '../services/roadmapServices';
 import { getUserTestStatsService } from '../services/testServices';
 
 export default function Dashboard() {
-  const { userProfile, loading: loadingProfile } = useContext(UserContext);
+  const { userProfile, loading: loadingProfile, stats: userStats, subjCount } = useContext(UserContext);
   const { reorderSubjects, userSubjects } = useContext(SubjectContext);
-  const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1, attempts: 0 });
-  const [activeRoadmapsCount, setActiveRoadmapsCount] = useState(0);
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [stats, setStats] = useState({ topicsMastered: 0, activeDoubts: 0, streak: 1 });
+  const [loadingStats, setLoadingStats] = useState(false);
   const [lastSession, setLastSession] = useState(null);
   const navigate = useNavigate();
 
@@ -29,23 +28,6 @@ export default function Dashboard() {
             console.error("Failed to parse last session", e);
         }
     }
-
-    const fetchStats = async () => {
-        try {
-            // const statsRes = await axios.get('/progress/stats');
-            // setStats(statsRes.data);
-            const roadmaps = await getMyRoadmaps();
-            setActiveRoadmapsCount(roadmaps?.length || 0);
-            
-            const testStats = await getUserTestStatsService();
-            setStats(prev => ({ ...prev, attempts: testStats.count || 0 }));
-        } catch (error) {
-            console.error("Failed to fetch dashboard data", error);
-        } finally {
-            setLoadingStats(false);
-        }
-    }
-    fetchStats();
   }, []);
 
   const containerVariants = {
@@ -251,9 +233,9 @@ export default function Dashboard() {
              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4 group-hover:scale-110 transition-transform relative z-10">
                 <BookOpen className="w-5 h-5" />
              </div>
-             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Subscribed Subjects</p>
+             <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Subjects</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{userSubjects?.length || 0}</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{subjCount}</span>
                 <span className="text-[10px] font-extrabold text-secondary opacity-50">SUBJ</span>
              </div>
           </div>
@@ -265,7 +247,7 @@ export default function Dashboard() {
              </div>
              <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Tests Attempted</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{stats.attempts}</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{userStats.testAttempts}</span>
                 <span className="text-[10px] font-extrabold text-secondary opacity-50">TESTS</span>
              </div>
           </div>
@@ -277,7 +259,7 @@ export default function Dashboard() {
              </div>
              <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 opacity-60 relative z-10">Active Roadmaps</p>
              <div className="flex items-baseline gap-1 relative z-10">
-                <span className="text-3xl font-black text-primary tracking-tighter">{activeRoadmapsCount}</span>
+                <span className="text-3xl font-black text-primary tracking-tighter">{userStats.activeRoadmaps}</span>
                 <span className="text-[10px] font-extrabold text-secondary opacity-50">PLANS</span>
              </div>
           </div>

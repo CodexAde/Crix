@@ -15,8 +15,8 @@ export const saveRoadmapService = async (roadmapData) => {
   return data.data;
 };
 
-export const getMyRoadmaps = async () => {
-  const { data } = await axios.get('/roadmaps/my-roadmaps');
+export const getMyRoadmaps = async (countOnly = false) => {
+  const { data } = await axios.get(`/roadmaps/my-roadmaps${countOnly ? '?count=true' : ''}`);
   return data.data;
 };
 

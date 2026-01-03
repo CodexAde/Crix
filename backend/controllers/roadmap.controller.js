@@ -169,6 +169,15 @@ const saveRoadmap = asyncHandler(async (req, res) => {
 
 const getMyRoadmaps = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
+  const { count } = req.query;
+
+  if (count === "true") {
+    const totalRoadmaps = await roadmapService.countRoadmapsByUser(userId);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { totalRoadmaps }, "Roadmap count fetched successfully"));
+  }
+
   const roadmaps = await roadmapService.findRoadmapsByUser(userId);
 
   return res
