@@ -26,16 +26,16 @@ export default function Showcase() {
             </div>
 
             <div className="flex flex-col gap-8 rotate-[-3deg] scale-110">
-                <motion.div style={{ x: x1 }} className="flex gap-8 w-[200vw]">
+                <motion.div style={{ x: x1 }} className="flex gap-4 md:gap-8 w-[200vw]">
                     {images.map((src, i) => (
-                        <div key={i} className="w-[50vw] h-[300px] md:h-[400px] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 relative group">
+                        <div key={i} className="w-[70vw] md:w-[40vw] h-[220px] md:h-[400px] rounded-xl md:rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 relative group flex-shrink-0">
                             <img src={src} alt="showcase" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
                         </div>
                     ))}
                 </motion.div>
-                <motion.div style={{ x: x2 }} className="flex gap-8 w-[200vw] -ml-[50vw]">
+                <motion.div style={{ x: x2 }} className="flex gap-4 md:gap-8 w-[200vw] -ml-[50vw]">
                     {[...images].reverse().map((src, i) => (
-                         <div key={i} className="w-[50vw] h-[300px] md:h-[400px] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 relative group">
+                         <div key={i} className="w-[70vw] md:w-[40vw] h-[220px] md:h-[400px] rounded-xl md:rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 relative group flex-shrink-0">
                            <img src={src} alt="showcase" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
                        </div>
                     ))}

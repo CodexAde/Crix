@@ -45,19 +45,19 @@ export default function ScrollMorph() {
             backgroundColor="#ffffff" // Solid White
             zIndex={10}
         >
-             <div className="w-full h-full flex flex-col md:flex-row items-center justify-center p-8 md:p-20 gap-8 md:gap-16">
-                 <div className="flex-1 text-center md:text-left">
+             <div className="w-full h-full flex flex-col-reverse md:flex-row items-center justify-center p-8 md:p-20 gap-6 md:gap-16">
+                 <div className="text-center md:text-left md:flex-1">
                      <motion.span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block">
                          Control Center
                      </motion.span>
                      <h2 className="text-4xl md:text-6xl font-black text-black mb-6 tracking-tighter">
                          YOUR ENTIRE <br/> DEGREE. <br/> IN ONE VIEW.
                      </h2>
-                     <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-md">
+                     <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-md mx-auto md:mx-0">
                          Track current CGPA, attendance, and syllabus completion in real-time. No more spreadsheets.
                      </p>
                  </div>
-                 <div className="flex-1 w-full max-w-2xl relative">
+                 <div className="w-full max-w-2xl relative md:flex-1">
                      <img 
                         src="/dashboard.png" 
                         alt="Dashboard" 
@@ -74,8 +74,8 @@ export default function ScrollMorph() {
             backgroundColor="#18181b" // Zinc-900
             zIndex={20}
         >
-             <div className="w-full h-full flex flex-col-reverse md:flex-row items-center justify-center p-8 md:p-20 gap-8 md:gap-16">
-                 <div className="flex-1 w-full max-w-2xl relative">
+             <div className="w-full h-full flex flex-col md:flex-row items-center justify-center p-8 md:p-20 gap-6 md:gap-16">
+                 <div className="w-full max-w-2xl relative md:flex-1 order-1 md:order-none">
                      <div className="bg-zinc-800 w-full aspect-video rounded-xl shadow-2xl border border-zinc-700 flex items-center justify-center overflow-hidden">
                         {/* Placeholder or another image if available */}
                         <img 
@@ -85,14 +85,14 @@ export default function ScrollMorph() {
                         />
                      </div>
                  </div>
-                 <div className="flex-1 text-center md:text-left">
+                 <div className="text-center md:text-left md:flex-1 order-2 md:order-none">
                      <motion.span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block">
                          Smart Planning
                      </motion.span>
                      <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tighter">
                          AUTOMATED <br/> ROADMAPS.
                      </h2>
-                     <p className="text-zinc-400 text-lg md:text-xl font-medium max-w-md">
+                     <p className="text-zinc-400 text-lg md:text-xl font-medium max-w-md mx-auto md:mx-0">
                          From "I haven't started" to "I'm ready" in one click. We generate the schedule, you do the learning.
                      </p>
                  </div>
