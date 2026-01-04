@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.1.0] - 2026-01-04 (13:05 IST)
+### Landing Page Evolution ✨🚀
+- **Landing Page UI Revamp**: Complete redesign of the landing page with an iPhone-inspired layout, premium glassmorphism, and improved visual hierarchy.
+- **Scroll-Linked Interactions**: Introduced advanced scroll-based animations including layout morphing, depth transitions, and progressive content reveals for a more interactive experience.
+- **Enhanced Visual Flow**: Smoother section transitions, refined spacing, and improved typography for a more polished first impression.
+- **Performance Optimizations**: Optimized animations to remain smooth while maintaining high visual fidelity.
+
+---
+
 ## [3.0.0] - Major Update: Neural Evolution 🧠🔥
 > [!IMPORTANT]
 > **V3.0.0 is here!** This update brings massive AI capabilities and roadmap enhancements.
