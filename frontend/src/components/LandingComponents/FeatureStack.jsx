@@ -71,16 +71,37 @@ const Card = ({ i, title, description, color, img, range, targetScale }) => {
             </div>
         </div>
         
-        <div className="w-full md:w-[55%] h-full relative rounded-2xl overflow-hidden bg-black/20">
-            <motion.div style={{ scale: imageScale }} className="w-full h-full">
-                <img 
-                    src={img} 
-                    alt={title} 
-                    className="w-full h-full object-contain md:object-cover" 
-                    // Changed to object-contain for mobile to ensure no crop if aspect ratio differs, 
-                    // or object-cover for filling the space. User asked "kisi bhi scenario mein crop nhi hone chahiye".
-                    // object-contain ensures full image visible.
-                />
+        <div className="w-full md:w-[55%] h-full relative flex items-center justify-center perspective-1000">
+             {/* 3D Floating Card Container */}
+            <motion.div 
+                style={{ scale: imageScale }} 
+                animate={{ 
+                    y: [0, -10, 0],
+                    rotateY: -12,
+                    rotateX: 5,
+                }}
+                transition={{ 
+                    y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                    rotateY: { type: "spring", stiffness: 50 },
+                    rotateX: { type: "spring", stiffness: 50 }
+                }}
+                className="relative w-[90%] aspect-video rounded-xl bg-black border border-white/10 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] transform-style-3d group"
+            >
+                {/* Glossy Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent rounded-xl z-20 pointer-events-none mix-blend-overlay" />
+                
+                {/* Screen Content */}
+                <div className="absolute inset-1 bg-zinc-900 rounded-lg overflow-hidden">
+                    <img 
+                        src={img} 
+                        alt={title} 
+                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500" 
+                    />
+                </div>
+
+                {/* Depth Layers (Fake 3D thickness) */}
+                <div className="absolute inset-0 rounded-xl border-2 border-white/5 z-30" />
+                <div className="absolute -inset-2 bg-gradient-to-r from-red-500/20 to-blue-500/20 blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10" />
             </motion.div>
         </div>
       </motion.div>

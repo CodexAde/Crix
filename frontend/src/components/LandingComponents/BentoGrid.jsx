@@ -10,12 +10,8 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 
-const Card = ({ children, className, delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+const Card = ({ children, className }) => (
+  <div
     className={`
         relative overflow-hidden rounded-[32px] 
         bg-zinc-900/50 backdrop-blur-sm 
@@ -32,7 +28,7 @@ const Card = ({ children, className, delay = 0 }) => (
     <div className="absolute -inset-full top-0 block bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 group-hover:animate-shine" />
 
     {children}
-  </motion.div>
+  </div>
 );
 
 export default function BentoGrid() {
