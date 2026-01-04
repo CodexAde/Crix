@@ -15,8 +15,8 @@ export default function Showcase() {
         offset: ['start end', 'end start']
     });
 
-    const x1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
-    const x2 = useTransform(scrollYProgress, [0, 1], [0, 200]);
+    const x1 = useTransform(scrollYProgress, [0, 1], [0, -500]);
+    const x2 = useTransform(scrollYProgress, [0, 1], [0, 500]);
 
     return (
         <section id="showcase" ref={container} className="py-20 overflow-hidden bg-black">
@@ -29,14 +29,14 @@ export default function Showcase() {
                 <motion.div style={{ x: x1 }} className="flex gap-4 md:gap-8 w-[200vw]">
                     {images.map((src, i) => (
                         <div key={i} className="w-[70vw] md:w-[40vw] h-[220px] md:h-[400px] rounded-xl md:rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 relative group flex-shrink-0">
-                            <img src={src} alt="showcase" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                            <img src={src} alt="showcase" className="w-full h-full object-cover transition-opacity duration-500" />
                         </div>
                     ))}
                 </motion.div>
                 <motion.div style={{ x: x2 }} className="flex gap-4 md:gap-8 w-[200vw] -ml-[50vw]">
                     {[...images].reverse().map((src, i) => (
                          <div key={i} className="w-[70vw] md:w-[40vw] h-[220px] md:h-[400px] rounded-xl md:rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 relative group flex-shrink-0">
-                           <img src={src} alt="showcase" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                           <img src={src} alt="showcase" className="w-full h-full object-cover transition-opacity duration-500" />
                        </div>
                     ))}
                 </motion.div>
