@@ -462,19 +462,27 @@ export default function ChatInterface({ isRoadmap = false }) {
     window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareModal.content.slice(0, 200))}`, '_blank');
   };
 
-  const scrollToBottom = (behavior = "smooth") => {
-    // If behavior is an event object (from onClick), default to "smooth"
-    const scrollBehavior = typeof behavior === 'string' ? behavior : "smooth";
-    
-    if (chatAreaRef.current) {
-        chatAreaRef.current.scrollTo({
-            top: chatAreaRef.current.scrollHeight,
-            behavior: scrollBehavior
-        });
-    } else {
-        messagesEndRef.current?.scrollIntoView({ behavior: scrollBehavior, block: "end" });
-    }
-  };
+ const scrollToBottom = (behavior = "smooth") => {
+  const scrollBehavior = typeof behavior === "string" ? behavior : "smooth";
+
+  if (chatAreaRef.current) {
+    chatAreaRef.current.scrollTo({
+      top: chatAreaRef.current.scrollHeight + 50,
+      behavior: scrollBehavior,
+    });
+  } else {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: scrollBehavior,
+      block: "end",
+    });
+
+    window.scrollBy({
+      top: 50,
+      behavior: scrollBehavior,
+    });
+  }
+};
+
 
   const scrollToTop = (behavior = "smooth") => {
     const scrollBehavior = typeof behavior === 'string' ? behavior : "smooth";

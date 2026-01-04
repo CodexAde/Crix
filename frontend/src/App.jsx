@@ -60,6 +60,8 @@ import TestResult from './pages/TestResult';
 import TestAnalysis from './pages/TestAnalysis';
 import AdminDashboard from './pages/AdminDashboard';
 
+import ModernLanding from './pages/ModernLanding';
+
 function AppRoutes({ deferredPrompt, installApp }) {
   const { user, loading } = useAuth();
 
@@ -67,7 +69,7 @@ function AppRoutes({ deferredPrompt, installApp }) {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/install-app" replace /> : <Landing />} />
+      <Route path="/" element={user ? <Navigate to="/install-app" replace /> : <ModernLanding />} />
       <Route path="/install-app" element={user ? <InstallApp deferredPrompt={deferredPrompt} installApp={installApp} /> : <Navigate to="/login" />} />
       <Route path="/login" element={user ? <Navigate to="/install-app" replace /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/onboarding" /> : <Register />} />
