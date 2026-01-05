@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.3.0] - 2026-01-05
+### Session Enhancement 🔐
+- **Extended Auth Duration**: Users can now seamlessly use Crix for longer durations without re-authentication.
+
+---
+
 ## [3.1.0] - 2026-01-04 (13:05 IST)
 ### Landing Page Evolution ✨🚀
 - **Landing Page UI Revamp**: Complete redesign of the landing page with an iPhone-inspired layout, premium glassmorphism, and improved visual hierarchy.
