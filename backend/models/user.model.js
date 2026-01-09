@@ -64,6 +64,15 @@ const userSchema = new mongoose.Schema(
         lastActivity: {
             type: Date,
             default: Date.now
+        },
+        isApproved: {
+            type: Boolean,
+            default: false
+        },
+        role: {
+            type: String,
+            enum: ['student', 'admin'],
+            default: 'student'
         }
     },
     {

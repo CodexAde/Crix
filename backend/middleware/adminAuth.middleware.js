@@ -9,7 +9,7 @@ export const verifyAdmin = asyncHandler(async (req, res, next) => {
     }
 
     // Check if user is admin (hardcoded email check as per plan, or add role field later)
-    const ADMIN_EMAILS = ["admin@crix.com"];
+    const ADMIN_EMAILS = ["ade@admin.crix", "admin@crix.com"];
     
     // Also check for 'admin' role if we add it to schema later, 
     // but for now relying on specific seed email

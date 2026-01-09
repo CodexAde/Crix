@@ -10,7 +10,6 @@ const generateAccessAndRefresTokens = async (userId) => {
         const user = await User.findById(userId);
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
-
         user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
 
@@ -22,9 +21,9 @@ const generateAccessAndRefresTokens = async (userId) => {
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password, referralCode } = req.body;
+        const { name, email, password } = req.body;
 
-        if ([name, email, password, referralCode].some(field => field?.trim() === "")) {
+        if ([name, email, password].some(field => field?.trim() === "")) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -34,25 +33,13 @@ const registerUser = async (req, res) => {
             return res.status(409).json({ message: "User with email already exists" });
         }
 
-        // Validate Referral Code
-        const referral = await Referral.findOne({ code: referralCode.toUpperCase(), isUsed: false });
-        
-        if (!referral) {
-            return res.status(400).json({ message: "Invalid or already used referral code" });
-        }
-
         const user = await User.create({
             name,
             email,
             password,
-            referralCode: referralCode.toUpperCase(),
+            isApproved: false, // Default to false
             academicInfo: { isOnboarded: false } // Default
         });
-
-        // Mark referral code as used
-        referral.isUsed = true;
-        referral.usedBy = user._id;
-        await referral.save();
 
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
@@ -60,24 +47,10 @@ const registerUser = async (req, res) => {
             return res.status(500).json({ message: "Something went wrong while registering the user" });
         }
 
-        // Auto login after register
-        const { accessToken, refreshToken } = await generateAccessAndRefresTokens(createdUser._id);
-
-        const options = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        };
-
         return res.status(201)
-            .cookie("accessToken", accessToken, options)
-            .cookie("refreshToken", refreshToken, options)
             .json({
                 user: createdUser,
-                accessToken,
-                refreshToken,
-                message: "User registered Successfully"
+                message: "Registration successful. Your account is under review by admin."
             });
 
     } catch (error) {
@@ -103,6 +76,10 @@ const loginUser = async (req, res) => {
 
         if (!isPasswordValid) {
             return res.status(401).json({ message: "Invalid user credentials" });
+        }
+
+        if (!user.isApproved) {
+            return res.status(403).json({ message: "Account review pending. Please wait for admin approval." });
         }
 
         const { accessToken, refreshToken } = await generateAccessAndRefresTokens(user._id);
@@ -147,8 +124,7 @@ const logoutUser = async (req, res) => {
     const options = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-        maxAge: 30 * 24 * 60 * 60 * 1000
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax"
     };
 
     return res.status(200)
@@ -207,7 +183,7 @@ const getCurrentUser = async (req, res) => {
 
 const updateOnboardingDetails = async (req, res) => {
     try {
-        const { college, branch, year, gender, personaProfile, referralCode } = req.body;
+        const { college, branch, year, gender, personaProfile } = req.body;
         
         // Simple validation
         if(!branch || !year) {
@@ -218,26 +194,6 @@ const updateOnboardingDetails = async (req, res) => {
         
         if (!user) {
             return res.status(404).json({ message: "User not found" });
-        }
-
-        // ... (referral logic remains same) ...
-        if (!user.referralCode) {
-            if (!referralCode) {
-                return res.status(400).json({ message: "Referral code is required for registration" });
-            }
-
-            const referral = await Referral.findOne({ code: referralCode.toUpperCase(), isUsed: false });
-            
-            if (!referral) {
-                return res.status(400).json({ message: "Invalid or already used referral code" });
-            }
-
-            user.referralCode = referralCode.toUpperCase();
-            
-            // Mark referral code as used
-            referral.isUsed = true;
-            referral.usedBy = user._id;
-            await referral.save();
         }
 
         user.academicInfo = {

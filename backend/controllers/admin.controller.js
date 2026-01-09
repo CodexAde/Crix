@@ -3,6 +3,7 @@ import { ApiError } from "../utils/Constructors/ApiError.js";
 import { ApiResponse } from "../utils/Constructors/ApiResponse.js";
 import { PendingUpdate } from "../models/pendingUpdate.model.js";
 import { Subject } from "../models/syllabus.model.js";
+import { User } from "../models/user.model.js";
 
 const getPendingUpdates = asyncHandler(async (req, res) => {
     const updates = await PendingUpdate.find({ status: 'pending' })
@@ -87,8 +88,56 @@ const rejectUpdate = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, update, "Request rejected successfully"));
 });
 
+const getPendingUsers = asyncHandler(async (req, res) => {
+    const users = await User.find({ isApproved: false })
+        .select("-password -refreshToken")
+        .sort({ createdAt: -1 });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, users, "Pending user approvals fetched successfully"));
+});
+
+const approveUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (user.isApproved) {
+        throw new ApiError(400, "User is already approved");
+    }
+
+    user.isApproved = true;
+    await user.save({ validateBeforeSave: false });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "User approved successfully"));
+});
+
+const rejectUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    await User.findByIdAndDelete(id);
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, null, "User request rejected and deleted successfully"));
+});
+
 export {
     getPendingUpdates,
     approveUpdate,
-    rejectUpdate
+    rejectUpdate,
+    getPendingUsers,
+    approveUser,
+    rejectUser
 };

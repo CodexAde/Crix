@@ -70,7 +70,7 @@ export default function SubjectView() {
                 <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center mx-auto shadow-inner">
                     <BookOpen className="w-8 h-8 text-secondary/30" />
                 </div>
-                <p className="text-secondary font-medium">Bhai, subject nahi mila!</p>
+                <p className="text-secondary font-medium">Subject not found!</p>
                 <button
                     onClick={() => navigate('/syllabus')}
                     className="text-accent font-bold hover:underline"
@@ -137,7 +137,7 @@ export default function SubjectView() {
                                         Syllabus not added
                                     </h3>
                                     <p className="text-sm text-secondary/60 leading-relaxed">
-                                        Bhai, add this subject to start exploring and track progress.
+                                        Add this subject to start exploring and track progress.
                                     </p>
                                 </div>
 

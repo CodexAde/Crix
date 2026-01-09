@@ -19,7 +19,6 @@ export default function Onboarding() {
     branch: 'CSE',
     year: '1'
   });
-  const [referralCode, setReferralCode] = useState('');
 
   // Step 2: Persona JSON
   const [personaJson, setPersonaJson] = useState('');
@@ -27,12 +26,6 @@ export default function Onboarding() {
 
   const handleAcademicSubmit = (e) => {
     e.preventDefault();
-    if (!user?.referralCode) {
-        if (!referralCode || referralCode.length < 4) {
-            toast.error('Referral code required (minimum 4 characters)');
-            return;
-        }
-    }
     setStep(2);
   };
 
@@ -54,8 +47,7 @@ export default function Onboarding() {
         const payload = {
             ...academic,
             year: parseInt(academic.year),
-            personaProfile: parsedPersona,
-            referralCode: referralCode || undefined
+            personaProfile: parsedPersona
         };
 
         await axios.post('/users/onboarding', payload);
@@ -184,19 +176,6 @@ export default function Onboarding() {
                                 ))}
                              </div>
                         </div>
-                        {!user?.referralCode && (
-                            <div className="space-y-2">
-                                <label className="text-xs font-semibold ml-1" style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Referral Code</label>
-                                <Input 
-                                    value={referralCode} 
-                                    onChange={e => setReferralCode(e.target.value.toUpperCase())}
-                                    placeholder="Enter Referral Code"
-                                    required
-                                    className="border-none shadow-sm h-12 rounded-2xl"
-                                    style={{ backgroundColor: 'var(--bg-card)' }}
-                                />
-                            </div>
-                        )}
                     </div>
                     
                     <div className="flex justify-end pt-4">
@@ -271,7 +250,7 @@ export default function Onboarding() {
                                     </div>
                                     <div className="bg-accent/5 p-4 rounded-2xl border border-accent/10">
                                         <p className="text-[11px] font-medium leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                                            This helps the AI understand your language (English/Hindi), tone (casual/formal), and how you like to be taught (bhai style or straight to point).
+                                            This helps the AI understand your language (English/Hindi), tone (casual/formal), and how you like to be taught (conversational or straight to point).
                                         </p>
                                     </div>
                                 </motion.div>

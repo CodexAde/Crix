@@ -4,7 +4,10 @@ import { verifyAdmin } from "../middleware/adminAuth.middleware.js";
 import { 
     getPendingUpdates, 
     approveUpdate, 
-    rejectUpdate 
+    rejectUpdate,
+    getPendingUsers,
+    approveUser,
+    rejectUser
 } from "../controllers/admin.controller.js";
 
 const router = Router();
@@ -15,5 +18,9 @@ router.use(verifyJWT, verifyAdmin);
 router.route("/pending").get(getPendingUpdates);
 router.route("/approve/:id").post(approveUpdate);
 router.route("/reject/:id").post(rejectUpdate);
+
+router.route("/users/pending").get(getPendingUsers);
+router.route("/users/approve/:id").post(approveUser);
+router.route("/users/reject/:id").post(rejectUser);
 
 export default router;

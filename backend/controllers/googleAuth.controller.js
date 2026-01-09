@@ -44,12 +44,18 @@ export const googleAuthCallback = async (req, res) => {
         avatar: picture || "",
         password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Secure-ish random
         academicInfo: { isOnboarded: false },
-        personaProfile: null
+        personaProfile: null,
+        isApproved: false // Ensure new Google users are also pending approval
       });
     } else if (!user.avatar && picture) {
         // Update avatar if missing
         user.avatar = picture;
         await user.save({ validateBeforeSave: false });
+    }
+
+    // BLOCK LOGIN IF NOT APPROVED
+    if (!user.isApproved) {
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/pending-approval`);
     }
 
     // Generate our app's tokens
@@ -65,11 +71,6 @@ export const googleAuthCallback = async (req, res) => {
     };
 
     // Redirect to frontend
-    // If onboarding needed, go to /onboarding, else /dashboard
-    // But we will let the frontend decide based on user state? 
-    // We can't pass the user object easily in redirect param securely.
-    // So we just set cookie and redirect to a "loading" or "check-auth" page on frontend
-    
     res.cookie("accessToken", accessToken, options)
        .cookie("refreshToken", refreshToken, options)
        .redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`);

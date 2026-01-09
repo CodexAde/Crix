@@ -26,7 +26,6 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [referralCode, setReferralCode] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -35,9 +34,9 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      await register(name, email, password, referralCode);
-      toast.success('Account created! Let\'s set up your profile.');
-      navigate('/onboarding');
+      await register(name, email, password);
+      toast.success('Registration successful!');
+      navigate('/pending-approval');
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
@@ -88,15 +87,6 @@ export default function Register() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Input
-              type="text"
-              placeholder="Referral Code (Must be valid)"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
               required
             />
           </div>

@@ -21,7 +21,11 @@ export const AuthProvider = ({ children }) => {
       // Backend returns { data: userProfile, message: ... } via ApiResponse
       setUser(data.data);
     } catch (error) {
-      setUser(null);
+      if (error.response?.status === 403) {
+        setUser(null);
+      } else {
+        setUser(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -37,9 +41,9 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const register = async (name, email, password, referralCode) => {
-    const { data } = await axios.post('/users/register', { name, email, password, referralCode });
-    setUser(data.user);
+  const register = async (name, email, password) => {
+    const { data } = await axios.post('/users/register', { name, email, password });
+    // Don't setUser here as account is pending approval
     return data;
   };
 
