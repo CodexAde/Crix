@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
             name,
             email,
             password,
-            isApproved: false, // Default to false
+            isApproved: true, // Everyone is approved by default now
             academicInfo: { isOnboarded: false } // Default
         });
 
@@ -50,7 +50,7 @@ const registerUser = async (req, res) => {
         return res.status(201)
             .json({
                 user: createdUser,
-                message: "Registration successful. Your account is under review by admin."
+                message: "Registration successful. Welcome to Crix!"
             });
 
     } catch (error) {
@@ -78,9 +78,10 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ message: "Invalid user credentials" });
         }
 
-        if (!user.isApproved) {
-            return res.status(403).json({ message: "Account review pending. Please wait for admin approval." });
-        }
+        // Approval check removed
+        // if (!user.isApproved) {
+        //     return res.status(403).json({ message: "Account review pending. Please wait for admin approval." });
+        // }
 
         const { accessToken, refreshToken } = await generateAccessAndRefresTokens(user._id);
 

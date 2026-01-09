@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     const { data } = await axios.post('/users/register', { name, email, password });
-    // Don't setUser here as account is pending approval
+    setUser(data.user); // Login user immediately after registration
     return data;
   };
 

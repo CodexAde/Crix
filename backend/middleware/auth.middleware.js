@@ -16,9 +16,10 @@ export const verifyJWT = async (req, res, next) => {
             return res.status(401).json({ message: "Invalid Access Token" });
         }
 
-        if (!user.isApproved) {
-            return res.status(403).json({ message: "Account review pending. Please wait for admin approval." });
-        }
+        // Admin approval check removed to grant everyone access
+        // if (!user.isApproved) {
+        //     return res.status(403).json({ message: "Account review pending. Please wait for admin approval." });
+        // }
 
         req.user = user;
         next();

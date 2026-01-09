@@ -35,8 +35,8 @@ export default function Register() {
     setLoading(true);
     try {
       await register(name, email, password);
-      toast.success('Registration successful!');
-      navigate('/pending-approval');
+      toast.success('Registration successful! Welcome Bhai! 🔥');
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || 'Registration failed. Please try again.');

@@ -61,7 +61,7 @@ import TestAnalysis from './pages/TestAnalysis';
 import AdminDashboard from './pages/AdminDashboard';
 
 import ModernLanding from './pages/ModernLanding';
-import PendingApproval from './pages/PendingApproval';
+
 
 function AppRoutes({ deferredPrompt, installApp }) {
   const { user, loading } = useAuth();
@@ -74,7 +74,7 @@ function AppRoutes({ deferredPrompt, installApp }) {
       <Route path="/install-app" element={user ? <InstallApp deferredPrompt={deferredPrompt} installApp={installApp} /> : <Navigate to="/login" />} />
       <Route path="/login" element={user ? <Navigate to="/install-app" replace /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/onboarding" /> : <Register />} />
-      <Route path="/pending-approval" element={<PendingApproval />} />
+
       <Route path="/demo" element={<DemoShowcase />} />
       
       <Route path="/onboarding" element={

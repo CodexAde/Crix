@@ -45,7 +45,7 @@ export const googleAuthCallback = async (req, res) => {
         password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Secure-ish random
         academicInfo: { isOnboarded: false },
         personaProfile: null,
-        isApproved: false // Ensure new Google users are also pending approval
+        isApproved: true // Everyone is approved by default now
       });
     } else if (!user.avatar && picture) {
         // Update avatar if missing
@@ -53,10 +53,10 @@ export const googleAuthCallback = async (req, res) => {
         await user.save({ validateBeforeSave: false });
     }
 
-    // BLOCK LOGIN IF NOT APPROVED
-    if (!user.isApproved) {
-        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/pending-approval`);
-    }
+    // Approval check removed
+    // if (!user.isApproved) {
+    //     return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/pending-approval`);
+    // }
 
     // Generate our app's tokens
     const accessToken = user.generateAccessToken();
