@@ -61,6 +61,7 @@ import TestAnalysis from './pages/TestAnalysis';
 import AdminDashboard from './pages/AdminDashboard';
 
 import ModernLanding from './pages/ModernLanding';
+import Analytics from './pages/Analytics';
 
 
 function AppRoutes({ deferredPrompt, installApp }) {
@@ -121,6 +122,12 @@ function AppRoutes({ deferredPrompt, installApp }) {
       <Route path="/admin" element={
         <ProtectedRoute>
             <AdminDashboard />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/admin/analytics" element={
+        <ProtectedRoute>
+            <Analytics />
         </ProtectedRoute>
       } />
       

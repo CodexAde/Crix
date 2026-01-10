@@ -1,8 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/user.model.js';
-import { generateAccessAndRefresTokens } from './user.controller.js'; // Need to export this from user.controller or duplicate
-// I'll duplicate the token generation logic for safety/simplicity here to avoid circular dep issues on export/import if not careful
-// Or better, I will export it from user.controller.js in my next step.
+import { cookieOptions } from './user.controller.js';
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -64,15 +62,9 @@ export const googleAuthCallback = async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax"
-    };
-
     // Redirect to frontend
-    res.cookie("accessToken", accessToken, options)
-       .cookie("refreshToken", refreshToken, options)
+    res.cookie("accessToken", accessToken, cookieOptions)
+       .cookie("refreshToken", refreshToken, cookieOptions)
        .redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`);
 
   } catch (error) {

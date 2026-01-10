@@ -5,6 +5,19 @@ import { ApiError } from "../utils/Constructors/ApiError.js";
 import { ApiResponse } from "../utils/Constructors/ApiResponse.js";
 import mongoose from "mongoose";
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    maxAge: 30 * 24 * 60 * 60 * 1000
+};
+
+const logoutCookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax"
+};
+
 const generateAccessAndRefresTokens = async (userId) => {
     try {
         const user = await User.findById(userId);
@@ -41,6 +54,8 @@ const registerUser = async (req, res) => {
             academicInfo: { isOnboarded: false } // Default
         });
 
+        const { accessToken, refreshToken } = await generateAccessAndRefresTokens(user._id);
+
         const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
         if (!createdUser) {
@@ -48,8 +63,12 @@ const registerUser = async (req, res) => {
         }
 
         return res.status(201)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", refreshToken, cookieOptions)
             .json({
                 user: createdUser,
+                accessToken,
+                refreshToken,
                 message: "Registration successful. Welcome to Crix!"
             });
 
@@ -87,16 +106,9 @@ const loginUser = async (req, res) => {
 
         const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
-        const options = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-            maxAge: 30 * 24 * 60 * 60 * 1000
-        };
-
         return res.status(200)
-            .cookie("accessToken", accessToken, options)
-            .cookie("refreshToken", refreshToken, options)
+            .cookie("accessToken", accessToken, cookieOptions)
+            .cookie("refreshToken", refreshToken, cookieOptions)
             .json({
                 user: loggedInUser,
                 accessToken,
@@ -122,15 +134,9 @@ const logoutUser = async (req, res) => {
         }
     );
 
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax"
-    };
-
     return res.status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
+        .clearCookie("accessToken", logoutCookieOptions)
+        .clearCookie("refreshToken", logoutCookieOptions)
         .json({ message: "User logged out" });
 };
 
@@ -273,12 +279,13 @@ export {
     getCurrentUser, 
     updateOnboardingDetails,
     updateUserProfile,
-    generateAccessAndRefresTokens,
     addUserSubject,
     getUserSubjects,
     reorderSubjects,
     getUserProfile,
-    getFullUserProfile
+    getFullUserProfile,
+    generateAccessAndRefresTokens,
+    cookieOptions
 };
 
 const getUserProfile = asyncHandler(async (req, res) => {
